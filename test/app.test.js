@@ -71,8 +71,8 @@ test('renderiza correo y redes sociales sin el enlace de marca en contacto', () 
     assert.equal(document.querySelector('#cta-container').textContent.includes('Síguenos en:'), false);
 
     const footer = document.querySelector('#footer-container');
-    assert.equal(footer.querySelector('img[alt="Logo de ForgeLook"]'), null);
-    assert.equal(footer.querySelector('a[aria-label="Ir al inicio de ForgeLook"]'), null);
+    assert.equal(footer.querySelector('img[alt="Logo de ForgeLock"]'), null);
+    assert.equal(footer.querySelector('a[aria-label="Ir al inicio de ForgeLock"]'), null);
     assert.equal(footer.textContent.includes('Síguenos en'), true);
     assert.equal(footer.querySelectorAll('a[aria-label="Facebook"], a[aria-label="Instagram"], a[aria-label="X"], a[aria-label="TikTok"]').length, 4);
     footer.querySelectorAll('a[aria-label="Facebook"], a[aria-label="Instagram"], a[aria-label="X"], a[aria-label="TikTok"]').forEach((link) => {
@@ -84,6 +84,6 @@ test('renderiza correo y redes sociales sin el enlace de marca en contacto', () 
     assert.equal(footer.querySelector('a[aria-label="X"]').getAttribute('href'), 'https://x.com/forgelock');
     assert.equal(footer.querySelector('a[aria-label="TikTok"]').getAttribute('href'), 'https://www.tiktok.com/@forge.lock');
     assert.ok(footer.querySelector('a[href^="https://wa.me/573043402589"]'));
-    assert.equal(footer.querySelector('a[aria-label="Contactar a ForgeLook por WhatsApp"]').target, '_blank');
-    assert.equal(footer.querySelector('a[aria-label="Enviar correo a ForgeLook"]').getAttribute('href').startsWith('mailto:forge.look19@gmail.com'), true);
+    assert.equal(footer.querySelector('a[aria-label="Contactar a ForgeLock por WhatsApp"]').target, '_blank');
+    assert.equal(footer.querySelector('a[aria-label="Enviar correo a ForgeLock"]').getAttribute('href').startsWith('mailto:forge.look19@gmail.com'), true);
 });
