@@ -60,7 +60,7 @@ export const IdeaController = {
             }
         } catch (error) {
             console.error('Error generando propuesta:', error);
-            IdeaGeneratorView.showError('No pudimos generar la propuesta en este momento. Puedes intentarlo nuevamente o contactar directamente con ForgeLook por WhatsApp.');
+            IdeaGeneratorView.showError('No pudimos generar la propuesta en este momento. Puedes intentarlo nuevamente o contactar directamente con ForgeLock por WhatsApp.');
         } finally {
             IdeaGeneratorView.showLoading(false);
         }
