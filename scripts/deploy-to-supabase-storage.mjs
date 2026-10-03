@@ -4,10 +4,10 @@
 // Variables de entorno requeridas:
 //   SUPABASE_URL              -> URL del proyecto, ej. https://xxxx.supabase.co
 //   SUPABASE_SERVICE_ROLE_KEY -> service role key (NUNCA la publiques ni la subas al repo)
-//   SUPABASE_BUCKET           -> nombre del bucket destino (por defecto: "forge-look-site")
+//   SUPABASE_BUCKET           -> nombre del bucket destino (por defecto: "forge-lock-site")
 //
 // Uso local:
-//   SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... SUPABASE_BUCKET=forge-look-site node scripts/deploy-to-supabase-storage.mjs
+//   SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... SUPABASE_BUCKET=forge-lock-site node scripts/deploy-to-supabase-storage.mjs
 //
 // En GitHub Actions estas variables se pasan como Secrets (ver .github/workflows/deploy-supabase.yml).
 
@@ -22,7 +22,7 @@ const distDir = join(root, 'dist');
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const SUPABASE_BUCKET = process.env.SUPABASE_BUCKET || 'forge-look-site';
+const SUPABASE_BUCKET = process.env.SUPABASE_BUCKET || 'forge-lock-site';
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
     console.error('Faltan SUPABASE_URL y/o SUPABASE_SERVICE_ROLE_KEY en el entorno.');

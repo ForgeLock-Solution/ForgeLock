@@ -20,7 +20,7 @@ export const AppModel = {
     ],
     socialLinks: [
         { name: 'Facebook', href: 'https://www.facebook.com/profile.php?id=61594009876448', icon: 'fa-brands fa-facebook-f' },
-        { name: 'Instagram', href: 'https://www.instagram.com/forgelook/', icon: 'fa-brands fa-instagram' },
+        { name: 'Instagram', href: 'https://www.instagram.com/forgelock/', icon: 'fa-brands fa-instagram' },
         { name: 'X', href: 'https://x.com/forgelock', icon: 'fa-brands fa-x-twitter' },
         { name: 'TikTok', href: 'https://www.tiktok.com/@forge.lock', icon: 'fa-brands fa-tiktok' }
     ],

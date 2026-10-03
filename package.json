@@ -1,9 +1,9 @@
 {
-  "name": "forge-look-mvc",
+  "name": "forgelock-mvc",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Landing page de ForgeLook con arquitectura MVC en JavaScript vanilla.",
+  "description": "Landing page de ForgeLock con arquitectura MVC en JavaScript vanilla.",
   "engines": {
     "node": ">=20 <25"
   },

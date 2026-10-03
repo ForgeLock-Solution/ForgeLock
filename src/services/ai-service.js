@@ -17,7 +17,7 @@ export const AIService = {
             throw new Error('DESCRIPCION_CORTA');
         }
 
-        const endpoint = globalThis.window?.__FORGELOOK_AI_ENDPOINT || DEFAULT_AI_ENDPOINT;
+        const endpoint = globalThis.window?.__FORGELOCK_AI_ENDPOINT || DEFAULT_AI_ENDPOINT;
         try {
             const response = await fetch(endpoint, {
                 method: 'POST',
@@ -92,7 +92,7 @@ export const AIService = {
     },
 
     getWhatsAppLink(originalIdea, proposal, phoneNumber) {
-        const message = `Hola ForgeLook 👋\nQuiero solicitar informacion para crear una pagina web.\n\n📌 Mi negocio: ${proposal.businessName}\n🏷️ Sector: ${proposal.sector}\n🎯 Objetivo: ${proposal.objective}\n👥 Publico: ${proposal.targetAudience}\n🎨 Estilo: ${proposal.visualStyle}\n🎨 Colores: ${proposal.colorsSuggested}\n\n📑 Secciones sugeridas:\n${proposal.pageStructure.map((item) => `• ${item}`).join('\n')}\n\n⚙️ Funcionalidades:\n${proposal.functionalities.map((item) => `• ${item}`).join('\n')}\n\n📣 Llamado a la accion: ${proposal.callToAction}\n💡 Idea original:\n"${originalIdea}"\n\n🤖 Propuesta generada:\n${proposal.objective} ${proposal.pendingInfo}\n\nMe gustaria conocer el proceso, precio y tiempo de desarrollo.`;
+        const message = `Hola ForgeLock 👋\nQuiero solicitar informacion para crear una pagina web.\n\n📌 Mi negocio: ${proposal.businessName}\n🏷️ Sector: ${proposal.sector}\n🎯 Objetivo: ${proposal.objective}\n👥 Publico: ${proposal.targetAudience}\n🎨 Estilo: ${proposal.visualStyle}\n🎨 Colores: ${proposal.colorsSuggested}\n\n📑 Secciones sugeridas:\n${proposal.pageStructure.map((item) => `• ${item}`).join('\n')}\n\n⚙️ Funcionalidades:\n${proposal.functionalities.map((item) => `• ${item}`).join('\n')}\n\n📣 Llamado a la accion: ${proposal.callToAction}\n💡 Idea original:\n"${originalIdea}"\n\n🤖 Propuesta generada:\n${proposal.objective} ${proposal.pendingInfo}\n\nMe gustaria conocer el proceso, precio y tiempo de desarrollo.`;
         return `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     }
 };
