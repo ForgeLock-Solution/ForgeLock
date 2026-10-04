@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://forgelook19.github.io/ForgeLock/sitemap.xml
+Sitemap: https://forgelock-solution.github.io/ForgeLock/sitemap.xml
