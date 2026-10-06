@@ -17,7 +17,7 @@ export const AIService = {
             throw new Error('DESCRIPCION_CORTA');
         }
 
-        const endpoint = globalThis.window?.__FORGELOOK_AI_ENDPOINT || DEFAULT_AI_ENDPOINT;
+        const endpoint = globalThis.window?.__FORGELOCK_AI_ENDPOINT || DEFAULT_AI_ENDPOINT;
         try {
             const response = await fetch(endpoint, {
                 method: 'POST',

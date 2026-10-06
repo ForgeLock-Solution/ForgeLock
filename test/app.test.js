@@ -80,7 +80,7 @@ test('renderiza correo y redes sociales sin el enlace de marca en contacto', () 
         assert.equal(link.rel, 'noopener noreferrer');
     });
     assert.equal(footer.querySelector('a[aria-label="Facebook"]').getAttribute('href'), 'https://www.facebook.com/profile.php?id=61594009876448');
-    assert.equal(footer.querySelector('a[aria-label="Instagram"]').getAttribute('href'), 'https://www.instagram.com/forgelook/');
+    assert.equal(footer.querySelector('a[aria-label="Instagram"]').getAttribute('href'), 'https://www.instagram.com/forgelock/');
     assert.equal(footer.querySelector('a[aria-label="X"]').getAttribute('href'), 'https://x.com/forgelock');
     assert.equal(footer.querySelector('a[aria-label="TikTok"]').getAttribute('href'), 'https://www.tiktok.com/@forge.lock');
     assert.ok(footer.querySelector('a[href^="https://wa.me/573043402589"]'));

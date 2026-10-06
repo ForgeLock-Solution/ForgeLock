@@ -1,5 +1,4 @@
 "# ForgeLock"
-"# forge_look" 
 # ForgeLock
 
 Landing estática de servicios tecnológicos para emprendedores, negocios y pequeñas empresas.
