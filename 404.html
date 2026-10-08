@@ -9,89 +9,50 @@
     <title>404 | Página no encontrada — ForgeLock</title>
     <link rel="icon" type="image/png" sizes="32x32" href="./resource/favicon-32.png">
     <style>
-        :root {
-            color-scheme: dark;
-            --bg: #020617;
-            --panel: #0f172a;
-            --border: #1e293b;
-            --text: #f8fafc;
-            --muted: #94a3b8;
-            --accent: #22c55e;
-        }
-        * { box-sizing: border-box; }
-        body {
-            margin: 0;
-            min-height: 100vh;
-            display: grid;
-            place-items: center;
-            padding: 24px;
-            background: radial-gradient(circle at top, #0f172a 0%, var(--bg) 55%);
-            color: var(--text);
-            font-family: Arial, Helvetica, sans-serif;
-        }
-        main {
-            width: min(680px, 100%);
-            padding: 42px 32px;
-            text-align: center;
-            background: rgba(15, 23, 42, .88);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-        }
-        .code {
-            margin: 0;
-            font-size: clamp(72px, 18vw, 140px);
-            line-height: .9;
-            font-weight: 800;
-            letter-spacing: -0.06em;
-        }
-        h1 { margin: 22px 0 12px; font-size: clamp(26px, 5vw, 38px); }
-        p { margin: 0 auto 24px; max-width: 520px; color: var(--muted); line-height: 1.6; }
-        a {
-            display: inline-block;
-            padding: 13px 22px;
-            border-radius: 10px;
-            background: var(--accent);
-            color: #020617;
-            font-weight: 700;
-            text-decoration: none;
-        }
-        a:hover { filter: brightness(1.08); }
-        .path {
-            margin-top: 22px;
-            font-size: 13px;
-            color: #64748b;
-            overflow-wrap: anywhere;
-        }
+        :root{color-scheme:dark;--bg:#020617;--panel:#0f172a;--border:#1e293b;--text:#f8fafc;--muted:#94a3b8;--accent:#22c55e}
+        *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at top,#0f172a 0%,var(--bg) 55%);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+        main{width:min(680px,100%);padding:42px 32px;text-align:center;background:rgba(15,23,42,.88);border:1px solid var(--border);border-radius:20px}
+        .code{margin:0;font-size:clamp(72px,18vw,140px);line-height:.9;font-weight:800;letter-spacing:-.06em}
+        h1{margin:22px 0 12px;font-size:clamp(26px,5vw,38px)}p{margin:0 auto 24px;max-width:520px;color:var(--muted);line-height:1.6}
+        a{display:inline-block;padding:13px 22px;border-radius:10px;background:var(--accent);color:#020617;font-weight:700;text-decoration:none}
+        a:hover{filter:brightness(1.08)}.secondary{margin-top:18px}.secondary a{background:transparent;color:#4ade80;border:1px solid #334155}.path{margin-top:22px;font-size:13px;color:#64748b;overflow-wrap:anywhere}
     </style>
 </head>
 <body>
-    <main>
-        <p class="code" aria-hidden="true">404</p>
-        <h1>Esta página no existe</h1>
-        <p>
-            La dirección que intentaste abrir no fue encontrada.
-            Puedes volver al inicio de ForgeLock y continuar navegando.
-        </p>
-        <a href="./">Volver al inicio</a><div style="margin-top:18px"><a href="https://wa.me/573043402589?text=Hola%20ForgeLock%2C%20encontr%C3%A9%20un%20enlace%20roto%20en%20el%20sitio." style="background:transparent;color:#4ade80;border:1px solid #334155">Reportar enlace / Contactar</a></div>
-        <p id="requested-path" class="path"></p>
-    </main>
+<main>
+    <p class="code" aria-hidden="true">404</p>
+    <h1>Esta página no existe</h1>
+    <p>La dirección que intentaste abrir no fue encontrada. Puedes volver al inicio de ForgeLock y continuar navegando.</p>
+    <a href="./">Volver al inicio</a>
+    <div class="secondary"><a href="https://wa.me/573043402589?text=Hola%20ForgeLock%2C%20encontr%C3%A9%20un%20enlace%20roto%20en%20el%20sitio.">Reportar enlace / Contactar</a></div>
+    <p id="requested-path" class="path"></p>
+</main>
+<script>
+(function () {
+    document.getElementById('requested-path').textContent = 'Ruta solicitada: ' + window.location.pathname;
+    var key = 'forgelock_analytics_consent';
+    var analyticsId = 'G-2TM3PHXG24';
 
-    <script>
-        // Muestra la ruta que generó el 404 para facilitar la detección de enlaces rotos.
-        document.getElementById('requested-path').textContent =
-            'Ruta solicitada: ' + window.location.pathname;
-
-        // Registra los 404 en Google Analytics si gtag está disponible.
+    function loadAnalytics() {
+        if (window.__FORGELOCK_GA_LOADED) return;
+        window.__FORGELOCK_GA_LOADED = true;
         window.dataLayer = window.dataLayer || [];
-        function gtag(){ dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-2TM3PHXG24');
-        gtag('event', 'page_not_found', {
+        window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
+        var script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(analyticsId);
+        document.head.appendChild(script);
+        window.gtag('js', new Date());
+        window.gtag('config', analyticsId);
+        window.gtag('event', 'page_not_found', {
             page_path: window.location.pathname,
             page_location: window.location.href,
             page_title: '404 | Página no encontrada — ForgeLock'
         });
-    </script>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-2TM3PHXG24"></script>
+    }
+
+    if (localStorage.getItem(key) === 'accepted') loadAnalytics();
+})();
+</script>
 </body>
 </html>

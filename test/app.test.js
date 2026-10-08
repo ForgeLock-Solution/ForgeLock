@@ -55,10 +55,7 @@ test('los selectores de solución usan la transición declarada', () => {
     assert.ok(document.querySelector('[data-banner]').classList.contains('solution-card-transition'));
 });
 
-test('renderiza correo y redes sociales sin el enlace de marca en contacto', () => {
-    const emailLinks = [...document.querySelectorAll('a[href^="mailto:"]')];
-    assert.ok(emailLinks.some((link) => link.getAttribute('href') === 'mailto:forge.look19@gmail.com'));
-
+test('renderiza redes sociales y contacto sin correo no verificado', () => {
     const facebookLinks = [...document.querySelectorAll('a[href="https://www.facebook.com/profile.php?id=61594009876448"]')];
     assert.equal(facebookLinks.length, 1);
     facebookLinks.forEach((link) => {
@@ -85,5 +82,5 @@ test('renderiza correo y redes sociales sin el enlace de marca en contacto', () 
     assert.equal(footer.querySelector('a[aria-label="TikTok"]').getAttribute('href'), 'https://www.tiktok.com/@forge.lock');
     assert.ok(footer.querySelector('a[href^="https://wa.me/573043402589"]'));
     assert.equal(footer.querySelector('a[aria-label="Contactar a ForgeLock por WhatsApp"]').target, '_blank');
-    assert.equal(footer.querySelector('a[aria-label="Enviar correo a ForgeLock"]').getAttribute('href').startsWith('mailto:forge.look19@gmail.com'), true);
+    assert.equal(footer.querySelector('a[aria-label="Enviar correo a ForgeLock"]'), null);
 });
