@@ -17,6 +17,11 @@ await mkdir(output, { recursive: true });
 await cp(join(root, 'index.html'), join(output, 'index.html'));
 await cp(join(root, 'robots.txt'), join(output, 'robots.txt'));
 await cp(join(root, 'sitemap.xml'), join(output, 'sitemap.xml'));
+await cp(join(root, '404.html'), join(output, '404.html'));
+await cp(join(root, 'aviso-legal.html'), join(output, 'aviso-legal.html'));
+await cp(join(root, 'politica-privacidad.html'), join(output, 'politica-privacidad.html'));
+await cp(join(root, 'politica-cookies.html'), join(output, 'politica-cookies.html'));
+await cp(join(root, 'resource'), join(output, 'resource'), { recursive: true });
 
 // Copia solo los módulos y recursos que utiliza el navegador; no se filtran
 // herramientas de desarrollo ni el archivo fuente de compilación de Tailwind.
