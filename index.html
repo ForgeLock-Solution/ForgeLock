@@ -1,26 +1,33 @@
 <!doctype html>
 <html lang="es" class="scroll-smooth">
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-2TM3PHXG24"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-2TM3PHXG24');
+        window.__FORGELOCK_ANALYTICS_ID = 'G-2TM3PHXG24';
+        window.__FORGELOCK_LOAD_ANALYTICS = function () {
+            if (window.__FORGELOCK_GA_LOADED) return;
+            window.__FORGELOCK_GA_LOADED = true;
+            var script = document.createElement('script');
+            script.async = true;
+            script.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(window.__FORGELOCK_ANALYTICS_ID);
+            document.head.appendChild(script);
+            gtag('js', new Date());
+            gtag('config', window.__FORGELOCK_ANALYTICS_ID);
+        };
     </script>
     <meta name="google-site-verification" content="peYxRjV0Snt4fmiTcjCgkCfvDrTBws3qGUMy8vJVwjQ" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Diseñamos páginas web, catálogos digitales, branding y soluciones visuales para emprendedores y negocios que quieren mejorar su presencia digital.">
+    <meta name="description" content="Diseñamos páginas web, catálogos digitales, branding y soluciones digitales para emprendedores y pequeñas empresas que quieren captar clientes.">
     <meta name="author" content="ForgeLock">
     <meta name="robots" content="index,follow,max-image-preview:large">
     <meta property="og:site_name" content="ForgeLock">
     <meta property="og:type" content="website">
     <meta property="og:title" content="ForgeLock | Páginas web, catálogos digitales y branding para negocios">
-    <meta property="og:description" content="Diseñamos páginas web, catálogos digitales, branding y soluciones visuales para negocios que quieren destacar.">
+    <meta property="og:description" content="Diseñamos páginas web, catálogos digitales, branding y soluciones digitales para negocios que quieren destacar y convertir visitas en oportunidades.">
     <meta property="og:url" content="https://forgelock-solution.github.io/ForgeLock/">
-    <meta property="og:image" content="https://forgelock-solution.github.io/ForgeLock/resource/forgelock-social-preview.png">
+    <meta property="og:image" content="https://forgelock-solution.github.io/ForgeLock/resource/forgelock-social-preview.jpg.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:type" content="image/png">
@@ -28,9 +35,11 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="ForgeLock | Páginas web, catálogos digitales y branding para negocios">
     <meta name="twitter:description" content="Diseñamos páginas web, catálogos digitales, branding y soluciones visuales para negocios que quieren destacar.">
-    <meta name="twitter:image" content="https://forgelock-solution.github.io/ForgeLock/resource/forgelock-social-preview.png">
+    <meta name="twitter:image" content="https://forgelock-solution.github.io/ForgeLock/resource/forgelock-social-preview.jpg.png">
     <meta name="twitter:image:alt" content="ForgeLock - Seguridad que construye">
     <link rel="canonical" href="https://forgelock-solution.github.io/ForgeLock/">
+    <link rel="alternate" hreflang="es" href="https://forgelock-solution.github.io/ForgeLock/">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"ForgeLock","url":"https://forgelock-solution.github.io/ForgeLock/","description":"Soluciones digitales para emprendedores y pequeños negocios."}</script>
     <link rel="icon" type="image/png" sizes="48x48" href="./resource/favicon-48.png">
     <link rel="icon" type="image/png" sizes="32x32" href="./resource/favicon-32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="./resource/favicon-16.png">
@@ -84,5 +93,9 @@
     </noscript>
     <!-- Punto de entrada: el controlador inicia la aplicación MVC. -->
     <script type="module" src="./src/controllers/app-controller.js"></script>
+<div id="cookie-consent" class="hidden fixed bottom-0 inset-x-0 z-[100] p-4 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 shadow-2xl" role="dialog" aria-label="Preferencias de cookies"><div class="max-w-7xl mx-auto flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between"><div class="text-sm text-slate-300 max-w-3xl"><strong class="text-white">Privacidad y analítica.</strong> La analítica es opcional. Puedes aceptar o rechazarla. <a class="text-brand-400 underline" href="./politica-cookies.html">Ver política de cookies</a>.</div><div class="flex gap-2 shrink-0"><button id="cookie-reject" type="button" class="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-200 font-semibold">Rechazar</button><button id="cookie-accept" type="button" class="px-4 py-2.5 rounded-xl bg-brand-500 text-slate-950 font-bold">Aceptar analítica</button></div></div></div>
+<script>
+(function(){var k='forgelock_analytics_consent',b=document.getElementById('cookie-consent'),c=localStorage.getItem(k);if(c==='accepted')window.__FORGELOCK_LOAD_ANALYTICS();if(!c)b.classList.remove('hidden');document.getElementById('cookie-accept').onclick=function(){localStorage.setItem(k,'accepted');b.classList.add('hidden');window.__FORGELOCK_LOAD_ANALYTICS()};document.getElementById('cookie-reject').onclick=function(){localStorage.setItem(k,'rejected');b.classList.add('hidden')}})();
+</script>
 </body>
 </html>
