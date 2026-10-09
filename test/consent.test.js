@@ -56,3 +56,9 @@ test('la página de servicios también solicita consentimiento y bloquea eventos
     assert.doesNotMatch(servicesHtml, /<script[^>]+src=["']https:\/\/www\.googletagmanager\.com\/gtm\.js/);
     assert.match(analyticsSource, /hasAnalyticsConsent/);
 });
+
+
+test('la elección de cookies no muestra un botón de preferencias después de responder', () => {
+    assert.doesNotMatch(html, /id=["']cookie-settings["']/);
+    assert.doesNotMatch(html, /Preferencias de cookies/);
+});
