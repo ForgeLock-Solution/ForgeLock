@@ -127,7 +127,43 @@
     <script type="module" src="./src/controllers/app-controller.js"></script>
 <div id="cookie-consent" class="hidden fixed bottom-0 inset-x-0 z-[100] p-4 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 shadow-2xl" role="dialog" aria-label="Preferencias de cookies"><div class="max-w-7xl mx-auto flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between"><div class="text-sm text-slate-300 max-w-3xl"><strong class="text-white">Privacidad y analítica.</strong> La analítica es opcional. Puedes aceptar o rechazarla. <a class="text-brand-400 underline" href="./politica-cookies.html">Ver política de cookies</a>.</div><div class="flex gap-2 shrink-0"><button id="cookie-reject" type="button" class="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-200 font-semibold">Rechazar</button><button id="cookie-accept" type="button" class="px-4 py-2.5 rounded-xl bg-brand-500 text-slate-950 font-bold">Aceptar analítica</button></div></div></div>
 <script>
-(function(){var k='forgelock_analytics_consent',b=document.getElementById('cookie-consent'),c=localStorage.getItem(k);if(c==='accepted')window.__FORGELOCK_LOAD_ANALYTICS();if(!c)b.classList.remove('hidden');document.getElementById('cookie-accept').onclick=function(){localStorage.setItem(k,'accepted');b.classList.add('hidden');window.__FORGELOCK_LOAD_ANALYTICS()};document.getElementById('cookie-reject').onclick=function(){localStorage.setItem(k,'rejected');b.classList.add('hidden')}})();
+(function () {
+    var key = 'forgelock_analytics_consent';
+    var banner = document.getElementById('cookie-consent');
+    var choice = null;
+
+    // El sitio debe seguir siendo usable aunque el navegador bloquee el almacenamiento.
+    try {
+        choice = window.localStorage.getItem(key);
+    } catch (error) {
+        choice = null;
+    }
+
+    function saveChoice(value) {
+        try {
+            window.localStorage.setItem(key, value);
+        } catch (error) {
+            // La decisión se aplica durante esta visita aunque no pueda persistirse.
+        }
+    }
+
+    if (choice === 'accepted') {
+        window.__FORGELOCK_LOAD_ANALYTICS();
+    } else if (choice !== 'rejected') {
+        banner.classList.remove('hidden');
+    }
+
+    document.getElementById('cookie-accept').onclick = function () {
+        saveChoice('accepted');
+        banner.classList.add('hidden');
+        window.__FORGELOCK_LOAD_ANALYTICS();
+    };
+
+    document.getElementById('cookie-reject').onclick = function () {
+        saveChoice('rejected');
+        banner.classList.add('hidden');
+    };
+})();
 </script>
 </body>
 </html>
