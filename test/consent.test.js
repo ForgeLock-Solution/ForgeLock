@@ -62,3 +62,12 @@ test('la elección de cookies no muestra un botón de preferencias después de r
     assert.doesNotMatch(html, /id=["']cookie-settings["']/);
     assert.doesNotMatch(html, /id=["']cookie-settings["']/);
 });
+
+
+test('la página de servicios define un evento GA4 específico para sus informes', async () => {
+    const servicesHtml = await readFile(new URL('../servicios.html', import.meta.url), 'utf8');
+    assert.match(servicesHtml, /view_services_page/);
+    assert.match(servicesHtml, /page_type:\s*'services'/);
+    assert.match(servicesHtml, /send_page_view:\s*true/);
+    assert.match(servicesHtml, /whatsapp_click/);
+});
