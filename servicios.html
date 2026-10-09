@@ -158,19 +158,9 @@
     @media (prefers-reduced-motion:no-preference) { .service-card { transition:transform .2s ease, box-shadow .2s ease; } .service-card:hover { transform:translateY(-4px); box-shadow:0 18px 35px rgba(15,23,42,.09); } }
   </style>
     <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-WJMDTTWM');</script>
     <!-- End Google Tag Manager -->
 </head>
-<body class="bg-white text-slate-900 font-sans antialiased">
-    <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WJMDTTWM"
-    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
-  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200">
+<body class="bg-white text-slate-900 font-sans antialiased"><header class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
       <a href="./index.html#inicio" class="flex items-center gap-3" aria-label="ForgeLock, volver al inicio">
         <img src="./resource/favicon-48.png" alt="ForgeLock" width="40" height="40" class="w-10 h-10 object-contain">
@@ -281,5 +271,73 @@
     });
     document.getElementById('year').textContent = new Date().getFullYear();
   </script>
+
+  <div id="cookie-settings" class="hidden fixed bottom-4 left-4 z-[90] px-4 py-3 rounded-xl bg-brand-500 text-slate-950 font-bold text-sm shadow-lg" role="button" tabindex="0" aria-controls="cookie-consent">Preferencias de cookies</div>
+  <div id="cookie-consent" class="hidden fixed bottom-0 inset-x-0 z-[100] p-4 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 shadow-2xl" role="dialog" aria-label="Preferencias de cookies">
+    <div class="max-w-7xl mx-auto flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
+      <div class="text-sm text-slate-300 max-w-3xl"><strong class="text-white">Privacidad y analítica.</strong> La analítica es opcional. Puedes aceptar o rechazarla. <a class="text-brand-400 underline" href="./politica-cookies.html">Ver política de cookies</a>.</div>
+      <div class="flex gap-2 shrink-0"><button id="cookie-reject" type="button" class="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-200 font-semibold">Rechazar</button><button id="cookie-accept" type="button" class="px-4 py-2.5 rounded-xl bg-brand-500 text-slate-950 font-bold">Aceptar analítica</button></div>
+    </div>
+  </div>
+  <script type="module">
+    import { AnalyticsService } from './src/services/analytics-service.js';
+    AnalyticsService.init();
+  </script>
+  <script>
+  (function () {
+    var key = 'forgelock_analytics_consent';
+    var banner = document.getElementById('cookie-consent');
+    var settings = document.getElementById('cookie-settings');
+    var accept = document.getElementById('cookie-accept');
+    var reject = document.getElementById('cookie-reject');
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
+    window.__FORGELOCK_ANALYTICS_ID = 'G-2TM3PHXG24';
+    window.__FORGELOCK_LOAD_GTM = function () {
+      if (window.__FORGELOCK_GTM_LOADING || window.__FORGELOCK_GTM_LOADED) return;
+      window.__FORGELOCK_GTM_LOADING = true;
+      var script = document.createElement('script');
+      script.async = true;
+      script.src = 'https://www.googletagmanager.com/gtm.js?id=GTM-WJMDTTWM';
+      script.onload = function () { window.__FORGELOCK_GTM_LOADING = false; window.__FORGELOCK_GTM_LOADED = true; };
+      script.onerror = function () { window.__FORGELOCK_GTM_LOADING = false; script.remove(); };
+      document.head.appendChild(script);
+    };
+    window.__FORGELOCK_LOAD_ANALYTICS = function () {
+      if (window.__FORGELOCK_GA_LOADED || window.__FORGELOCK_GA_LOADING) { window.__FORGELOCK_LOAD_GTM(); return; }
+      window.gtag('consent', 'default', { analytics_storage: 'denied', ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
+      window.__FORGELOCK_LOAD_GTM();
+      var script = document.createElement('script');
+      script.async = true;
+      script.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(window.__FORGELOCK_ANALYTICS_ID);
+      script.onload = function () {
+        window.__FORGELOCK_GA_LOADING = false;
+        window.__FORGELOCK_GA_LOADED = true;
+        window.gtag('consent', 'update', { analytics_storage: 'granted', ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
+        window.gtag('js', new Date());
+        window.gtag('config', window.__FORGELOCK_ANALYTICS_ID, { send_page_view: true });
+        document.documentElement.dataset.forgeLockAnalytics = 'loaded';
+      };
+      script.onerror = function () { window.__FORGELOCK_GA_LOADING = false; script.remove(); };
+      window.__FORGELOCK_GA_LOADING = true;
+      document.head.appendChild(script);
+    };
+    function saveChoice(value) { try { window.localStorage.setItem(key, value); } catch (error) {} }
+    var choice = null;
+    try { choice = window.localStorage.getItem(key); } catch (error) {}
+    if (choice === 'accepted') { window.__FORGELOCK_LOAD_ANALYTICS(); settings.classList.remove('hidden'); }
+    else if (choice === 'rejected') { settings.classList.remove('hidden'); }
+    else { banner.classList.remove('hidden'); }
+    settings.addEventListener('click', function () { settings.classList.add('hidden'); banner.classList.remove('hidden'); accept.focus(); });
+    settings.addEventListener('keydown', function (event) { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); settings.click(); } });
+    accept.addEventListener('click', function () { saveChoice('accepted'); banner.classList.add('hidden'); settings.classList.remove('hidden'); window.__FORGELOCK_LOAD_ANALYTICS(); });
+    reject.addEventListener('click', function () {
+      saveChoice('rejected');
+      if (typeof window.gtag === 'function') window.gtag('consent', 'update', { analytics_storage: 'denied', ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
+      banner.classList.add('hidden'); settings.classList.remove('hidden');
+    });
+  })();
+  </script>
+
 </body>
 </html>
