@@ -170,7 +170,6 @@
     </noscript>
     <!-- Punto de entrada: el controlador inicia la aplicación MVC. -->
     <script type="module" src="./src/controllers/app-controller.js"></script>
-<button id="cookie-settings" type="button" class="hidden fixed bottom-4 left-4 z-[90] px-4 py-3 rounded-xl bg-brand-500 text-slate-950 font-bold text-sm shadow-lg" aria-controls="cookie-consent">Preferencias de cookies</button>
 <div id="cookie-consent" class="hidden fixed bottom-0 inset-x-0 z-[100] p-4 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 shadow-2xl" role="dialog" aria-label="Preferencias de cookies"><div class="max-w-7xl mx-auto flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between"><div class="text-sm text-slate-300 max-w-3xl"><strong class="text-white">Privacidad y analítica.</strong> La analítica es opcional. Puedes aceptar o rechazarla. <a class="text-brand-400 underline" href="./politica-cookies.html">Ver política de cookies</a>.</div><div class="flex gap-2 shrink-0"><button id="cookie-reject" type="button" class="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-200 font-semibold">Rechazar</button><button id="cookie-accept" type="button" class="px-4 py-2.5 rounded-xl bg-brand-500 text-slate-950 font-bold">Aceptar analítica</button></div></div></div>
 <script>
 (function () {
@@ -191,31 +190,16 @@
         } catch (error) {
             // La decisión se aplica durante esta visita aunque no pueda persistirse.
         }
-    }
-
-    var settingsButton = document.getElementById('cookie-settings');
-    var acceptButton = document.getElementById('cookie-accept');
+    }var acceptButton = document.getElementById('cookie-accept');
     var rejectButton = document.getElementById('cookie-reject');
 
     if (choice === 'accepted') {
         window.__FORGELOCK_LOAD_ANALYTICS();
-        settingsButton.classList.remove('hidden');
-    } else if (choice === 'rejected') {
-        settingsButton.classList.remove('hidden');
-    } else {
+    } else if (choice !== 'rejected') {
         banner.classList.remove('hidden');
-    }
-
-    settingsButton.onclick = function () {
-        settingsButton.classList.add('hidden');
-        banner.classList.remove('hidden');
-        acceptButton.focus();
-    };
-
-    acceptButton.onclick = function () {
+    }acceptButton.onclick = function () {
         saveChoice('accepted');
         banner.classList.add('hidden');
-        settingsButton.classList.remove('hidden');
         window.__FORGELOCK_LOAD_ANALYTICS();
     };
 
@@ -230,7 +214,6 @@
             });
         }
         banner.classList.add('hidden');
-        settingsButton.classList.remove('hidden');
     };
 })();
 </script>
