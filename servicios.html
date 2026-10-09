@@ -314,6 +314,11 @@
         window.gtag('js', new Date());
         window.gtag('config', window.__FORGELOCK_ANALYTICS_ID, { send_page_view: true });
         document.documentElement.dataset.forgeLockAnalytics = 'loaded';
+        window.gtag('event', 'view_services_page', {
+          page_type: 'services',
+          page_title: document.title,
+          page_location: window.location.href
+        });
       };
       script.onerror = function () { window.__FORGELOCK_GA_LOADING = false; script.remove(); };
       window.__FORGELOCK_GA_LOADING = true;
