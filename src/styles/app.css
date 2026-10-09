@@ -32,3 +32,36 @@ body { background: var(--surface-page); color: var(--ink-body); }
   outline: 3px solid #22c55e;
   outline-offset: 3px;
 }
+
+
+/* CTA de WhatsApp: contraste alto, tamaño táctil cómodo y foco visible. */
+.whatsapp-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .55rem;
+  min-height: 44px;
+  border-radius: .8rem;
+  background: #25d366;
+  color: #102018 !important;
+  padding: .8rem 1rem;
+  font-weight: 750;
+  line-height: 1.25;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, .18);
+  transition: background-color .18s ease, transform .18s ease, box-shadow .18s ease;
+}
+.whatsapp-button:hover {
+  background: #1ebe5d;
+  color: #102018 !important;
+  box-shadow: 0 7px 18px rgba(37, 211, 102, .25);
+  transform: translateY(-1px);
+}
+.whatsapp-button:focus-visible {
+  outline: 3px solid #166534;
+  outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .whatsapp-button { transition: none; }
+  .whatsapp-button:hover { transform: none; }
+}
