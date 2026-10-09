@@ -4,8 +4,26 @@
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
+        window.__FORGELOCK_LOAD_GTM = function () {
+            if (window.__FORGELOCK_GTM_LOADING || window.__FORGELOCK_GTM_LOADED) return;
+            window.__FORGELOCK_GTM_LOADING = true;
+            var script = document.createElement('script');
+            script.async = true;
+            script.src = 'https://www.googletagmanager.com/gtm.js?id=GTM-WJMDTTWM';
+            script.onload = function () {
+                window.__FORGELOCK_GTM_LOADING = false;
+                window.__FORGELOCK_GTM_LOADED = true;
+            };
+            script.onerror = function () {
+                window.__FORGELOCK_GTM_LOADING = false;
+                script.remove();
+                console.warn('ForgeLock Tag Manager no pudo cargar.');
+            };
+            document.head.appendChild(script);
+        };
         window.__FORGELOCK_ANALYTICS_ID = 'G-2TM3PHXG24';
         window.__FORGELOCK_LOAD_ANALYTICS = function () {
+            window.__FORGELOCK_LOAD_GTM();
             if (window.__FORGELOCK_GA_LOADED || window.__FORGELOCK_GA_LOADING) return;
             var script = document.createElement('script');
             script.async = true;
@@ -13,6 +31,12 @@
             script.onload = function () {
                 window.__FORGELOCK_GA_LOADING = false;
                 window.__FORGELOCK_GA_LOADED = true;
+                gtag('consent', 'update', {
+                    analytics_storage: 'granted',
+                    ad_storage: 'denied',
+                    ad_user_data: 'denied',
+                    ad_personalization: 'denied'
+                });
                 gtag('js', new Date());
                 gtag('config', window.__FORGELOCK_ANALYTICS_ID, { send_page_view: true });
                 gtag('event', 'analytics_consent_granted', { consent_method: 'cookie_banner' });
@@ -26,8 +50,12 @@
                 console.warn('ForgeLock Analytics no pudo cargar. Se podrá volver a intentar desde Preferencias de cookies.');
             };
             window.__FORGELOCK_GA_LOADING = true;
-            gtag('js', new Date());
-            gtag('config', window.__FORGELOCK_ANALYTICS_ID, { send_page_view: true });
+            gtag('consent', 'default', {
+                analytics_storage: 'denied',
+                ad_storage: 'denied',
+                ad_user_data: 'denied',
+                ad_personalization: 'denied'
+            });
             document.head.appendChild(script);
         };
     </script>
@@ -79,20 +107,8 @@
     <link rel="stylesheet" href="./src/vendor/fontawesome/css/all.min.css">
     <link rel="stylesheet" href="./src/vendor/inter/inter.css">
     <link rel="stylesheet" href="./src/styles/app.css">
-    <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-WJMDTTWM');</script>
-    <!-- End Google Tag Manager -->
 </head>
-<body class="bg-white text-slate-900 font-sans antialiased selection:bg-brand-500 selection:text-slate-950">
-    <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WJMDTTWM"
-    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
-    <!-- La Vista inserta cada componente en estos contenedores. -->
+<body class="bg-white text-slate-900 font-sans antialiased selection:bg-brand-500 selection:text-slate-950"><!-- La Vista inserta cada componente en estos contenedores. -->
     <div id="app" class="min-h-screen flex flex-col">
         <header id="header-container" class="sticky top-0 z-50 backdrop-blur-md bg-white/90 border-b border-slate-200 shadow-sm"></header>
         <main class="flex-grow">
@@ -202,6 +218,14 @@
 
     rejectButton.onclick = function () {
         saveChoice('rejected');
+        if (typeof window.gtag === 'function') {
+            window.gtag('consent', 'update', {
+                analytics_storage: 'denied',
+                ad_storage: 'denied',
+                ad_user_data: 'denied',
+                ad_personalization: 'denied'
+            });
+        }
         banner.classList.add('hidden');
         settingsButton.classList.remove('hidden');
     };
