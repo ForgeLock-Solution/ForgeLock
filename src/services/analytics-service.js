@@ -1,8 +1,17 @@
 const trackedViewTargets = new WeakSet();
 let initialized = false;
 
+const hasAnalyticsConsent = () => {
+    try {
+        return window.localStorage.getItem('forgelock_analytics_consent') === 'accepted'
+            && document.documentElement.dataset.forgeLockAnalytics === 'loaded';
+    } catch {
+        return false;
+    }
+};
+
 const sendEvent = (eventName, parameters = {}) => {
-    if (typeof window.gtag !== 'function') return;
+    if (!hasAnalyticsConsent() || typeof window.gtag !== 'function') return;
     window.gtag('event', eventName, parameters);
 };
 
