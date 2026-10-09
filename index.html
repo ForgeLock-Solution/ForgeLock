@@ -56,7 +56,7 @@
                 window.__FORGELOCK_GA_LOADED = false;
                 script.remove();
                 document.documentElement.dataset.forgeLockAnalytics = 'load_error';
-                console.warn('ForgeLock Analytics no pudo cargar. Se podrá volver a intentar desde Preferencias de cookies.');
+                console.warn('ForgeLock Analytics no pudo cargar. Recarga la página para volver a intentarlo.');
             };
             window.__FORGELOCK_GA_LOADING = true;
             document.head.appendChild(script);
@@ -190,14 +190,18 @@
         } catch (error) {
             // La decisión se aplica durante esta visita aunque no pueda persistirse.
         }
-    }var acceptButton = document.getElementById('cookie-accept');
+    }
+
+    var acceptButton = document.getElementById('cookie-accept');
     var rejectButton = document.getElementById('cookie-reject');
 
     if (choice === 'accepted') {
         window.__FORGELOCK_LOAD_ANALYTICS();
     } else if (choice !== 'rejected') {
         banner.classList.remove('hidden');
-    }acceptButton.onclick = function () {
+    }
+
+    acceptButton.onclick = function () {
         saveChoice('accepted');
         banner.classList.add('hidden');
         window.__FORGELOCK_LOAD_ANALYTICS();
