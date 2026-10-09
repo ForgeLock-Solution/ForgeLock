@@ -270,7 +270,8 @@
       if (img.complete && img.naturalWidth === 0) showFallback();
     });
     document.getElementById('year').textContent = new Date().getFullYear();
-  </script><div id="cookie-consent" class="hidden fixed bottom-0 inset-x-0 z-[100] p-4 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 shadow-2xl" role="dialog" aria-label="Preferencias de cookies">
+  </script>
+  <div id="cookie-consent" class="hidden fixed bottom-0 inset-x-0 z-[100] p-4 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 shadow-2xl" role="dialog" aria-label="Preferencias de cookies">
     <div class="max-w-7xl mx-auto flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
       <div class="text-sm text-slate-300 max-w-3xl"><strong class="text-white">Privacidad y analítica.</strong> La analítica es opcional. Puedes aceptar o rechazarla. <a class="text-brand-400 underline" href="./politica-cookies.html">Ver política de cookies</a>.</div>
       <div class="flex gap-2 shrink-0"><button id="cookie-reject" type="button" class="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-200 font-semibold">Rechazar</button><button id="cookie-accept" type="button" class="px-4 py-2.5 rounded-xl bg-brand-500 text-slate-950 font-bold">Aceptar analítica</button></div>
@@ -283,7 +284,8 @@
   <script>
   (function () {
     var key = 'forgelock_analytics_consent';
-    var banner = document.getElementById('cookie-consent');var accept = document.getElementById('cookie-accept');
+    var banner = document.getElementById('cookie-consent');
+    var accept = document.getElementById('cookie-accept');
     var reject = document.getElementById('cookie-reject');
     window.dataLayer = window.dataLayer || [];
     window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
@@ -321,7 +323,8 @@
     var choice = null;
     try { choice = window.localStorage.getItem(key); } catch (error) {}
     if (choice === 'accepted') { window.__FORGELOCK_LOAD_ANALYTICS(); }
-    else if (choice !== 'rejected') { banner.classList.remove('hidden'); }accept.addEventListener('click', function () { saveChoice('accepted'); banner.classList.add('hidden'); window.__FORGELOCK_LOAD_ANALYTICS(); });
+    else if (choice !== 'rejected') { banner.classList.remove('hidden'); }
+    accept.addEventListener('click', function () { saveChoice('accepted'); banner.classList.add('hidden'); window.__FORGELOCK_LOAD_ANALYTICS(); });
     reject.addEventListener('click', function () {
       saveChoice('rejected');
       if (typeof window.gtag === 'function') window.gtag('consent', 'update', { analytics_storage: 'denied', ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
