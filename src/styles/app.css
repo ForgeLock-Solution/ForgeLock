@@ -26,3 +26,9 @@ body { background: var(--surface-page); color: var(--ink-body); }
 ::-webkit-scrollbar-track { background: var(--surface-muted); }
 ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: #22c55e; }
+
+/* Indicador visible de foco para navegación por teclado, sin alterar el estilo base. */
+:where(a, button, input, textarea, select, [tabindex]):focus-visible {
+  outline: 3px solid #22c55e;
+  outline-offset: 3px;
+}
