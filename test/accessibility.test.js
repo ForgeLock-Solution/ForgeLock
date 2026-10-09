@@ -54,4 +54,3 @@ test('los botones de selección tienen texto accesible', () => {
     buttons.forEach((button) => assert.ok(button.textContent.trim().length > 0));
 });
 
-dom.window.close();
