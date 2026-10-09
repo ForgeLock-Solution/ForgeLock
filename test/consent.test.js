@@ -27,11 +27,13 @@ test('el consentimiento sigue funcionando si localStorage está bloqueado', () =
     assert.doesNotThrow(() => document.querySelector('#cookie-reject').click());
     assert.equal(banner.classList.contains('hidden'), true);
 
+    assert.equal(document.querySelector('script[src*="googletagmanager.com/gtag/js"]'), null);
+    assert.equal(document.querySelector('script[src*="googletagmanager.com/gtm.js"]'), null);
     banner.classList.remove('hidden');
     assert.doesNotThrow(() => document.querySelector('#cookie-accept').click());
     assert.equal(banner.classList.contains('hidden'), true);
-    assert.equal(document.querySelector('script[src*="googletagmanager.com/gtag/js"]'), null);
-    assert.equal(document.querySelector('script[src*="googletagmanager.com/gtm.js"]'), null);
+    assert.ok(document.querySelector('script[src*="googletagmanager.com/gtag/js"]'));
+    assert.ok(document.querySelector('script[src*="googletagmanager.com/gtm.js"]'));
 
     dom.window.close();
 });
