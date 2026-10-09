@@ -23,8 +23,17 @@
         };
         window.__FORGELOCK_ANALYTICS_ID = 'G-2TM3PHXG24';
         window.__FORGELOCK_LOAD_ANALYTICS = function () {
+            if (window.__FORGELOCK_GA_LOADED || window.__FORGELOCK_GA_LOADING) {
+                window.__FORGELOCK_LOAD_GTM();
+                return;
+            }
+            gtag('consent', 'default', {
+                analytics_storage: 'denied',
+                ad_storage: 'denied',
+                ad_user_data: 'denied',
+                ad_personalization: 'denied'
+            });
             window.__FORGELOCK_LOAD_GTM();
-            if (window.__FORGELOCK_GA_LOADED || window.__FORGELOCK_GA_LOADING) return;
             var script = document.createElement('script');
             script.async = true;
             script.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(window.__FORGELOCK_ANALYTICS_ID);
@@ -50,12 +59,6 @@
                 console.warn('ForgeLock Analytics no pudo cargar. Se podrá volver a intentar desde Preferencias de cookies.');
             };
             window.__FORGELOCK_GA_LOADING = true;
-            gtag('consent', 'default', {
-                analytics_storage: 'denied',
-                ad_storage: 'denied',
-                ad_user_data: 'denied',
-                ad_personalization: 'denied'
-            });
             document.head.appendChild(script);
         };
     </script>
