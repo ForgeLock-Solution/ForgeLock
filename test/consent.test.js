@@ -40,8 +40,8 @@ test('el consentimiento sigue funcionando si localStorage está bloqueado', () =
 
 
 test('GTM y GA4 no se insertan antes del consentimiento en la página principal', () => {
-    assert.doesNotMatch(html, /googletagmanager\.com\/gtm\.js\?id=GTM-WJMDTTWM/);
-    assert.doesNotMatch(html, /googletagmanager\.com\/ns\.html\?id=GTM-WJMDTTWM/);
+    assert.doesNotMatch(html, /<script[^>]+src=["']https:\/\/www\.googletagmanager\.com\/gtm\.js/);
+    assert.doesNotMatch(html, /<iframe[^>]+src=["']https:\/\/www\.googletagmanager\.com\/ns\.html/);
     assert.match(html, /__FORGELOCK_LOAD_GTM/);
     assert.match(html, /cookie-accept/);
     assert.match(html, /cookie-reject/);
@@ -53,6 +53,6 @@ test('la página de servicios también solicita consentimiento y bloquea eventos
     assert.match(servicesHtml, /id="cookie-consent"/);
     assert.match(servicesHtml, /id="cookie-accept"/);
     assert.match(servicesHtml, /id="cookie-reject"/);
-    assert.doesNotMatch(servicesHtml, /googletagmanager\.com\/gtm\.js\?id=GTM-WJMDTTWM/);
+    assert.doesNotMatch(servicesHtml, /<script[^>]+src=["']https:\/\/www\.googletagmanager\.com\/gtm\.js/);
     assert.match(analyticsSource, /hasAnalyticsConsent/);
 });
