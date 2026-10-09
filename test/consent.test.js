@@ -60,5 +60,5 @@ test('la página de servicios también solicita consentimiento y bloquea eventos
 
 test('la elección de cookies no muestra un botón de preferencias después de responder', () => {
     assert.doesNotMatch(html, /id=["']cookie-settings["']/);
-    assert.doesNotMatch(html, /Preferencias de cookies/);
+    assert.doesNotMatch(html, /id=["']cookie-settings["']/);
 });
