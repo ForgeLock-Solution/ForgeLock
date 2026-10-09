@@ -6,14 +6,29 @@
         function gtag(){dataLayer.push(arguments);}
         window.__FORGELOCK_ANALYTICS_ID = 'G-2TM3PHXG24';
         window.__FORGELOCK_LOAD_ANALYTICS = function () {
-            if (window.__FORGELOCK_GA_LOADED) return;
-            window.__FORGELOCK_GA_LOADED = true;
+            if (window.__FORGELOCK_GA_LOADED || window.__FORGELOCK_GA_LOADING) return;
             var script = document.createElement('script');
             script.async = true;
             script.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(window.__FORGELOCK_ANALYTICS_ID);
-            document.head.appendChild(script);
+            script.onload = function () {
+                window.__FORGELOCK_GA_LOADING = false;
+                window.__FORGELOCK_GA_LOADED = true;
+                gtag('js', new Date());
+                gtag('config', window.__FORGELOCK_ANALYTICS_ID, { send_page_view: true });
+                gtag('event', 'analytics_consent_granted', { consent_method: 'cookie_banner' });
+                document.documentElement.dataset.forgeLockAnalytics = 'loaded';
+            };
+            script.onerror = function () {
+                window.__FORGELOCK_GA_LOADING = false;
+                window.__FORGELOCK_GA_LOADED = false;
+                script.remove();
+                document.documentElement.dataset.forgeLockAnalytics = 'load_error';
+                console.warn('ForgeLock Analytics no pudo cargar. Se podrá volver a intentar desde Preferencias de cookies.');
+            };
+            window.__FORGELOCK_GA_LOADING = true;
             gtag('js', new Date());
-            gtag('config', window.__FORGELOCK_ANALYTICS_ID);
+            gtag('config', window.__FORGELOCK_ANALYTICS_ID, { send_page_view: true });
+            document.head.appendChild(script);
         };
     </script>
     <meta name="google-site-verification" content="peYxRjV0Snt4fmiTcjCgkCfvDrTBws3qGUMy8vJVwjQ" />
