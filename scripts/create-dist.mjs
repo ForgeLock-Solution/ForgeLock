@@ -15,6 +15,7 @@ if (existsSync(output)) {
 await mkdir(output, { recursive: true });
 
 await cp(join(root, 'index.html'), join(output, 'index.html'));
+await cp(join(root, 'servicios.html'), join(output, 'servicios.html'));
 await cp(join(root, 'robots.txt'), join(output, 'robots.txt'));
 await cp(join(root, 'sitemap.xml'), join(output, 'sitemap.xml'));
 await cp(join(root, '404.html'), join(output, '404.html'));
