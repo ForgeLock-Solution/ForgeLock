@@ -14,7 +14,7 @@
     "build:assets": "node ./scripts/copy-local-assets.mjs",
     "build:assets:windows": "powershell -ExecutionPolicy Bypass -File ./scripts/copy-local-assets.ps1",
     "build": "npm run build:assets && npm run build:styles",
-    "build:dist": "npm run build && node ./scripts/create-dist.mjs",
+    "build:dist": "npm run build && node ./scripts/create-dist.mjs && node ./scripts/generate-seo.mjs",
     "build:dist:windows": "npm run build && powershell -ExecutionPolicy Bypass -File ./scripts/create-dist.ps1",
     "deploy:supabase": "node ./scripts/deploy-to-supabase-storage.mjs",
     "test": "node --test"
