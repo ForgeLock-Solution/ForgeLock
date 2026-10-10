@@ -12,7 +12,7 @@ const candidates = ['index.html', 'servicios.html'];
 function lastModified(file) {
   try {
     return execFileSync('git', ['log', '-1', '--format=%cs', '--', file], {
-      cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'
+      cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore']
     }).trim();
   } catch {
     return '';
