@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 
 test('la página de servicios tiene contenido descriptivo, imágenes accesibles y CTA', async () => {
     const html = await readFile(new URL('../servicios.html', import.meta.url), 'utf8');
-    assert.match(html, /<title>Servicios digitales para negocios \| ForgeLock<\/title>/);
+    assert.match(html, /<title>Servicios digitales para negocios \| ForgeLock Solution<\/title>/);
     assert.match(html, /Páginas web y landing pages/);
     assert.match(html, /Catálogos digitales/);
     assert.match(html, /Branding y diseño digital/);
