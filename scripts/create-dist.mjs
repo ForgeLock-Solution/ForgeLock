@@ -19,6 +19,11 @@ await cp(join(root, 'servicios.html'), join(output, 'servicios.html'));
 await cp(join(root, 'robots.txt'), join(output, 'robots.txt'));
 await cp(join(root, 'sitemap.xml'), join(output, 'sitemap.xml'));
 await cp(join(root, '404.html'), join(output, '404.html'));
+
+// Los favicons ubicados en la raíz deben acompañar al artefacto publicado.
+for (const file of ['favicon.ico']) {
+    if (existsSync(join(root, file))) await cp(join(root, file), join(output, file));
+}
 await cp(join(root, 'aviso-legal.html'), join(output, 'aviso-legal.html'));
 await cp(join(root, 'politica-privacidad.html'), join(output, 'politica-privacidad.html'));
 await cp(join(root, 'politica-cookies.html'), join(output, 'politica-cookies.html'));
