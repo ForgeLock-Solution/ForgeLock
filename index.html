@@ -88,15 +88,43 @@
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "Organization",
-      "@id": "https://forgelock-solution.github.io/ForgeLock/#organization",
-      "name": "ForgeLock",
-      "url": "https://forgelock-solution.github.io/ForgeLock/",
-      "logo": {
-        "@type": "ImageObject",
-        "url": "https://forgelock-solution.github.io/ForgeLock/resource/favicon-48.png"
-      },
-      "description": "ForgeLock crea páginas web, landing pages, catálogos digitales, branding y soluciones visuales para emprendedores y pequeños negocios."
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://forgelock-solution.github.io/ForgeLock/#organization",
+          "name": "ForgeLock",
+          "url": "https://forgelock-solution.github.io/ForgeLock/",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://forgelock-solution.github.io/ForgeLock/resource/Logo.png"
+          },
+          "description": "ForgeLock crea páginas web, landing pages, catálogos digitales, branding y soluciones visuales para emprendedores y pequeños negocios."
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://forgelock-solution.github.io/ForgeLock/#website",
+          "url": "https://forgelock-solution.github.io/ForgeLock/",
+          "name": "ForgeLock",
+          "inLanguage": "es-CO",
+          "publisher": {
+            "@id": "https://forgelock-solution.github.io/ForgeLock/#organization"
+          }
+        },
+        {
+          "@type": "WebPage",
+          "@id": "https://forgelock-solution.github.io/ForgeLock/#webpage",
+          "url": "https://forgelock-solution.github.io/ForgeLock/",
+          "name": "ForgeLock | Páginas web y catálogos digitales",
+          "description": "Páginas web, landing pages, catálogos digitales y branding para emprendedores y negocios en Colombia.",
+          "inLanguage": "es-CO",
+          "isPartOf": {
+            "@id": "https://forgelock-solution.github.io/ForgeLock/#website"
+          },
+          "about": {
+            "@id": "https://forgelock-solution.github.io/ForgeLock/#organization"
+          }
+        }
+      ]
     }
     </script>
     <link rel="icon" type="image/png" sizes="48x48" href="./resource/favicon-48.png">
@@ -135,6 +163,10 @@
                         <p>Los catálogos digitales organizan productos o servicios para que las personas puedan consultarlos fácilmente. El branding y la identidad visual ayudan a mantener una presentación coherente en los canales digitales y materiales de comunicación de tu negocio.</p>
                         <h3 class="text-xl font-semibold text-slate-900">Un proceso claro, desde la idea hasta la entrega</h3>
                         <p>Primero conversamos sobre las necesidades y objetivos de tu negocio; después definimos el alcance de la solución, desarrollamos la propuesta y revisamos los ajustes acordados antes de la entrega. El alcance, el precio y el plazo se confirman en la cotización de cada proyecto.</p>
+                        <h3 class="text-xl font-semibold text-slate-900">Preguntas frecuentes sobre los servicios digitales</h3>
+                        <p><strong>¿Qué solución necesita mi negocio?</strong> Depende de tu objetivo: una página web presenta tu negocio y sus servicios; una landing page concentra la atención en una oferta; y un catálogo digital facilita consultar productos o servicios. Puedes <a class="font-semibold text-emerald-800 underline" href="./servicios.html">conocer los servicios de ForgeLock</a> y comparar opciones.</p>
+                        <p><strong>¿La página puede incluir WhatsApp?</strong> Sí, podemos integrar enlaces de contacto por WhatsApp y otras funciones según el alcance y los requisitos del proyecto.</p>
+                        <p><strong>¿Cómo se define el precio?</strong> Revisamos los objetivos, el contenido y las funciones necesarias antes de confirmar el alcance y la cotización. No se inicia el desarrollo sin acordar esos puntos.</p>
                         <div class="pt-2">
                             <a href="https://wa.me/573043402589?text=Hola%2C%20quiero%20consultar%20por%20una%20soluci%C3%B3n%20digital%20para%20mi%20negocio." target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-brand-500 text-slate-950 font-bold">Solicitar información por WhatsApp</a>
                         </div>
