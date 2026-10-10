@@ -1,4 +1,3 @@
-"# ForgeLock"
 # ForgeLock
 
 Landing estática de servicios tecnológicos para emprendedores, negocios y pequeñas empresas.
@@ -87,3 +86,8 @@ npm run deploy:supabase
 - La configuración pública queda separada del entorno de despliegue seguro.
 - El sitio no debe publicar secretos ni credenciales reales en HTML, CSS, JS ni `dist/`.
 - Si se decide guardar leads desde la landing, la activación debe hacerse de forma explícita y validada.
+
+
+## SEO técnico
+
+La URL base de GitHub Pages para este proyecto es `https://forgelock-solution.github.io/ForgeLock/`. El sitemap y robots.txt se generan durante `npm run build:dist`; puedes sobrescribir la base con `BASE_URL` al compilar. Revisa `docs/seo-audit.md` para el estado de la auditoría.
