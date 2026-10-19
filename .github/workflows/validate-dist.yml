@@ -1,0 +1,42 @@
+name: Validación técnica de dist
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - chore/validate-cloudflare-dist-seo-icons
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-dist-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Instalar dependencias
+        run: npm ci
+      - name: Ejecutar pruebas
+        run: npm test
+      - name: Compilar y validar dist
+        run: npm run build:dist
+      - name: Subir artefacto para inspección
+        uses: actions/upload-artifact@v4
+        with:
+          name: forgelock-dist-validation
+          path: dist/
+          if-no-files-found: error
+          retention-days: 7
