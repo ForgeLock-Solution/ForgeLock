@@ -2,6 +2,10 @@
 
 Estado: preparación documental. No se han creado recursos en Cloudflare/Supabase ni realizado despliegues.
 
+## Dominio temporal confirmado
+
+Mientras se prepara Cloudflare, se conserva GitHub Pages como URL canónica temporal: `https://forgelock-solution.github.io/ForgeLock/`. No cambiar `BASE_URL` ni las URLs SEO hasta confirmar el dominio definitivo de Cloudflare. Al migrar, actualizar y validar conjuntamente canonical, Open Graph, Twitter Cards, JSON-LD, `robots.txt`, `sitemap.xml` y las redirecciones.
+
 ## Datos por confirmar
 
 - [ ] Dominio propio exacto.
@@ -34,9 +38,9 @@ Estado: preparación documental. No se han creado recursos en Cloudflare/Supabas
 
 ## Validaciones antes de producción
 
-1. Ejecutar npm ci, npm test y npm run build:dist.
-2. Confirmar que dist/ contiene site.webmanifest, _headers, _redirects, favicon.ico, Icon-192.png, Apple-touch-icon.png, HTML, CSS, JS, imágenes, robots.txt y sitemap.xml.
-3. Abrir cada icono y validar dimensiones y transparencia.
+1. Ejecutar `npm ci`, `npm test` y `npm run build:dist`. La compilación incluye `scripts/validate-dist.mjs` para revisar los archivos esenciales, la URL del sitemap y las dimensiones declaradas/reales de los iconos.
+2. Confirmar que `dist/` contiene `site.webmanifest`, `_headers`, `_redirects`, `favicon.ico`, `Icon-192.png`, `Apple-touch-icon.png`, HTML, CSS, JS, imágenes, `robots.txt` y `sitemap.xml`.
+3. Revisar los iconos en navegador y comprobar visualmente transparencia, recorte y nitidez; el validador comprueba formato PNG y dimensiones de los dos iconos declarados en el manifiesto.
 4. Verificar que no haya claves privadas ni archivos .env dentro del artefacto.
 5. Validar rutas del manifiesto e iconos en el preview de Cloudflare.
 6. Probar cabeceras HTTP; revisar consentimiento de analítica y que no se bloquee ningún recurso.
