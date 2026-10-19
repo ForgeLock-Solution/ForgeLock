@@ -1,6 +1,7 @@
 name: Validación técnica de dist
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - chore/validate-cloudflare-dist-seo-icons
