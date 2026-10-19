@@ -20,8 +20,13 @@ await cp(join(root, 'robots.txt'), join(output, 'robots.txt'));
 await cp(join(root, 'sitemap.xml'), join(output, 'sitemap.xml'));
 await cp(join(root, '404.html'), join(output, '404.html'));
 
-// Los favicons ubicados en la raíz deben acompañar al artefacto publicado.
-for (const file of ['favicon.ico']) {
+// Configuración de Cloudflare Pages y manifiesto: deben quedar en la raíz de dist.
+for (const file of ['site.webmanifest', '_headers', '_redirects']) {
+    if (existsSync(join(root, file))) await cp(join(root, file), join(output, file));
+}
+
+// Los iconos ubicados en la raíz deben acompañar al artefacto publicado.
+for (const file of ['favicon.ico', 'Apple-touch-icon.png', 'Icon-192.png']) {
     if (existsSync(join(root, file))) await cp(join(root, file), join(output, file));
 }
 await cp(join(root, 'aviso-legal.html'), join(output, 'aviso-legal.html'));
