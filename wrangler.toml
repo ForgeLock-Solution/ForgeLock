@@ -1,0 +1,6 @@
+# Cloudflare Pages static build configuration.
+# Build command in Cloudflare Pages: npm run build:dist
+# Build output directory: dist
+name = "forgelock"
+pages_build_output_dir = "./dist"
+compatibility_date = "2026-10-19"
