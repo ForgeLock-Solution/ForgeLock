@@ -29,5 +29,8 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "2.116.0"
+  },
+  "overrides": {
+    "compression": "1.8.2"
   }
 }

@@ -27,7 +27,7 @@ npm ci
 
 ## Variables de entorno
 
-Usa `SUPABASE_URL` para la URL pública del proyecto Supabase; usa `SUPABASE_BUCKET` para el bucket de almacenamiento y guarda la clave de despliegue en GitHub Actions Secrets o en un entorno seguro de Node/CI.
+`SUPABASE_URL` identifica el proyecto y `SUPABASE_BUCKET` el destino de Storage. `SUPABASE_SERVICE_ROLE_KEY` es privada y solo puede usarse en un proceso seguro de servidor. Este repositorio no contiene actualmente un workflow de despliegue a Supabase.
 
 Nunca publiques:
 
@@ -69,11 +69,11 @@ La suite valida el render de la landing y la persistencia del borrador del formu
 
 ## Supabase
 
-La base ya incluye la tabla `public.leads` y políticas mínimas con Row Level Security. Por defecto, la landing sigue abriendo WhatsApp y no guarda leads desde el navegador. Si se activa la escritura del formulario desde el frontend, solo se usará la URL pública y la anon key con RLS correctamente configurado, nunca una clave privada.
+Las migraciones versionadas definen la tabla `public.leads` y políticas de inserción con Row Level Security; eso no confirma que estén aplicadas en el proyecto remoto. El frontend no usa actualmente el cliente Supabase y la landing sigue abriendo WhatsApp sin guardar leads. Si se activa esa escritura en el futuro, solo se usará la URL pública y la anon key con RLS correctamente configurado, nunca una clave privada.
 
 ## Deployment
 
-Este proyecto está pensado para publicar el contenido generado en `dist/` en un hosting estático. El despliegue puede hacerse desde GitHub Actions o desde un entorno seguro que ejecute:
+GitHub Pages publica el sitio estático generado en `dist/`. También existe un script opcional para subir `dist/` a Supabase Storage, pero no hay un workflow de GitHub Actions que lo ejecute. El script usa `SUPABASE_SERVICE_ROLE_KEY` y puede crear un bucket público si el nombre indicado no existe; no lo ejecutes hasta verificar el proyecto y el destino desde una sesión autorizada.
 
 ```bash
 npm run build:dist

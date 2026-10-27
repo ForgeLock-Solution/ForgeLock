@@ -47,6 +47,14 @@ test('GTM y GA4 no se insertan antes del consentimiento en la página principal'
     assert.match(html, /cookie-reject/);
 });
 
+test('la página 404 carga GTM y GA4 solo con consentimiento guardado', async () => {
+    const notFoundHtml = await readFile(new URL('../404.html', import.meta.url), 'utf8');
+    assert.doesNotMatch(notFoundHtml, /<script[^>]+src=["']https:\/\/www\.googletagmanager\.com\/gtm\.js/);
+    assert.doesNotMatch(notFoundHtml, /<iframe[^>]+src=["']https:\/\/www\.googletagmanager\.com\/ns\.html/);
+    assert.match(notFoundHtml, /localStorage\.getItem\(key\) === 'accepted'/);
+    assert.match(notFoundHtml, /localStorage\.getItem\(key\)/);
+});
+
 test('la página de servicios también solicita consentimiento y bloquea eventos sin aceptación', async () => {
     const servicesHtml = await readFile(new URL('../servicios.html', import.meta.url), 'utf8');
     const analyticsSource = await readFile(new URL('../src/services/analytics-service.js', import.meta.url), 'utf8');
