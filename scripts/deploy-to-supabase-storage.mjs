@@ -9,7 +9,7 @@
 // Uso local:
 //   SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... SUPABASE_BUCKET=forge-lock-site node scripts/deploy-to-supabase-storage.mjs
 //
-// En GitHub Actions estas variables se pasan como Secrets (ver .github/workflows/deploy-supabase.yml).
+// Este repositorio no incluye un workflow deploy-supabase.yml; este script no se ejecuta automáticamente en CI.
 
 import { createClient } from '@supabase/supabase-js';
 import { readFile, readdir } from 'node:fs/promises';
