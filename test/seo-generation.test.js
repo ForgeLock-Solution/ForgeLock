@@ -13,6 +13,7 @@ import {
   comparePublicHtmlFiles,
   discoverPublicHtmlFiles,
   getSitemapRobotsBlockers,
+  getSeoConfig,
   escapeXml,
   getGoogleVerificationValues,
   isValidLastmod,
@@ -51,6 +52,27 @@ function parseSitemap(xml) {
   assert.equal(document.documentElement.namespaceURI, SITEMAP_NAMESPACE);
   return document;
 }
+
+test('separa el host de pruebas de la URL canónica de producción', () => {
+  const pages = getSeoConfig({});
+  const worker = getSeoConfig({ SEO_TARGET: 'cloudflare' });
+  assert.equal(pages.indexable, true);
+  assert.equal(worker.indexable, false);
+  assert.equal(worker.baseUrl.href, 'https://forgelock.forge-look19.workers.dev/');
+  assert.equal(worker.canonicalBaseUrl.href, DEFAULT_BASE_URL);
+  assert.equal(worker.canonicalTarget, 'github-pages');
+  assert.throws(() => getSeoConfig({ SEO_TARGET: 'cloudflare', INDEXABLE: 'true' }), /no indexable/);
+  assert.throws(() => getSeoConfig({ SEO_TRANSITION: 'cloudflare' }), /Migración canónica deshabilitada/);
+});
+
+test('la API del generador tampoco permite indexar el Worker ni cambiar su base', async () => {
+  await withFixture(async ({ root, dist, addPage }) => {
+    const original = await addPage('index.html');
+    await assert.rejects(generateSeo({ root, dist, env: { SEO_TARGET: 'cloudflare' }, indexable: true }), /no indexable/);
+    await assert.rejects(generateSeo({ root, dist, baseUrl: 'https://example.test/' }), /baseUrl no coincide/);
+    assert.equal(await readFile(join(dist, 'index.html'), 'utf8'), original);
+  });
+});
 
 test('genera sitemap desde las páginas HTML canónicas e indexables de dist', async () => {
   await withFixture(async ({ root, dist, baseUrl, addPage }) => {

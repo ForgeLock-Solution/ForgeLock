@@ -1,30 +1,33 @@
-# Transición SEO coordinada: GitHub Pages y Cloudflare Worker
+# Política SEO vigente: GitHub Pages y pruebas en Cloudflare
 
-## Variantes preparadas
+Actualizada el 29 de octubre de 2026 durante la fase 1 autorizada. Sustituye el procedimiento anterior de transición canónica al Worker. No autoriza publicaciones ni cambios remotos.
 
-| Variante | Salida | Host de recursos y navegación | Canonical y sitemap |
+## Producción preservada
+
+La única URL canónica de producción es `https://forgelock-solution.github.io/ForgeLock/`. Se mantiene exactamente la marca ForgeLock. El Worker `https://forgelock.forge-look19.workers.dev/` se prepara como entorno de pruebas.
+
+| Variante | Salida predeterminada | Canonical y señales sociales | Indexación |
 |---|---|---|---|
-| GitHub Pages actual | `dist/` | `https://forgelock-solution.github.io/ForgeLock/` | GitHub Pages |
-| Cloudflare Worker | `dist-cloudflare/` | `https://forgelock.forge-look19.workers.dev/` | Cloudflare Worker |
-| Pages de transición | Temporal, creada por `npm run build:dist:pages-transition` | Conserva los recursos y enlaces relativos de Pages, incluida `/ForgeLock/` | Canonicals, `og:url` y URLs de identidad JSON-LD de Cloudflare; sitemap propio vacío y `robots.txt` apunta al sitemap del Worker |
+| GitHub Pages | `dist/` | GitHub Pages, con `/ForgeLock/` y rutas `.html` | Portada y servicios en sitemap; legales y 404 con noindex |
+| Cloudflare Worker de pruebas | `dist-cloudflare/` | Conserva canonical, hreflang, OG, Twitter y JSON-LD del fuente de Pages | Todas las páginas con noindex; sitemap vacío y robots sin Sitemap |
 
-Las páginas legales conservan `noindex` y no se incluyen en el sitemap indexable. La variante de transición no modifica el workflow de Pages ni el build predeterminado. El generador deja el artefacto temporal disponible para su revisión; no se debe copiar a una salida de publicación sin volver a validar exactamente el artefacto que se publicará.
+`BASE_URL` identifica el alojamiento del artefacto, no decide la canonical. Si se define, debe coincidir con `SEO_TARGET`. Los enlaces relativos del Worker se adaptan a las rutas de Static Assets; las URLs canónicas siguen identificando las páginas de producción.
 
-El build y el preflight de publicación no reemplazan una distribución que ya contenga archivos. El preflight futuro construirá y validará en una carpeta temporal y, solo con autorización, entregará a Wrangler esa misma carpeta validada. Si la identidad de cuenta no está confirmada, `wrangler.toml` no debe inventar un `account_id` y el preflight debe fallar.
+## Protecciones locales
 
-## Secuencia previa a la migración pública
+- `INDEXABLE=true` se rechaza para Cloudflare antes de crear la salida. El generador también rechaza ese intento si se invoca directamente desde JavaScript.
+- Cualquier `SEO_TRANSITION` no vacío se rechaza. El comando heredado `npm run build:dist:pages-transition` termina con error sin generar artefactos.
+- El validador rechaza señales SEO del Worker, cambios respecto al fuente en los metadatos del preview, páginas de prueba sin noindex y sitemaps de prueba con URLs.
+- Se conserva el rastreo en robots para permitir leer noindex. No se publica una directiva Sitemap en el preview.
+- El build no modifica los HTML, robots, sitemap ni estilos fuente. El cálculo de lastmod de Pages continúa usando Git.
+- No se sobrescriben distribuciones existentes. Las pruebas usan salidas temporales y comprueban que los artefactos previos permanezcan intactos.
 
-1. **Validar la variante Worker.** Construirla en una salida aislada, ejecutar el validador y el preview local de Wrangler. Confirmar las rutas finales, redirecciones de `.html`, canonical, `og:url`, JSON-LD, sitemap, robots, páginas legales y recursos. No asumir que el preview local reproduce cada detalle del Worker remoto.
-2. **Generar y revisar Pages de transición.** Ejecutar `npm run build:dist:pages-transition`; comprobar que las imágenes, hojas de estilo, módulos, enlaces relativos y navegación siguen usando las rutas físicas de Pages, mientras las señales de indexación previstas apuntan al Worker.
-3. **Comparar ambos artefactos.** Revisar por separado canonical, Open Graph, Twitter, JSON-LD, sitemap y robots. El sitemap Worker debe contener solo páginas públicas indexables con rutas finales accesibles. El sitemap de la variante Pages de transición debe permanecer vacío y su `robots.txt` debe referenciar el sitemap Worker, no recomendar URLs Pages.
-4. **Obtener autorización coordinada.** Confirmar el `account_id`, el Worker exacto y el artefacto que se publicará con el responsable de Cloudflare. Obtener aprobación para la publicación coordinada de Cloudflare y GitHub Pages. No inferir identidad de cuenta por el nombre del Worker ni por una sesión CLI local.
-5. **Publicar en orden y revisar cada paso.** Primero publicar el artefacto Worker validado; inmediatamente después publicar Pages con la variante de transición aprobada. Tras cada publicación, comprobar los dos hosts y detener el siguiente paso ante cualquier discrepancia. Durante el intervalo entre ambos pasos puede existir contenido duplicado con señales canónicas distintas; mantener el intervalo corto y coordinado.
-6. **Verificar ambos hosts públicamente.** Comprobar respuestas HTTP iniciales y finales, `Location`, rutas canónicas, redirecciones, canonicals, `og:url`, JSON-LD, robots, sitemap, `noindex` legal, enlaces y recursos. No declarar una redirección permanente desde Pages: esta arquitectura no la implementa ni la valida.
-7. **Verificar Search Console cuando la transición pública sea coherente.** Usar la propiedad que corresponda a cada host y acceso confirmado; para `workers.dev`, verificar la propiedad URL-prefix aplicable. Solo después de comprobar ambos hosts, enviar el sitemap Worker. No solicitar indexación durante esta preparación.
-8. **Vigilar la canonicalización.** Revisar cobertura, páginas indexadas y canonical elegida por Google durante las semanas siguientes. Las canonicals y sitemaps son señales, no una garantía de que Google adopte inmediatamente la URL preferida.
+Estas protecciones corresponden al artefacto construido y validado. No corrigen retrospectivamente el `dist/` antiguo ni aseguran que el Worker remoto ya publique esos archivos.
 
-## Coexistencia y riesgos
+## Validación y siguiente fase
 
-Antes del corte, ambos hosts sirven contenido equivalente y cada variante mantiene señales propias. Mientras Pages y Worker coexistan, los motores pueden detectar contenido duplicado. La transición reduce esa ambigüedad mediante canonical cruzado de Pages y sitemap Worker, pero no sustituye una migración coordinada ni garantiza la selección del canonical. No configurar redirecciones permanentes por inferencia: GitHub Pages no aplica automáticamente las reglas `_redirects` del Worker. Si se decide usar un dominio propio, definir y validar primero el host final y regenerar ambas variantes antes de cambiar señales públicas.
+Ejecutar `npm test` valida ambos destinos en carpetas temporales. El test runtime usa Wrangler local cuando está disponible y no publica cambios. Para builds manuales, seleccionar una carpeta temporal vacía mediante `DIST_DIR` y usar ese mismo valor al validar.
 
-Esta guía no autoriza ni ejecuta despliegues, cambios DNS, modificaciones de Supabase o acciones en Search Console.
+Antes de cualquier push o publicación, revisar Workers Builds y GitHub Actions por separado. En la auditoría del 29 de octubre el trigger remoto tenía `npm run build:dist` seguido de `npx wrangler deploy`, mientras Wrangler esperaba `dist-cloudflare/`. La fase 1 no modifica ese trigger, cuentas, dominios, DNS, secretos ni configuración remota.
+
+Una futura migración necesita autorización específica sobre la URL final, un plan coordinado para ambos hosts, cambios revisados en generador y validadores y una comprobación de Search Console. No enviar un sitemap Worker ni solicitar indexación de ese entorno como parte de esta fase.

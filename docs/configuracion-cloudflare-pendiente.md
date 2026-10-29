@@ -1,10 +1,10 @@
 # Configuración pendiente para publicar Cloudflare Worker Static Assets
 
-Estado: guía de transición. No realizar despliegues desde este documento; sigue vigente el preflight seguro descrito en README.
+Estado: preparación pendiente. La política vigente es [GitHub Pages como producción y Cloudflare como pruebas no indexables](seo-cloudflare-transition.md). No realizar despliegues desde este documento.
 
 ## Dominio temporal confirmado
 
-Mientras se prepara Cloudflare, se conserva GitHub Pages como URL canónica temporal: `https://forgelock-solution.github.io/ForgeLock/`. No cambiar `BASE_URL` ni las URLs SEO hasta confirmar el dominio definitivo de Cloudflare. Al migrar, actualizar y validar conjuntamente canonical, Open Graph, Twitter Cards, JSON-LD, `robots.txt`, `sitemap.xml` y las redirecciones.
+Mientras se prepara Cloudflare, se conserva GitHub Pages como URL canónica de producción: `https://forgelock-solution.github.io/ForgeLock/`. `BASE_URL` identifica cada alojamiento; las URLs SEO de producción se conservan en ambas variantes. El Worker se genera con noindex y sin URLs de sitemap. La migración canónica está deshabilitada; requiere autorización y revisión separadas.
 
 ## Datos por confirmar
 
@@ -16,8 +16,8 @@ Mientras se prepara Cloudflare, se conserva GitHub Pages como URL canónica temp
 - [ ] Rama de producción; propuesta: main, pendiente de confirmación.
 - [ ] Build de Worker: `npm run build:dist:cloudflare`.
 - [ ] Directorio de activos del Worker: `dist-cloudflare/`.
-- [ ] Versión de Node compatible con package.json (Node 20–24).
-- [ ] Confirmar si se mantiene GitHub Pages durante la validación o se desactiva tras aprobar Cloudflare.
+- [ ] Node 22–24 para Wrangler, compatible con las dependencias fijadas.
+- [ ] Conservar GitHub Pages durante la validación; cualquier cambio de producción necesita autorización separada.
 - [ ] URL de proyecto Supabase (solo URL pública, nunca claves secretas).
 - [ ] Proveedores de Auth habilitados en Supabase.
 - [ ] URL de sitio y URLs de redirección permitidas para Auth, una vez conocido el dominio.
@@ -30,7 +30,7 @@ Mientras se prepara Cloudflare, se conserva GitHub Pages como URL canónica temp
 ## Valores conocidos
 
 - Repositorio: ForgeLock-Solution/ForgeLock
-- Rama de trabajo de esta preparación: `codex/cloudflare-seo-migration-20261029`
+- Rama de trabajo de la fase 1: `fix/wrangler-preview-config`
 - Build Pages: `npm run build:dist`; salida `dist/`.
 - Build Worker: `npm run build:dist:cloudflare`; salida `dist-cloudflare/`.
 - Publicación futura únicamente mediante `npm run deploy:cloudflare` tras autorización.
@@ -47,7 +47,7 @@ Mientras se prepara Cloudflare, se conserva GitHub Pages como URL canónica temp
 5. Validar rutas del manifiesto e iconos en el preview de Cloudflare.
 6. Probar cabeceras HTTP; revisar consentimiento de analítica y que no se bloquee ningún recurso.
 7. No aplicar CSP restrictiva ni HSTS con includeSubDomains hasta probar el dominio y todos los subdominios usados.
-8. Validar canonical, metadatos sociales, JSON-LD, sitemap y robots en el dominio definitivo.
+8. Validar que el Worker conserve las señales SEO de Pages y entregue todas las páginas con noindex, sitemap vacío y robots sin Sitemap.
 9. Configurar URLs de redirección de Supabase Auth y probar login, logout y recuperación.
 10. Aprobar explícitamente el cambio de producción antes de fusionar o desplegar.
 

@@ -3,6 +3,7 @@ import { readFile, readdir, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join, resolve, relative, isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { JSDOM } from 'jsdom';
 import {
   comparePublicHtmlFiles,
   discoverPublicHtmlFiles,
@@ -26,7 +27,7 @@ try {
   console.error(`Configuración SEO inválida: ${error.message}`);
   process.exit(1);
 }
-const { target, transition, baseUrl, canonicalBaseUrl, canonicalTarget, indexable } = config;
+const { target, baseUrl, canonicalBaseUrl, canonicalTarget, indexable } = config;
 const errors = [];
 const expectedPages = ['index.html', 'servicios.html'];
 const legalPages = ['aviso-legal.html', 'politica-privacidad.html', 'politica-cookies.html'];
@@ -66,8 +67,9 @@ function checkLocalAsset(urlValue, sourceFile) {
   let url;
   try { url = new URL(urlValue, baseUrl); }
   catch { fail(`URL de activo inválida en dist/${sourceFile}: ${urlValue}`); return; }
-  if (url.origin !== baseUrl.origin || !url.pathname.startsWith(baseUrl.pathname)) return;
-  const local = decodeURIComponent(url.pathname.slice(new URL(baseUrl).pathname.length));
+  const assetBase = [baseUrl, canonicalBaseUrl].find((base) => url.origin === base.origin && url.pathname.startsWith(base.pathname));
+  if (!assetBase) return;
+  const local = decodeURIComponent(url.pathname.slice(assetBase.pathname.length));
   const path = resolve(dist, local);
   if (isAbsolute(relative(dist, path)) || relative(dist, path).startsWith('..')) fail(`Activo fuera de dist/ en dist/${sourceFile}: ${urlValue}`);
   else if (!existsSync(path)) fail(`Activo SEO no encontrado en dist/${sourceFile}: ${urlValue}`);
@@ -128,15 +130,15 @@ for (const file of artifactFiles.filter((entry) => entry.endsWith('.html'))) {
     else if (canonical[0][1] !== expectedCanonical) fail(`Canonical incorrecto en dist/${file}: ${canonical[0][1]}; esperado ${expectedCanonical}.`);
     const expectedMeta = [
       ['property', 'og:url', expectedCanonical],
-      ['property', 'og:image', `${baseUrl.href}resource/forgelock-social-preview.png`],
-      ['name', 'twitter:image', `${baseUrl.href}resource/forgelock-social-preview.png`]
+      ['property', 'og:image', `${canonicalBaseUrl.href}resource/forgelock-social-preview.png`],
+      ['name', 'twitter:image', `${canonicalBaseUrl.href}resource/forgelock-social-preview.png`]
     ];
     for (const [attribute, value, expected] of expectedMeta) {
       const tags = metaValues(html, attribute, value);
       if (tags.length !== 1) fail(`dist/${file} debe tener exactamente un meta ${value}.`);
       else if (tags[0][0].match(/\bcontent=["']([^"']+)["']/i)?.[1] !== expected) fail(`El meta ${value} de dist/${file} no coincide con ${target}.`);
     }
-    if (!html.includes(`content="${expectedCanonical}"`) || !html.includes(`content="${baseUrl.href}resource/forgelock-social-preview.png"`)) {
+    if (!html.includes(`content="${expectedCanonical}"`) || !html.includes(`content="${canonicalBaseUrl.href}resource/forgelock-social-preview.png"`)) {
       fail(`Metadatos Open Graph/Twitter no coinciden con el destino ${target} en dist/${file}.`);
     }
     for (const attribute of ['property', 'name']) {
@@ -145,7 +147,7 @@ for (const file of artifactFiles.filter((entry) => entry.endsWith('.html'))) {
         if (content) checkLocalAsset(content, file);
       }
     }
-    checkLocalAsset(`${baseUrl.href}resource/Logo.png`, file);
+    checkLocalAsset(`${canonicalBaseUrl.href}resource/Logo.png`, file);
   }
   if (legalPages.includes(file)) {
     if (!/<meta\s+name=["']robots["']\s+content=["'][^"']*noindex/i.test(html)) fail(`dist/${file} debe conservar la política noindex.`);
@@ -163,11 +165,22 @@ for (const file of artifactFiles.filter((entry) => entry.endsWith('.html'))) {
   for (const match of html.matchAll(/<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)) {
     try {
       const json = JSON.parse(match[1]);
-      if (!JSON.stringify(json).includes(baseUrl.origin)) fail(`JSON-LD de dist/${file} no incluye la base SEO de ${target}.`);
+      if (!JSON.stringify(json).includes(canonicalBaseUrl.href)) fail(`JSON-LD de dist/${file} no incluye la URL de producción de GitHub Pages.`);
     } catch (error) { fail(`JSON-LD inválido en dist/${file}: ${error.message}`); }
   }
-  if (target === 'cloudflare' && html.includes('forgelock-solution.github.io')) fail(`Referencia de GitHub Pages residual en dist/${file}.`);
-  if (target === 'github-pages' && !transition && html.includes('forgelock.forge-look19.workers.dev')) fail(`Referencia de Cloudflare residual en dist/${file}.`);
+  if (html.includes('forgelock.forge-look19.workers.dev')) fail(`Referencia SEO de Cloudflare no autorizada en dist/${file}.`);
+
+  if (target === 'cloudflare' && sourceHtmlFiles.includes(file)) {
+    const source = await readFile(join(root, file), 'utf8');
+    const signals = (content) => {
+      const dom = new JSDOM(content);
+      const selector = 'link[rel="canonical"], link[rel="alternate"], meta[property^="og:"], meta[name^="twitter:"], script[type="application/ld+json"]';
+      const values = [...dom.window.document.querySelectorAll(selector)].map((node) => node.outerHTML);
+      dom.window.close();
+      return JSON.stringify(values);
+    };
+    if (signals(html) !== signals(source)) fail(`dist/${file} debe conservar las señales SEO de producción del archivo fuente.`);
+  }
 
   for (const match of html.matchAll(/\b(?:href|src)\s*=\s*["']([^"']+)["']/gi)) {
     const value = match[1].trim();
@@ -190,7 +203,7 @@ if (verificationCount !== 1) fail(`La distribución debe conservar exactamente u
 
 try {
   const robots = await readFile(join(dist, 'robots.txt'), 'utf8');
-  const expectedSitemap = new URL('sitemap.xml', transition ? canonicalBaseUrl : baseUrl).href;
+  const expectedSitemap = new URL('sitemap.xml', canonicalBaseUrl).href;
   const sitemapDirectives = robots.split(/\r?\n/)
     .map((line) => line.trim())
     .filter((line) => /^Sitemap:/i.test(line));
@@ -279,7 +292,7 @@ try {
     }
   }
 
-  if (indexable && !transition && sitemapUrls.size === 0) fail('sitemap.xml debe contener al menos una URL indexable.');
+  if (indexable && sitemapUrls.size === 0) fail('sitemap.xml debe contener al menos una URL indexable.');
   if (!indexable && sitemapUrls.size) fail('sitemap.xml no debe contener URLs cuando INDEXABLE=false.');
   if (!indexable) {
     for (const file of artifactFiles.filter((entry) => entry.endsWith('.html'))) {
@@ -299,7 +312,7 @@ try {
       if (canonicals.length !== 1 || canonicals[0] !== expectedUrl) {
         fail(`dist/${file} debe tener una única canonical propia: ${expectedUrl}`);
       }
-      if (!transition && !sitemapUrls.has(expectedUrl)) {
+      if (!sitemapUrls.has(expectedUrl)) {
         fail(`Falta en sitemap.xml la página pública canónica dist/${file}: ${expectedUrl}`);
       }
     }

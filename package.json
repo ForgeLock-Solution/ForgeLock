@@ -15,7 +15,7 @@
     "build:assets:windows": "powershell -ExecutionPolicy Bypass -File ./scripts/copy-local-assets.ps1",
     "build": "npm run build:assets && npm run build:styles",
     "build:dist": "node ./scripts/build-dist.mjs github-pages",
-    "build:cloudflare": "npm run build:dist:cloudflare",
+    "build:cloudflare": "node ./scripts/build-dist.mjs cloudflare",
     "build:dist:cloudflare": "node ./scripts/build-dist.mjs cloudflare",
     "build:dist:pages-transition": "node ./scripts/build-pages-transition.mjs",
     "build:dist:windows": "node ./scripts/build-dist.mjs github-pages",

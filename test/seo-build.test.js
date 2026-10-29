@@ -18,7 +18,6 @@ const buildRoot = await mkdtemp(join(tmpdir(), 'forgelock-seo-build-'));
 const distDirs = {
   'github-pages': join(buildRoot, 'pages'),
   cloudflare: join(buildRoot, 'cloudflare'),
-  transition: join(buildRoot, 'pages-transition'),
   'not-indexable-pages': join(buildRoot, 'not-indexable-pages'),
   'not-indexable-cloudflare': join(buildRoot, 'not-indexable-cloudflare')
 };
@@ -60,52 +59,38 @@ function run(command, args, env = {}) {
 }
 
 async function checkVariant(target) {
-  const transition = target === 'transition';
-  const base = transition ? bases['github-pages'] : bases[target];
-  const canonicalBase = transition ? bases.cloudflare : base;
-  const canonicalTarget = transition ? 'cloudflare' : target;
+  const base = bases[target];
+  const canonicalBase = bases['github-pages'];
   for (const file of ['index.html', 'servicios.html']) {
     const html = await readFile(join(distDirs[target], file), 'utf8');
     const dom = new JSDOM(html);
     const document = dom.window.document;
-    const pageUrl = new URL(file === 'index.html' ? './' : canonicalTarget === 'cloudflare' ? 'servicios' : file, canonicalBase).href;
+    const pageUrl = new URL(file === 'index.html' ? './' : file, canonicalBase).href;
     assert.equal(document.querySelectorAll('link[rel="canonical"]').length, 1);
     assert.equal(document.querySelector('link[rel="canonical"]').href, pageUrl);
     assert.equal(document.querySelector('meta[property="og:url"]').content, pageUrl);
-    assert.equal(document.querySelector('meta[property="og:image"]').content, `${base}resource/forgelock-social-preview.png`);
-    assert.equal(document.querySelector('meta[name="twitter:image"]').content, `${base}resource/forgelock-social-preview.png`);
+    assert.equal(document.querySelector('meta[property="og:image"]').content, `${canonicalBase}resource/forgelock-social-preview.png`);
+    assert.equal(document.querySelector('meta[name="twitter:image"]').content, `${canonicalBase}resource/forgelock-social-preview.png`);
     const jsonLd = [...document.querySelectorAll('script[type="application/ld+json"]')].map((node) => JSON.parse(node.textContent));
     assert.ok(jsonLd.length > 0);
-    assert.ok(JSON.stringify(jsonLd).includes(base));
-    if (target === 'cloudflare') assert.doesNotMatch(`${html}\n${JSON.stringify(jsonLd)}`, /forgelock-solution\.github\.io/);
-    else if (!transition) assert.doesNotMatch(`${html}\n${JSON.stringify(jsonLd)}`, /forgelock\.forge-look19\.workers\.dev/);
-    if (transition) {
-      assert.match(JSON.stringify(jsonLd), /forgelock\.forge-look19\.workers\.dev/);
-      assert.match(JSON.stringify(jsonLd), /forgelock-solution\.github\.io\/ForgeLock\/resource\/Logo\.png/);
-      assert.doesNotMatch(JSON.stringify(jsonLd), /forgelock-solution\.github\.io\/ForgeLock\/(?:#|index\.html|servicios\.html)/);
-    }
-  }
-
-  if (transition) {
-    const transitionHome = await readFile(join(distDirs.transition, 'index.html'), 'utf8');
-    const transitionAppView = await readFile(join(distDirs.transition, 'src/views/app-view.js'), 'utf8');
-    assert.match(transitionHome, /href="\.\/servicios\.html"/);
-    assert.match(transitionAppView, /href="\.\/servicios\.html"/);
+    assert.ok(JSON.stringify(jsonLd).includes(canonicalBase));
+    assert.doesNotMatch(html, /forgelock\.forge-look19\.workers\.dev/);
+    if (target === 'cloudflare') assert.match(html, /<meta\s+name=["']robots["'][^>]*\bnoindex\b/i);
   }
 
   const robots = await readFile(join(distDirs[target], 'robots.txt'), 'utf8');
-  const sitemapBase = transition ? bases.cloudflare : base;
-  assert.match(robots, new RegExp(`Sitemap: ${sitemapBase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}sitemap\\.xml`));
+  if (target === 'cloudflare') assert.doesNotMatch(robots, /^Sitemap:/im);
+  else assert.ok(robots.includes(`Sitemap: ${canonicalBase}sitemap.xml`));
   const sitemap = new JSDOM(await readFile(join(distDirs[target], 'sitemap.xml'), 'utf8'), { contentType: 'application/xml' }).window.document;
   const urls = [...sitemap.getElementsByTagNameNS('*', 'loc')].map((node) => node.textContent.trim());
-  assert.deepEqual(urls, transition ? [] : [base, `${base}${target === 'cloudflare' ? 'servicios' : 'servicios.html'}`]);
+  assert.deepEqual(urls, target === 'cloudflare' ? [] : [canonicalBase, `${canonicalBase}servicios.html`]);
   assert.equal(new Set(urls).size, urls.length);
   assert.ok(urls.every((url) => url.startsWith(base)));
 
   for (const file of ['aviso-legal.html', 'politica-privacidad.html', 'politica-cookies.html']) {
     const html = await readFile(join(distDirs[target], file), 'utf8');
     assert.match(html, /<meta\s+name=["']robots["']\s+content=["'][^"']*noindex/i);
-    const legalCanonical = canonicalTarget === 'cloudflare' ? `${canonicalBase}${file.slice(0, -5)}` : `${canonicalBase}${file}`;
+    const legalCanonical = `${canonicalBase}${file}`;
     assert.equal(new JSDOM(html).window.document.querySelector('link[rel="canonical"]').href, legalCanonical);
   }
   const allHtml = await Promise.all(['index.html', 'servicios.html', ...['aviso-legal.html', 'politica-privacidad.html', 'politica-cookies.html']].map((file) => readFile(join(distDirs[target], file), 'utf8')));
@@ -127,7 +112,7 @@ test('builds SEO variants independently for GitHub Pages and Cloudflare Worker',
     env: { ...process.env, SEO_TARGET: 'cloudflare', DIST_DIR: distDirs['github-pages'] }
   });
   assert.notEqual(wrongTarget.status, 0);
-  assert.match(`${wrongTarget.stdout}\n${wrongTarget.stderr}`, /Canonical incorrecto|no coincide con cloudflare/);
+  assert.match(`${wrongTarget.stdout}\n${wrongTarget.stderr}`, /noindex|INDEXABLE=false/);
 
   const distAfterBuild = await Promise.all(preservedDistPaths.map(async (path) => existsSync(path) ? readFile(path) : null));
   assert.deepEqual(distAfterBuild, distSnapshots, 'los builds SEO de prueba no deben reemplazar un dist/ preexistente');
@@ -138,14 +123,30 @@ test('builds SEO variants independently for GitHub Pages and Cloudflare Worker',
   assert.match(workerService, /href="\.\/#servicios"/);
   assert.doesNotMatch(workerService, /href="\.\/index\.html/);
 
-  run('npm', ['run', 'build:dist:pages-transition'], { DIST_DIR: distDirs.transition });
-  await checkVariant('transition');
-  const transitionValidation = spawnSync(process.execPath, ['./scripts/validate-dist.mjs'], {
-    cwd: fileURLToPath(root),
-    encoding: 'utf8',
-    env: { ...process.env, SEO_TRANSITION: 'cloudflare', DIST_DIR: distDirs.transition }
-  });
-  assert.equal(transitionValidation.status, 0, `${transitionValidation.stdout}\n${transitionValidation.stderr}`);
+  // Reject regressions in a complete preview artifact, then restore it.
+  const workerHomePath = join(distDirs.cloudflare, 'index.html');
+  const workerHome = await readFile(workerHomePath, 'utf8');
+  const mutations = [
+    [workerHome.replace('noindex,follow', 'index,follow'), /noindex/],
+    [workerHome.replace(`href="${bases['github-pages']}"`, `href="${bases.cloudflare}"`), /Canonical incorrecto/],
+    [workerHome.replace(`${bases['github-pages']}resource/forgelock-social-preview.png`, `${bases.cloudflare}resource/forgelock-social-preview.png`), /Open Graph|og:image/],
+    [workerHome.replace('"name": "ForgeLock"', '"name": "Otra marca"'), /señales SEO de producción/]
+  ];
+  try {
+    for (const [mutated, message] of mutations) {
+      assert.notEqual(mutated, workerHome, 'la regresión de prueba debe modificar el artefacto');
+      await writeFile(workerHomePath, mutated);
+      const rejected = spawnSync(process.execPath, ['./scripts/validate-dist-cloudflare.mjs'], {
+        cwd: projectRoot,
+        encoding: 'utf8',
+        env: { ...process.env, DIST_DIR: distDirs.cloudflare }
+      });
+      assert.notEqual(rejected.status, 0);
+      assert.match(`${rejected.stdout}\n${rejected.stderr}`, message);
+    }
+  } finally {
+    await writeFile(workerHomePath, workerHome);
+  }
 
   for (const [target, output] of [['github-pages', distDirs['not-indexable-pages']], ['cloudflare', distDirs['not-indexable-cloudflare']]]) {
     run('npm', [target === 'cloudflare' ? 'run' : 'run', target === 'cloudflare' ? 'build:dist:cloudflare' : 'build:dist'], {
@@ -203,4 +204,29 @@ test('fails clearly for invalid SEO target configuration', () => {
   });
   assert.notEqual(result.status, 0);
   assert.match(`${result.stdout}\n${result.stderr}`, /SEO_TARGET inválido.*github-pages.*cloudflare/s);
+});
+
+test('blocks canonical migration and indexable Worker builds before creating output', () => {
+  const output = join(buildRoot, 'blocked-output');
+  for (const env of [
+    { SEO_TARGET: 'cloudflare', INDEXABLE: 'true' },
+    { SEO_TARGET: 'github-pages', SEO_TRANSITION: 'cloudflare' }
+  ]) {
+    const result = spawnSync(process.execPath, ['scripts/build-dist.mjs'], {
+      cwd: projectRoot,
+      encoding: 'utf8',
+      env: { ...process.env, ...env, DIST_DIR: output }
+    });
+    assert.notEqual(result.status, 0);
+    assert.match(`${result.stdout}\n${result.stderr}`, /no indexable|Migración canónica deshabilitada/);
+    assert.equal(existsSync(output), false, 'una configuración rechazada no debe crear un artefacto');
+  }
+  const legacy = spawnSync(process.execPath, ['scripts/build-pages-transition.mjs'], {
+    cwd: projectRoot,
+    encoding: 'utf8',
+    env: { ...process.env, DIST_DIR: output }
+  });
+  assert.notEqual(legacy.status, 0);
+  assert.match(`${legacy.stdout}\n${legacy.stderr}`, /Migración canónica deshabilitada/);
+  assert.equal(existsSync(output), false);
 });
