@@ -1,8 +1,9 @@
 # Cloudflare Worker configuration for the static ForgeLock site.
-# Build and validate command: npm run build:dist:cloudflare
+# Build and validate command: npm run build:cloudflare
 # Future publish only through npm run deploy:cloudflare after explicit authorization.
 name = "forgelock"
 compatibility_date = "2026-10-19"
+previews = {}
 
 [assets]
 directory = "./dist-cloudflare"
