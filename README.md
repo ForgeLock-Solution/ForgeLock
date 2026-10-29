@@ -92,11 +92,30 @@ npm run deploy:supabase
 
 La generación SEO usa dos destinos y dos salidas separadas. `npm run build:dist` conserva GitHub Pages como valor predeterminado y genera en `dist/` la base `https://forgelock-solution.github.io/ForgeLock/`, incluida su subruta `/ForgeLock/`. `npm run build:dist:cloudflare` genera en `dist-cloudflare/` la variante Worker con base `https://forgelock.forge-look19.workers.dev/`. `wrangler.toml` declara únicamente `dist-cloudflare/`. Ningún build reemplaza una salida que ya contenga archivos: inspecciona el artefacto existente y usa una carpeta temporal vacía para validar sin sobrescribirlo.
 
-`SEO_TARGET` puede fijarse explícitamente a `github-pages` o `cloudflare`. `BASE_URL`, si se define, debe coincidir exactamente con la URL del destino; combinaciones desconocidas o contradictorias fallan. Los HTML fuente conservan las canonicals de Pages. En la variante Worker, la configuración `html_handling = "auto-trailing-slash"` se valida en preview antes de depender de la ruta final `/servicios`; canonical, Open Graph, JSON-LD y sitemap deben corresponder con esa ruta. Pages conserva `/ForgeLock/servicios.html`. Las páginas legales mantienen `noindex` y quedan fuera del sitemap en ambos destinos.
+`SEO_TARGET` puede fijarse explícitamente a `github-pages` o `cloudflare`. Para Cloudflare, `BASE_URL` debe ser `https://forgelock.forge-look19.workers.dev/`, incluida la barra final; cualquier valor explícito debe coincidir exactamente con el destino seleccionado. Los HTML fuente conservan las canonicals de Pages. En la variante Worker, la configuración `html_handling = "auto-trailing-slash"` se valida en preview antes de depender de la ruta final `/servicios`; canonical, Open Graph, JSON-LD y sitemap deben corresponder con esa ruta. Pages conserva `/ForgeLock/servicios.html`. Las páginas legales mantienen `noindex` y quedan fuera del sitemap en ambos destinos.
 
 Valida Pages con `npm run validate:dist` y el Worker con `npm run validate:dist:cloudflare`. `npm test` construye ambas variantes en una carpeta temporal y prueba que una distribución Pages falle la validación Worker. Si Wrangler está instalado, añade una prueba local de runtime; si no lo está, esa prueba se omite y no equivale a validar el preview real.
 
-El comando previsto para publicar en una fase posterior es `npm run deploy:cloudflare`. Construye y valida un artefacto temporal aislado y, si se autoriza explícitamente, publica exactamente ese mismo artefacto mediante una configuración Wrangler temporal. El preflight exige el `account_id` confirmado en `wrangler.toml`; sin él falla de forma segura. Para una publicación futura se requerirá además `FORGELOCK_DEPLOY_CONFIRMATION=deploy-forgelock`. La fase de publicación invoca `wrangler deploy` directamente y requiere que Wrangler esté instalado y disponible en `PATH`; el script no lo instala. Este comando no se ha ejecutado.
+El comando previsto para publicar en una fase posterior es `npm run deploy:cloudflare`. Construye y valida un artefacto temporal aislado y, si se autoriza explícitamente, publica exactamente ese mismo artefacto mediante una configuración Wrangler temporal. Wrangler es una dependencia local fijada en `package.json` y `package-lock.json`; `npm ci` la instala y no hace falta una instalación global ni tenerla en `PATH`. Wrangler 4.155.0 requiere Node.js 22 o superior; usa Node.js `>=22 <25` para las operaciones de Wrangler, aunque el sitio y sus builds mantienen el mínimo Node.js 20. El preflight exige el `account_id` confirmado en `wrangler.toml`; sin él falla de forma segura. `FORGELOCK_DEPLOY_CONFIRMATION=deploy-forgelock` solo debe definirse justo al ejecutar el despliegue autorizado y eliminarse inmediatamente después. La fase de publicación invoca `wrangler deploy` directamente; este comando no se ha ejecutado. No copies sintaxis de PowerShell en CMD: usa el bloque correspondiente y ejecuta sus líneas en la misma terminal, solo después de confirmar el `account_id` y autorizar la publicación.
+
+CMD:
+
+```cmd
+set "FORGELOCK_DEPLOY_CONFIRMATION=deploy-forgelock"
+npm run deploy:cloudflare
+set "FORGELOCK_DEPLOY_CONFIRMATION="
+```
+
+PowerShell:
+
+```powershell
+$env:FORGELOCK_DEPLOY_CONFIRMATION = 'deploy-forgelock'
+try {
+  npm run deploy:cloudflare
+} finally {
+  Remove-Item Env:FORGELOCK_DEPLOY_CONFIRMATION -ErrorAction SilentlyContinue
+}
+```
 
 ## Transición de canonical
 

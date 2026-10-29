@@ -12,6 +12,7 @@ import { JSDOM } from 'jsdom';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const wranglerCli = process.env.FORGELOCK_WRANGLER_CLI || resolve(root, 'node_modules/wrangler/bin/wrangler.js');
 const tempRoot = await mkdtemp(join(tmpdir(), 'forgelock-worker-runtime-'));
+const wranglerSupported = Number(process.versions.node.split('.')[0]) >= 22;
 let previewProcess;
 after(async () => {
   if (previewProcess?.exitCode === null) {
@@ -24,7 +25,15 @@ after(async () => {
       previewProcess.kill('SIGTERM');
     });
   }
-  await rm(tempRoot, { recursive: true, force: true });
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      await rm(tempRoot, { recursive: true, force: true });
+      break;
+    } catch (error) {
+      if (!['EBUSY', 'EPERM'].includes(error.code) || attempt === 49) throw error;
+      await new Promise((resolvePromise) => setTimeout(resolvePromise, 100));
+    }
+  }
 });
 
 async function freePort() {
@@ -36,7 +45,11 @@ async function freePort() {
 }
 
 test('Workers Static Assets sirve las rutas SEO locales con señales coherentes', {
-  skip: existsSync(wranglerCli) ? false : 'Wrangler no está instalado localmente; se requiere preview real para probar el runtime.'
+  skip: !existsSync(wranglerCli)
+    ? 'Wrangler no está instalado localmente; se requiere preview real para probar el runtime.'
+    : !wranglerSupported
+      ? 'Wrangler 4.155.0 requiere Node.js 22 o superior para probar el runtime.'
+      : false
 }, async () => {
   const assetsDir = join(tempRoot, 'assets');
   const configPath = join(tempRoot, 'wrangler.toml');

@@ -30,7 +30,8 @@
     "@fortawesome/fontawesome-free": "^6.7.2",
     "jsdom": "^26.0.0",
     "serve": "14.2.6",
-    "tailwindcss": "^3.4.17"
+    "tailwindcss": "^3.4.17",
+    "wrangler": "4.155.0"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.116.0"
