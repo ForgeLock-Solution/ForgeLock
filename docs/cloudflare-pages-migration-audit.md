@@ -1,5 +1,7 @@
 # Auditoría y preparación de Cloudflare Pages
 
+> Documento histórico. La política vigente de la fase 1 conserva GitHub Pages como producción y Cloudflare como pruebas no indexables; véase la [política SEO](seo-cloudflare-transition.md). Los procedimientos de migración de esta auditoría no están autorizados.
+
 Fecha: 23 de octubre de 2026  
 Rama: `chore/cloudflare-pages-prep`  
 Commit base: `b0b9f30`  

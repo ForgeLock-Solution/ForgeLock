@@ -37,21 +37,8 @@ export function getPageUrl(file, baseUrl, target) {
 
 export function getSeoTransition(env = process.env) {
   const transition = env.SEO_TRANSITION || '';
-  if (transition && transition !== 'cloudflare') {
-    throw new Error('SEO_TRANSITION solo admite "cloudflare".');
-  }
-  if (transition && (env.SEO_TARGET || 'github-pages') !== 'github-pages') {
-    throw new Error('La transición canónica a Cloudflare solo se genera desde la variante GitHub Pages.');
-  }
-  if (transition && !env.DIST_DIR) {
-    throw new Error('La variante de transición requiere DIST_DIR temporal explícito para no reemplazar dist/.');
-  }
   if (transition) {
-    const output = resolve(env.DIST_DIR);
-    const temporaryRelative = relative(resolve(tmpdir()), output);
-    if (!temporaryRelative || temporaryRelative === '..' || temporaryRelative.startsWith(`..${sep}`) || isAbsolute(temporaryRelative)) {
-      throw new Error('La variante de transición solo puede escribirse en un directorio temporal aislado.');
-    }
+    throw new Error('Migración canónica deshabilitada: GitHub Pages sigue siendo producción. SEO_TRANSITION requiere una nueva autorización y revisión del flujo.');
   }
   return transition;
 }
@@ -76,13 +63,16 @@ export function getSeoConfig(env = process.env) {
   }
 
   const transition = getSeoTransition(env);
+  if (target === 'cloudflare' && env.INDEXABLE && env.INDEXABLE !== 'false') {
+    throw new Error('Cloudflare es un entorno de pruebas no indexable; INDEXABLE solo puede ser false para este destino.');
+  }
   return {
     target,
     transition,
     baseUrl: new URL(expectedBaseUrl),
-    canonicalBaseUrl: new URL(transition ? SEO_TARGETS.cloudflare : expectedBaseUrl),
-    canonicalTarget: transition || target,
-    indexable: env.INDEXABLE !== 'false'
+    canonicalBaseUrl: new URL(DEFAULT_BASE_URL),
+    canonicalTarget: 'github-pages',
+    indexable: target === 'github-pages' && env.INDEXABLE !== 'false'
   };
 }
 

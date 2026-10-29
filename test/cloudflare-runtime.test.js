@@ -73,7 +73,8 @@ test('Workers Static Assets sirve las rutas SEO locales con señales coherentes'
   const port = await freePort();
   const preview = spawn(process.execPath, [wranglerCli, 'dev', '--local', '--config', configPath, '--ip', '127.0.0.1', '--port', String(port)], {
     cwd: tempRoot,
-    stdio: ['ignore', 'pipe', 'pipe']
+    stdio: ['ignore', 'pipe', 'pipe'],
+    env: { ...process.env, WRANGLER_SEND_METRICS: 'false' }
   });
   previewProcess = preview;
   let logs = '';
@@ -91,7 +92,7 @@ test('Workers Static Assets sirve las rutas SEO locales con señales coherentes'
   }
   assert.ok(ready, `Wrangler preview no inició.\n${logs}`);
 
-  const seoBase = 'https://forgelock.forge-look19.workers.dev/';
+  const seoBase = 'https://forgelock-solution.github.io/ForgeLock/';
   const routes = [
     '/sitemap.xml', '/robots.txt',
     '/', '/servicios', '/servicios.html',
@@ -131,11 +132,13 @@ test('Workers Static Assets sirve las rutas SEO locales con señales coherentes'
     if (route === '/sitemap.xml') {
       const sitemap = new JSDOM(body, { contentType: 'application/xml' }).window.document;
       sitemapUrls = [...sitemap.getElementsByTagNameNS('*', 'loc')].map((node) => node.textContent.trim());
-      assert.deepEqual(sitemapUrls, [`${seoBase}`, `${seoBase}servicios`]);
+      assert.deepEqual(sitemapUrls, []);
     } else if (route === '/robots.txt') {
-      assert.match(body, new RegExp(`${seoBase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}sitemap\\.xml`));
+      assert.doesNotMatch(body, /^Sitemap:/im);
+      assert.match(body, /^Allow: \/$/m, 'el crawler debe poder leer noindex');
     } else if (document) {
-      const expectedCanonical = new URL(finalUrl.pathname === '/' ? './' : finalUrl.pathname.slice(1), seoBase).href;
+      const expectedCanonical = new URL(finalUrl.pathname === '/' ? './' : `${finalUrl.pathname.slice(1)}.html`, seoBase).href;
+      assert.match(body, /<meta\s+name=["']robots["']\s+content=["'][^"']*noindex/i);
       if (route.startsWith('/aviso-legal') || route.startsWith('/politica-')) {
         assert.equal(canonical, expectedCanonical, `${route} canonical`);
         assert.match(body, /<meta\s+name=["']robots["']\s+content=["'][^"']*noindex/i);
@@ -143,7 +146,7 @@ test('Workers Static Assets sirve las rutas SEO locales con señales coherentes'
       } else {
         assert.equal(canonical, expectedCanonical, `${route} canonical`);
         assert.equal(ogUrl, expectedCanonical, `${route} og:url`);
-        assert.equal(sitemapUrls.includes(expectedCanonical), true);
+        assert.equal(sitemapUrls.includes(expectedCanonical), false);
         if (route === '/') {
           homeDocument = document;
           assert.equal(document.querySelector('meta[name="twitter:image"]').content, `${seoBase}resource/forgelock-social-preview.png`);
@@ -154,7 +157,7 @@ test('Workers Static Assets sirve las rutas SEO locales con señales coherentes'
         const structuredData = [...document.querySelectorAll('script[type="application/ld+json"]')].map((node) => JSON.parse(node.textContent));
         assert.ok(structuredData.length > 0);
         assert.ok(JSON.stringify(structuredData).includes(seoBase));
-        assert.doesNotMatch(`${body}\n${JSON.stringify(structuredData)}`, /forgelock-solution\.github\.io/);
+        assert.doesNotMatch(`${body}\n${JSON.stringify(structuredData)}`, /forgelock\.forge-look19\.workers\.dev/);
       }
       sitemapContainsCanonical = sitemapUrls.includes(expectedCanonical);
     }
@@ -171,7 +174,7 @@ test('Workers Static Assets sirve las rutas SEO locales con señales coherentes'
     });
   }
   console.log(`Workers Static Assets preview routes: ${JSON.stringify(records)}`);
-  assert.equal(sitemapUrls.length, 2);
+  assert.equal(sitemapUrls.length, 0);
 
   for (const asset of ['resource/forgelock-social-preview.png', 'resource/Logo.png', 'src/styles/tailwind.css']) {
     assert.equal((await fetch(`${origin}/${asset}`)).status, 200, `${asset} debe servirse`);
