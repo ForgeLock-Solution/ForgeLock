@@ -1,16 +1,20 @@
 // Genera un paquete estático autocontenido, apto para GitHub Pages y Supabase Storage.
 // Versión multiplataforma (Node.js) del antiguo create-dist.ps1.
 import { existsSync } from 'node:fs';
-import { cp, mkdir, rm } from 'node:fs/promises';
+import { cp, mkdir, readdir } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { getDistDirectory } from './seo-helpers.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
-const output = join(root, 'dist');
+const output = getDistDirectory(root);
 
 if (existsSync(output)) {
-    await rm(output, { recursive: true, force: true });
+    const existingEntries = await readdir(output);
+    if (existingEntries.length > 0) {
+        throw new Error(`No se reemplaza una distribución existente: ${output}. Usa un directorio temporal vacío o conserva/mueve primero los artefactos existentes.`);
+    }
 }
 await mkdir(output, { recursive: true });
 
@@ -20,7 +24,7 @@ await cp(join(root, 'robots.txt'), join(output, 'robots.txt'));
 await cp(join(root, 'sitemap.xml'), join(output, 'sitemap.xml'));
 await cp(join(root, '404.html'), join(output, '404.html'));
 
-// Configuración de Cloudflare Pages y manifiesto: deben quedar en la raíz de dist.
+// Configuración de activos estáticos de Cloudflare y manifiesto: van en la raíz de dist.
 for (const file of ['site.webmanifest', '_headers', '_redirects']) {
     if (existsSync(join(root, file))) await cp(join(root, file), join(output, file));
 }

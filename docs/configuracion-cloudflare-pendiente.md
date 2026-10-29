@@ -1,6 +1,6 @@
-# Configuración pendiente antes de activar Cloudflare Pages
+# Configuración pendiente para publicar Cloudflare Worker Static Assets
 
-Estado: preparación documental. No se han creado recursos en Cloudflare/Supabase ni realizado despliegues.
+Estado: guía de transición. No realizar despliegues desde este documento; sigue vigente el preflight seguro descrito en README.
 
 ## Dominio temporal confirmado
 
@@ -11,10 +11,11 @@ Mientras se prepara Cloudflare, se conserva GitHub Pages como URL canónica temp
 - [ ] Dominio propio exacto.
 - [ ] Dominio canónico: raíz o www; definir una única versión y redirigir la otra.
 - [ ] Confirmar que el dominio está comprado y quién administra su DNS.
-- [ ] Cuenta/proyecto de Cloudflare Pages y método de conexión con GitHub.
+- [ ] Confirmar el Worker `forgelock` y el método autorizado de publicación.
+- [ ] Confirmar con el responsable de la cuenta el `account_id` que debe fijarse en `wrangler.toml`; el preflight falla mientras no esté confirmado.
 - [ ] Rama de producción; propuesta: main, pendiente de confirmación.
-- [ ] Comando de build: npm run build:dist.
-- [ ] Directorio de salida: dist.
+- [ ] Build de Worker: `npm run build:dist:cloudflare`.
+- [ ] Directorio de activos del Worker: `dist-cloudflare/`.
 - [ ] Versión de Node compatible con package.json (Node 20–24).
 - [ ] Confirmar si se mantiene GitHub Pages durante la validación o se desactiva tras aprobar Cloudflare.
 - [ ] URL de proyecto Supabase (solo URL pública, nunca claves secretas).
@@ -29,17 +30,18 @@ Mientras se prepara Cloudflare, se conserva GitHub Pages como URL canónica temp
 ## Valores conocidos
 
 - Repositorio: ForgeLock-Solution/ForgeLock
-- Rama de trabajo: chore/cloudflare-static-config
-- Comando de build: npm run build:dist
-- Salida esperada: dist/
+- Rama de trabajo de esta preparación: `codex/cloudflare-seo-migration-20261029`
+- Build Pages: `npm run build:dist`; salida `dist/`.
+- Build Worker: `npm run build:dist:cloudflare`; salida `dist-cloudflare/`.
+- Publicación futura únicamente mediante `npm run deploy:cloudflare` tras autorización.
 - Marca pública: ForgeLock
 - Idioma: es-CO
 - Colores de esta propuesta: oscuro #0b1120 y blanco #ffffff; confirmar contra la identidad visual vigente.
 
 ## Validaciones antes de producción
 
-1. Ejecutar `npm ci`, `npm test` y `npm run build:dist`. La compilación incluye `scripts/validate-dist.mjs` para revisar los archivos esenciales, la URL del sitemap y las dimensiones declaradas/reales de los iconos.
-2. Confirmar que `dist/` contiene `site.webmanifest`, `_headers`, `_redirects`, `favicon.ico`, `Icon-192.png`, `Apple-touch-icon.png`, HTML, CSS, JS, imágenes, `robots.txt` y `sitemap.xml`.
+1. Ejecutar `npm ci` y `npm test`. Antes de generar distribuciones, inspeccionar `dist/` y `dist-cloudflare/`; los builds se detienen si su salida ya contiene archivos. Para validar sin reemplazar artefactos, usar `DIST_DIR` con una carpeta temporal vacía.
+2. Confirmar que `dist-cloudflare/` contiene `site.webmanifest`, `_headers`, `_redirects`, iconos, HTML, CSS, JS, imágenes, `robots.txt` y `sitemap.xml`.
 3. Revisar los iconos en navegador y comprobar visualmente transparencia, recorte y nitidez; el validador comprueba formato PNG y dimensiones de los dos iconos declarados en el manifiesto.
 4. Verificar que no haya claves privadas ni archivos .env dentro del artefacto.
 5. Validar rutas del manifiesto e iconos en el preview de Cloudflare.

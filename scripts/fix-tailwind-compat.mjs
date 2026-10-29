@@ -1,6 +1,10 @@
 import { readFile, writeFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const stylesheetPath = new URL('../src/styles/tailwind.css', import.meta.url);
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const stylesheetPath = resolve(root, process.env.TAILWIND_OUTPUT_FILE || 'src/styles/tailwind.css');
 const stylesheet = await readFile(stylesheetPath, 'utf8');
 
 const compatibleStylesheet = stylesheet
