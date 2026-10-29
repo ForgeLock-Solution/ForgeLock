@@ -3,24 +3,37 @@ import { readFile, readdir, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join, resolve, relative, isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { JSDOM } from 'jsdom';
-import { getDistDirectory, getSeoConfig, getPageUrl } from './seo-helpers.mjs';
+import {
+  comparePublicHtmlFiles,
+  discoverPublicHtmlFiles,
+  getCanonicalUrls,
+  getGoogleVerificationValues,
+  getSitemapRobotsBlockers,
+  isNoindex,
+  isValidLastmod,
+  parseXmlDocument,
+  SITEMAP_NAMESPACE,
+  validateSitemapUrlChildren
+} from './seo-helpers.mjs';
+import { getDistDirectory, getPageUrl, getSeoConfig } from './seo-helpers.mjs';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const dist = getDistDirectory(root);
-const errors = [];
 let config;
-try { config = getSeoConfig(); }
-catch (error) {
+try {
+  config = getSeoConfig();
+} catch (error) {
   console.error(`Configuración SEO inválida: ${error.message}`);
   process.exit(1);
 }
 const { target, transition, baseUrl, canonicalBaseUrl, canonicalTarget, indexable } = config;
+const errors = [];
 const expectedPages = ['index.html', 'servicios.html'];
 const legalPages = ['aviso-legal.html', 'politica-privacidad.html', 'politica-cookies.html'];
-const verificationToken = 'peYxRjV0Snt4fmiTcjCgkCfvDrTBws3qGUMy8vJVwjQ';
+const sourceVerificationValues = getGoogleVerificationValues(await readFile(join(root, 'index.html'), 'utf8'));
+const verificationToken = sourceVerificationValues[0];
 const requiredFiles = [
-  ...expectedPages, ...legalPages, 'robots.txt', 'sitemap.xml', 'site.webmanifest',
+  ...expectedPages, 'robots.txt', 'sitemap.xml', 'site.webmanifest',
   '_headers', '_redirects', 'favicon.ico', 'Apple-touch-icon.png', 'Icon-192.png'
 ];
 
@@ -66,6 +79,17 @@ if (!existsSync(dist)) {
 }
 
 const artifactFiles = await listFiles(dist);
+let sourceHtmlFiles = [];
+let distHtmlFiles = [];
+try {
+  sourceHtmlFiles = await discoverPublicHtmlFiles(root);
+  distHtmlFiles = await discoverPublicHtmlFiles(dist);
+} catch (error) {
+  fail(error.message);
+}
+const pageInventory = comparePublicHtmlFiles(sourceHtmlFiles, distHtmlFiles);
+for (const file of pageInventory.missing) fail(`Página pública del origen ausente en dist/: ${file}`);
+for (const file of pageInventory.unexpected) fail(`Página HTML en dist/ sin página pública correspondiente en origen: ${file}`);
 for (const file of artifactFiles) {
   if (/(^|\/)\.env(?:\.|$)/i.test(file) || /(^|\/)supabase-config\.js$/i.test(file)) fail(`Archivo de configuración privada incluido en dist/: ${file}`);
 }
@@ -167,27 +191,136 @@ if (verificationCount !== 1) fail(`La distribución debe conservar exactamente u
 try {
   const robots = await readFile(join(dist, 'robots.txt'), 'utf8');
   const expectedSitemap = new URL('sitemap.xml', transition ? canonicalBaseUrl : baseUrl).href;
-  const sitemapDirectives = [...robots.matchAll(/^Sitemap:\s*(\S+)\s*$/gim)];
-  if (indexable && (sitemapDirectives.length !== 1 || sitemapDirectives[0][1] !== expectedSitemap)) fail(`robots.txt no apunta únicamente al sitemap esperado: ${expectedSitemap}`);
+  const sitemapDirectives = robots.split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => /^Sitemap:/i.test(line));
+  if (indexable && (sitemapDirectives.length !== 1 || sitemapDirectives[0] !== `Sitemap: ${expectedSitemap}`)) {
+    fail(`robots.txt debe contener una única directiva Sitemap: ${expectedSitemap}`);
+  }
   if (!indexable && sitemapDirectives.length) fail('robots.txt no debe publicar un sitemap cuando INDEXABLE=false.');
-  if (!/^User-agent:\s*\*\s*$/m.test(robots) || !/^Allow:\s*\/\s*$/m.test(robots)) fail('robots.txt debe permitir el rastreo general sin bloquear recursos.');
+  if (!/^User-agent:\s*\*\s*$/m.test(robots) || !/^Allow:\s*\/\s*$/m.test(robots)) {
+    fail('robots.txt debe permitir el rastreo general sin bloquear recursos.');
+  }
 
   const sitemap = await readFile(join(dist, 'sitemap.xml'), 'utf8');
-  let xml;
-  try { xml = new JSDOM(sitemap, { contentType: 'application/xml' }).window.document; }
-  catch (error) { fail(`sitemap.xml no es XML válido: ${error.message}`); }
-  const locations = xml ? [...xml.getElementsByTagNameNS('*', 'loc')].map((node) => node.textContent.trim()) : [];
-  const expectedLocations = indexable && !transition ? [baseUrl.href, getPageUrl('servicios.html', baseUrl, target)] : [];
-  if (locations.length !== expectedLocations.length || new Set(locations).size !== locations.length) fail(`sitemap.xml debe contener ${expectedLocations.length} URL únicas; encontradas: ${locations.length}.`);
-  for (const location of locations) {
-    try { if (new URL(location).href !== location || !location.startsWith(baseUrl.href)) fail(`URL de sitemap inválida o fuera del destino ${target}: ${location}`); }
-    catch { fail(`URL no absoluta en sitemap.xml: ${location}`); }
+  let xmlDocument;
+  try {
+    xmlDocument = parseXmlDocument(sitemap);
+  } catch (error) {
+    fail(`sitemap.xml no es XML bien formado: ${error.message}`);
   }
-  if (locations.some((location, index) => location !== expectedLocations[index])) fail(`sitemap.xml no contiene las páginas indexables esperadas de ${target}.`);
-  if (target === 'cloudflare' && (robots.includes('forgelock-solution.github.io') || sitemap.includes('forgelock-solution.github.io'))) fail('robots.txt/sitemap.xml mezclan dominios de GitHub Pages y Cloudflare.');
-  if (target === 'github-pages' && !transition && (robots.includes('forgelock.forge-look19.workers.dev') || sitemap.includes('forgelock.forge-look19.workers.dev'))) fail('robots.txt/sitemap.xml mezclan dominios de GitHub Pages y Cloudflare.');
-  if (transition && sitemap.includes('forgelock-solution.github.io')) fail('El sitemap de transición no debe recomendar URLs de Pages.');
-} catch (error) { fail(`No se pudieron validar robots.txt/sitemap.xml: ${error.message}`); }
+  const rootElement = xmlDocument?.documentElement;
+  if (!rootElement || rootElement.localName !== 'urlset' || rootElement.namespaceURI !== SITEMAP_NAMESPACE) {
+    fail('sitemap.xml debe usar urlset y el namespace oficial de sitemaps.');
+  }
+
+  const sitemapUrls = new Set();
+  if (rootElement?.localName === 'urlset' && rootElement.namespaceURI === SITEMAP_NAMESPACE) {
+    for (const child of [...rootElement.children]) {
+      if (child.localName !== 'url' || child.namespaceURI !== SITEMAP_NAMESPACE) {
+        fail('sitemap.xml solo debe contener elementos url del namespace oficial.');
+        continue;
+      }
+      const locations = [...child.children].filter((element) => element.localName === 'loc');
+      const lastmods = [...child.children].filter((element) => element.localName === 'lastmod');
+      if ([...child.children].some((element) => element.namespaceURI !== SITEMAP_NAMESPACE || !['loc', 'lastmod'].includes(element.localName))) {
+        fail('Los elementos de url deben contener únicamente loc y lastmod del namespace oficial.');
+      }
+      if (!validateSitemapUrlChildren(child.children) || locations.length !== 1 || lastmods.length > 1) {
+        fail('Cada elemento url debe contener un loc y, opcionalmente, un lastmod, en ese orden y sin duplicados.');
+        continue;
+      }
+      const location = locations[0].textContent.trim();
+      let parsedLocation;
+      try {
+        parsedLocation = new URL(location);
+      } catch {
+        fail(`URL loc no absoluta o inválida en sitemap.xml: ${location}`);
+        continue;
+      }
+      if (!['http:', 'https:'].includes(parsedLocation.protocol) || parsedLocation.username || parsedLocation.password || parsedLocation.search || parsedLocation.hash) {
+        fail(`URL loc no válida para indexación: ${location}`);
+      }
+      if (parsedLocation.origin !== baseUrl.origin || !parsedLocation.pathname.startsWith(baseUrl.pathname)) {
+        fail(`URL loc fuera de BASE_URL (${baseUrl.href}): ${location}`);
+      }
+      // Check the generic group, Googlebot, and all agents declared in robots.txt.
+      for (const agent of getSitemapRobotsBlockers(robots, parsedLocation.pathname)) {
+        fail(`robots.txt bloquea la URL del sitemap para el agente validado "${agent}": ${location}`);
+      }
+      if (sitemapUrls.has(parsedLocation.href)) fail(`URL duplicada en sitemap.xml: ${location}`);
+      sitemapUrls.add(parsedLocation.href);
+      if (lastmods.length === 1 && !isValidLastmod(lastmods[0].textContent.trim())) {
+        fail(`lastmod no usa una fecha válida YYYY-MM-DD para ${location}`);
+      }
+
+      let route = '';
+      if (parsedLocation.origin === baseUrl.origin && parsedLocation.pathname.startsWith(baseUrl.pathname)) {
+        try {
+          route = decodeURIComponent(parsedLocation.pathname.slice(baseUrl.pathname.length));
+        } catch {
+          fail(`Ruta loc no válida en sitemap.xml: ${location}`);
+          continue;
+        }
+      }
+      if (!route || route.endsWith('/')) route = `${route}index.html`;
+      if (target === 'cloudflare' && !route.endsWith('.html')) route = `${route}.html`;
+      const htmlPath = resolve(dist, `.${route.startsWith('/') ? route : `/${route}`}`);
+      if (isAbsolute(relative(dist, htmlPath)) || relative(dist, htmlPath).startsWith('..') || !existsSync(htmlPath)) {
+        fail(`La URL del sitemap no corresponde a una página del artefacto: ${location}`);
+        continue;
+      }
+      const html = await readFile(htmlPath, 'utf8');
+      if (isNoindex(html)) fail(`El sitemap incluye una página noindex: ${location}`);
+      const canonicals = getCanonicalUrls(html);
+      if (canonicals.length !== 1 || canonicals[0] !== parsedLocation.href) {
+        fail(`Canonical y sitemap no coinciden para ${location}`);
+      }
+    }
+  }
+
+  if (indexable && !transition && sitemapUrls.size === 0) fail('sitemap.xml debe contener al menos una URL indexable.');
+  if (!indexable && sitemapUrls.size) fail('sitemap.xml no debe contener URLs cuando INDEXABLE=false.');
+  if (!indexable) {
+    for (const file of artifactFiles.filter((entry) => entry.endsWith('.html'))) {
+      const html = await readFile(join(dist, file), 'utf8');
+      if (!isNoindex(html)) {
+        fail(`dist/${file} debe llevar noindex cuando INDEXABLE=false.`);
+      }
+    }
+  }
+
+  if (indexable) {
+    for (const file of artifactFiles.filter((entry) => entry.endsWith('.html'))) {
+      const html = await readFile(join(dist, file), 'utf8');
+      if (isNoindex(html)) continue;
+      const expectedUrl = getPageUrl(file, canonicalBaseUrl, canonicalTarget);
+      const canonicals = getCanonicalUrls(html);
+      if (canonicals.length !== 1 || canonicals[0] !== expectedUrl) {
+        fail(`dist/${file} debe tener una única canonical propia: ${expectedUrl}`);
+      }
+      if (!transition && !sitemapUrls.has(expectedUrl)) {
+        fail(`Falta en sitemap.xml la página pública canónica dist/${file}: ${expectedUrl}`);
+      }
+    }
+  }
+} catch (error) {
+  fail(`No se pudieron validar robots.txt/sitemap.xml: ${error.message}`);
+}
+
+try {
+  const sourceHtml = await readFile(join(root, 'index.html'), 'utf8');
+  const artifactHtml = await readFile(join(dist, 'index.html'), 'utf8');
+  const sourceValues = getGoogleVerificationValues(sourceHtml);
+  const artifactValues = getGoogleVerificationValues(artifactHtml);
+  if (sourceValues.length !== 1 || sourceValues.some((value) => !value)) {
+    fail('index.html fuente debe conservar la etiqueta google-site-verification con contenido.');
+  } else if (JSON.stringify(sourceValues) !== JSON.stringify(artifactValues)) {
+    fail('dist/index.html no conserva la etiqueta google-site-verification del archivo fuente.');
+  }
+} catch (error) {
+  fail(`No se pudo comprobar google-site-verification: ${error.message}`);
+}
 
 if (errors.length) {
   console.error('Validación de dist/ fallida:');

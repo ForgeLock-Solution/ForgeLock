@@ -4,11 +4,15 @@ import { existsSync } from 'node:fs';
 import { cp, mkdir, readdir } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { getDistDirectory } from './seo-helpers.mjs';
+import { getDistDirectory, discoverPublicHtmlFiles } from './seo-helpers.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
 const output = getDistDirectory(root);
+// Every root-level HTML file is a public page. Nested HTML in public content
+// directories is rejected by the shared discovery rule; tooling directories
+// (scripts, src, test) are explicitly not routes.
+const publicHtmlFiles = await discoverPublicHtmlFiles(root);
 
 if (existsSync(output)) {
     const existingEntries = await readdir(output);
@@ -18,8 +22,7 @@ if (existsSync(output)) {
 }
 await mkdir(output, { recursive: true });
 
-await cp(join(root, 'index.html'), join(output, 'index.html'));
-await cp(join(root, 'servicios.html'), join(output, 'servicios.html'));
+for (const file of publicHtmlFiles) await cp(join(root, file), join(output, file));
 await cp(join(root, 'robots.txt'), join(output, 'robots.txt'));
 await cp(join(root, 'sitemap.xml'), join(output, 'sitemap.xml'));
 await cp(join(root, '404.html'), join(output, '404.html'));
@@ -33,9 +36,6 @@ for (const file of ['site.webmanifest', '_headers', '_redirects']) {
 for (const file of ['favicon.ico', 'Apple-touch-icon.png', 'Icon-192.png']) {
     if (existsSync(join(root, file))) await cp(join(root, file), join(output, file));
 }
-await cp(join(root, 'aviso-legal.html'), join(output, 'aviso-legal.html'));
-await cp(join(root, 'politica-privacidad.html'), join(output, 'politica-privacidad.html'));
-await cp(join(root, 'politica-cookies.html'), join(output, 'politica-cookies.html'));
 await cp(join(root, 'resource'), join(output, 'resource'), { recursive: true });
 
 // Copia solo los módulos y recursos que utiliza el navegador; no se filtran

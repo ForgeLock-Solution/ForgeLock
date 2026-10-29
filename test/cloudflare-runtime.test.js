@@ -135,7 +135,7 @@ test('Workers Static Assets sirve las rutas SEO locales con señales coherentes'
           homeDocument = document;
           assert.equal(document.querySelector('meta[name="twitter:image"]').content, `${seoBase}resource/forgelock-social-preview.png`);
           assert.equal(document.querySelectorAll('meta[name="google-site-verification"]').length, 1);
-          assert.equal(document.querySelector('meta[name="google-site-verification"]').content, 'peYxRjV0Snt4fmiTcjCgkCfvDrTBws3qGUMy8vJVwjQ');
+          assert.equal(document.querySelector('meta[name="google-site-verification"]').content, 'ChwXmsaiRN157JtTwqIuE19hC7GzP7kRmgQkiiQTK5A');
         }
         if (route === '/servicios') servicesDocument = document;
         const structuredData = [...document.querySelectorAll('script[type="application/ld+json"]')].map((node) => JSON.parse(node.textContent));

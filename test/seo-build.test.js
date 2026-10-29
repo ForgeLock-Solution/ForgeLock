@@ -111,7 +111,7 @@ async function checkVariant(target) {
   const allHtml = await Promise.all(['index.html', 'servicios.html', ...['aviso-legal.html', 'politica-privacidad.html', 'politica-cookies.html']].map((file) => readFile(join(distDirs[target], file), 'utf8')));
   const verificationTags = allHtml.join('\n').match(/<meta\s+name=["']google-site-verification["'][^>]*>/gi) ?? [];
   assert.equal(verificationTags.length, 1);
-  assert.match(verificationTags[0], /content=["']peYxRjV0Snt4fmiTcjCgkCfvDrTBws3qGUMy8vJVwjQ["']/);
+  assert.match(verificationTags[0], /content=["']ChwXmsaiRN157JtTwqIuE19hC7GzP7kRmgQkiiQTK5A["']/);
 }
 
 test('builds SEO variants independently for GitHub Pages and Cloudflare Worker', async () => {
