@@ -23,7 +23,7 @@ test('los planes publican solo precios y tiempos autorizados con CTA contextual'
 
 test('la página de servicios presenta solo la oferta autorizada y CTA de WhatsApp', async () => {
   const html = await readFile(new URL('../servicios.html', import.meta.url), 'utf8');
-  assert.match(html, /<title>Planes de landing pages \| ForgeLock<\/title>/);
+  assert.match(html, /<title>Servicios digitales para negocios \| ForgeLock<\/title>/);
   assert.match(html, /Landing pages para presentar tu negocio/);
   assert.match(html, /Catálogos digitales/);
   assert.match(html, /Branding y diseño digital/);
@@ -33,6 +33,11 @@ test('la página de servicios presenta solo la oferta autorizada y CTA de WhatsA
   assert.match(html, /<iframe[^>]+title="[^"]+"/);
   assert.match(html, /class="[^"]*whatsapp-button/);
   assert.match(html, /https:\/\/wa\.me\/573043402589/);
+  assert.doesNotMatch(html, /20 productos|15 días hábiles|250\.000 COP|500\.000 COP/);
+  const serviceModel = await readFile(new URL('../src/models/service-page-model.js', import.meta.url), 'utf8');
+  assert.match(serviceModel, /Aún no hay un precio, alcance ni plazo publicados/);
+  assert.match(serviceModel, /Aún no hay entregables, precio ni plazo publicados/);
+  assert.match(html, /Aún no hay un alcance, precio ni plazo publicados para el catálogo digital/);
   assert.match(html, /target="_blank" rel="noopener noreferrer"/);
 });
 
