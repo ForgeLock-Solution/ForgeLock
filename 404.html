@@ -18,7 +18,7 @@
         a:hover{filter:brightness(1.08)}.secondary{margin-top:18px}.secondary a{background:transparent;color:#4ade80;border:1px solid #334155}.path{margin-top:22px;font-size:13px;color:#64748b;overflow-wrap:anywhere}
     </style>
 <link rel="icon" href="./favicon.ico" sizes="any"></head>
-<body>
+<body data-forgelock-page="not-found">
 <main>
     <p class="code" aria-hidden="true">404</p>
     <h1>Esta página no existe</h1>
@@ -30,38 +30,8 @@
 <script>
 (function () {
     document.getElementById('requested-path').textContent = 'Ruta solicitada: ' + window.location.pathname;
-    var key = 'forgelock_analytics_consent';
-    var analyticsId = 'G-2TM3PHXG24';
-
-    function loadAnalytics() {
-        if (window.__FORGELOCK_GA_LOADED) return;
-        window.__FORGELOCK_GA_LOADED = true;
-        window.dataLayer = window.dataLayer || [];
-        window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
-        window.dataLayer.push({ 'gtm.start': Date.now(), event: 'gtm.js' });
-        var gtm = document.createElement('script');
-        gtm.async = true;
-        gtm.src = 'https://www.googletagmanager.com/gtm.js?id=GTM-WJMDTTWM';
-        document.head.appendChild(gtm);
-        var script = document.createElement('script');
-        script.async = true;
-        script.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(analyticsId);
-        document.head.appendChild(script);
-        window.gtag('js', new Date());
-        window.gtag('config', analyticsId);
-        window.gtag('event', 'page_not_found', {
-            page_path: window.location.pathname,
-            page_location: window.location.href,
-            page_title: '404 | Página no encontrada — ForgeLock'
-        });
-    }
-
-    try {
-        if (localStorage.getItem(key) === 'accepted') loadAnalytics();
-    } catch {
-        // Sin una preferencia persistida no se activa analítica.
-    }
 })();
 </script>
+<script src="./src/services/consent.js"></script>
 </body>
 </html>
