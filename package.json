@@ -10,24 +10,33 @@
   "scripts": {
     "dev": "serve . --listen 3001",
     "start": "serve . --listen 3001",
-    "build:styles": "tailwindcss --input src/styles/tailwind.input.css --output src/styles/tailwind.css --minify && node ./scripts/fix-tailwind-compat.mjs",
+    "build:styles": "node ./scripts/build-styles.mjs",
     "build:assets": "node ./scripts/copy-local-assets.mjs",
     "build:assets:windows": "powershell -ExecutionPolicy Bypass -File ./scripts/copy-local-assets.ps1",
     "build": "npm run build:assets && npm run build:styles",
-    "build:dist": "npm run build && node ./scripts/create-dist.mjs && node ./scripts/generate-seo.mjs && node ./scripts/validate-dist.mjs",
-    "build:dist:windows": "npm run build && powershell -ExecutionPolicy Bypass -File ./scripts/create-dist.ps1",
+    "build:dist": "node ./scripts/build-dist.mjs github-pages",
+    "build:cloudflare": "node ./scripts/build-dist.mjs cloudflare",
+    "build:dist:cloudflare": "node ./scripts/build-dist.mjs cloudflare",
+    "build:dist:pages-transition": "node ./scripts/build-pages-transition.mjs",
+    "build:dist:windows": "node ./scripts/build-dist.mjs github-pages",
     "deploy:supabase": "node ./scripts/deploy-to-supabase-storage.mjs",
-    "test": "node --test",
-    "validate:dist": "node ./scripts/validate-dist.mjs"
+    "validate:dist": "node ./scripts/validate-dist.mjs",
+    "validate:dist:cloudflare": "node ./scripts/validate-dist-cloudflare.mjs",
+    "deploy:cloudflare": "node ./scripts/deploy-cloudflare.mjs",
+    "test": "node --test"
   },
   "devDependencies": {
     "@fontsource/inter": "^5.1.1",
     "@fortawesome/fontawesome-free": "^6.7.2",
     "jsdom": "^26.0.0",
     "serve": "14.2.6",
-    "tailwindcss": "^3.4.17"
+    "tailwindcss": "^3.4.17",
+    "wrangler": "4.155.0"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.116.0"
+  },
+  "overrides": {
+    "compression": "1.8.2"
   }
 }

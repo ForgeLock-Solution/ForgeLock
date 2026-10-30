@@ -1,9 +1,9 @@
 const trackedViewTargets = new WeakSet();
-let initialized = false;
+const initializedDocuments = new WeakSet();
 
 const hasAnalyticsConsent = () => {
     try {
-        return window.localStorage.getItem('forgelock_analytics_consent') === 'accepted'
+        return (window.__FORGELOCK_ANALYTICS_CONSENT ?? window.localStorage.getItem('forgelock_analytics_consent')) === 'accepted'
             && document.documentElement.dataset.forgeLockAnalytics === 'loaded';
     } catch {
         return false;
@@ -18,7 +18,7 @@ const sendEvent = (eventName, parameters = {}) => {
 const cleanLinkUrl = (href) => {
     try {
         const url = new URL(href, window.location.href);
-        if (/wa\.me$/i.test(url.hostname)) return url.origin;
+        if (isWhatsAppLink(href)) return url.origin;
         return `${url.origin}${url.pathname}`;
     } catch {
         return href;
@@ -26,7 +26,10 @@ const cleanLinkUrl = (href) => {
 };
 
 const linkText = (link) => link.textContent.trim().replace(/\s+/g, ' ').slice(0, 100);
-const isWhatsAppLink = (href) => /(?:wa\.me|api\.whatsapp\.com|whatsapp\.com)/i.test(href);
+const isWhatsAppLink = (href) => {
+    try { return ['wa.me', 'api.whatsapp.com', 'www.whatsapp.com', 'whatsapp.com'].includes(new URL(href, window.location.href).hostname); }
+    catch { return false; }
+};
 
 const trackSocialClick = (link, href) => {
     const parameters = { link_url: cleanLinkUrl(href), link_text: linkText(link) };
@@ -41,6 +44,7 @@ const trackServiceSelection = (button) => {
 };
 
 const observeServices = () => {
+    if (!hasAnalyticsConsent()) return;
     const servicesSection = document.querySelector('#servicios');
     if (!servicesSection || trackedViewTargets.has(servicesSection) || typeof window.IntersectionObserver !== 'function') return;
 
@@ -56,9 +60,8 @@ const observeServices = () => {
 
 export const AnalyticsService = {
     init() {
-        if (initialized && document.documentElement.dataset.forgeLockAnalytics === 'ready') return;
-        initialized = true;
-        document.documentElement.dataset.forgeLockAnalytics = 'ready';
+        if (initializedDocuments.has(document)) return;
+        initializedDocuments.add(document);
 
         document.addEventListener('click', (event) => {
             const link = event.target.closest('a[href]');
@@ -78,6 +81,7 @@ export const AnalyticsService = {
             if (serviceButton) trackServiceSelection(serviceButton);
         });
 
+        document.addEventListener('forgelock:analytics-ready', observeServices);
         observeServices();
     },
 

@@ -1,0 +1,396 @@
+[
+  {
+    "route": "index.html",
+    "width": 320,
+    "layout": {
+      "width": 320,
+      "scrollWidth": 320,
+      "overflow": []
+    },
+    "errors": [],
+    "requests": [],
+    "axe": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".text-xl > .text-brand-500"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.27 (foreground color: #22c55e, background color: #ffffff, font size: 15.0pt (20px), font weight: bold). Expected contrast ratio of 3:1"
+          },
+          {
+            "target": [
+              ".mb-10 > .text-brand-400.font-semibold"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.53 (foreground color: #4ade80, background color: #e3f5ec, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".sm\\:text-lg"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.2 (foreground color: #64748b, background color: #e3f5ec, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".tracking-wider.text-brand-400.uppercase > span"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.66 (foreground color: #4ade80, background color: #f8fafc, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".text-lg > .text-brand-500"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.17 (foreground color: #22c55e, background color: #f8fafc, font size: 13.5pt (18px), font weight: bold). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "route": "index.html",
+    "width": 375,
+    "layout": {
+      "width": 375,
+      "scrollWidth": 375,
+      "overflow": []
+    },
+    "errors": [],
+    "requests": [],
+    "axe": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".text-xl > .text-brand-500"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.27 (foreground color: #22c55e, background color: #ffffff, font size: 15.0pt (20px), font weight: bold). Expected contrast ratio of 3:1"
+          },
+          {
+            "target": [
+              ".mb-10 > .text-brand-400.font-semibold"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.53 (foreground color: #4ade80, background color: #e3f5ec, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".tracking-wider.text-brand-400.uppercase > span"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.66 (foreground color: #4ade80, background color: #f8fafc, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".text-lg > .text-brand-500"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.17 (foreground color: #22c55e, background color: #f8fafc, font size: 13.5pt (18px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".text-brand-400.underline[href$=\"politica-cookies.html\"]"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.66 (foreground color: #4ade80, background color: #f8fafc, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "route": "index.html",
+    "width": 768,
+    "layout": {
+      "width": 768,
+      "scrollWidth": 768,
+      "overflow": []
+    },
+    "errors": [],
+    "requests": [],
+    "axe": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".text-xl > .text-brand-500"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.27 (foreground color: #22c55e, background color: #ffffff, font size: 15.0pt (20px), font weight: bold). Expected contrast ratio of 3:1"
+          },
+          {
+            "target": [
+              ".mb-10 > .text-brand-400.font-semibold"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.66 (foreground color: #4ade80, background color: #f8fafc, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".tracking-wider.text-brand-400.uppercase > span"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.66 (foreground color: #4ade80, background color: #f8fafc, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".text-lg > .text-brand-500"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.17 (foreground color: #22c55e, background color: #f8fafc, font size: 13.5pt (18px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".text-brand-400.underline[href$=\"politica-cookies.html\"]"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.66 (foreground color: #4ade80, background color: #f8fafc, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "route": "index.html",
+    "width": 1024,
+    "layout": {
+      "width": 1024,
+      "scrollWidth": 1024,
+      "overflow": []
+    },
+    "errors": [],
+    "requests": [],
+    "axe": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".text-xl > .text-brand-500"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.27 (foreground color: #22c55e, background color: #ffffff, font size: 15.0pt (20px), font weight: bold). Expected contrast ratio of 3:1"
+          },
+          {
+            "target": [
+              ".mb-10 > .text-brand-400.font-semibold"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.66 (foreground color: #4ade80, background color: #f8fafc, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".tracking-wider.text-brand-400.uppercase > span"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.66 (foreground color: #4ade80, background color: #f8fafc, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".text-lg > .text-brand-500"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.17 (foreground color: #22c55e, background color: #f8fafc, font size: 13.5pt (18px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".text-brand-400.underline[href$=\"politica-cookies.html\"]"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.66 (foreground color: #4ade80, background color: #f8fafc, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "route": "index.html",
+    "width": 1440,
+    "layout": {
+      "width": 1440,
+      "scrollWidth": 1440,
+      "overflow": []
+    },
+    "errors": [],
+    "requests": [],
+    "axe": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".text-xl > .text-brand-500"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.27 (foreground color: #22c55e, background color: #ffffff, font size: 15.0pt (20px), font weight: bold). Expected contrast ratio of 3:1"
+          },
+          {
+            "target": [
+              ".mb-10 > .text-brand-400.font-semibold"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.66 (foreground color: #4ade80, background color: #f8fafc, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".tracking-wider.text-brand-400.uppercase > span"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.66 (foreground color: #4ade80, background color: #f8fafc, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".text-lg > .text-brand-500"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.17 (foreground color: #22c55e, background color: #f8fafc, font size: 13.5pt (18px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".text-brand-400.underline[href$=\"politica-cookies.html\"]"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.66 (foreground color: #4ade80, background color: #f8fafc, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "route": "servicios.html",
+    "width": 320,
+    "layout": {
+      "width": 320,
+      "scrollWidth": 320,
+      "overflow": []
+    },
+    "errors": [],
+    "requests": [],
+    "axe": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".text-brand-500"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.27 (foreground color: #22c55e, background color: #ffffff, font size: 15.0pt (20px), font weight: bold). Expected contrast ratio of 3:1"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "route": "servicios.html",
+    "width": 375,
+    "layout": {
+      "width": 375,
+      "scrollWidth": 375,
+      "overflow": []
+    },
+    "errors": [],
+    "requests": [],
+    "axe": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".text-brand-500"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.27 (foreground color: #22c55e, background color: #ffffff, font size: 15.0pt (20px), font weight: bold). Expected contrast ratio of 3:1"
+          },
+          {
+            "target": [
+              ".text-brand-400"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.66 (foreground color: #4ade80, background color: #f8fafc, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "route": "servicios.html",
+    "width": 768,
+    "layout": {
+      "width": 768,
+      "scrollWidth": 768,
+      "overflow": []
+    },
+    "errors": [],
+    "requests": [],
+    "axe": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".text-brand-500"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.27 (foreground color: #22c55e, background color: #ffffff, font size: 15.0pt (20px), font weight: bold). Expected contrast ratio of 3:1"
+          },
+          {
+            "target": [
+              ".text-brand-400"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.66 (foreground color: #4ade80, background color: #f8fafc, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "route": "servicios.html",
+    "width": 1024,
+    "layout": {
+      "width": 1024,
+      "scrollWidth": 1024,
+      "overflow": []
+    },
+    "errors": [],
+    "requests": [],
+    "axe": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".text-brand-500"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.27 (foreground color: #22c55e, background color: #ffffff, font size: 15.0pt (20px), font weight: bold). Expected contrast ratio of 3:1"
+          },
+          {
+            "target": [
+              ".text-brand-400"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.66 (foreground color: #4ade80, background color: #f8fafc, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "route": "servicios.html",
+    "width": 1440,
+    "layout": {
+      "width": 1440,
+      "scrollWidth": 1440,
+      "overflow": []
+    },
+    "errors": [],
+    "requests": [],
+    "axe": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".text-brand-500"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.27 (foreground color: #22c55e, background color: #ffffff, font size: 15.0pt (20px), font weight: bold). Expected contrast ratio of 3:1"
+          },
+          {
+            "target": [
+              ".text-brand-400"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.66 (foreground color: #4ade80, background color: #f8fafc, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ]
+  }
+]

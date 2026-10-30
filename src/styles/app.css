@@ -10,6 +10,19 @@
 }
 
 body { background: var(--surface-page); color: var(--ink-body); }
+html { scroll-padding-top: 6rem; }
+#cookie-consent { max-height: 80vh; overflow-y: auto; }
+#cookie-consent > div > div:last-child { flex-wrap: wrap; }
+#cookie-consent a { color: #166534; }
+@media (min-width: 768px) and (max-width: 1100px) {
+  #header-container nav { gap: .75rem; }
+  #header-container > div > a:last-of-type { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto !important; }
+  .solution-card-transition { transition: none; }
+  .animate-pulse { animation: none; }
+}
 [class*="bg-slate-950"], [class*="bg-slate-900"] { background-color: var(--surface-soft) !important; }
 [class*="bg-slate-800"] { background-color: var(--surface-muted) !important; }
 [class*="bg-slate-700"] { background-color: #e2e8f0 !important; }

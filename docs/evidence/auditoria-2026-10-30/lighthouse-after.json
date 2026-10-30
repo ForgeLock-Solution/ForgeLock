@@ -1,0 +1,74 @@
+[
+  {
+    "route": "index.html",
+    "mode": "mobile",
+    "scores": {
+      "performance": 0.98,
+      "accessibility": 1,
+      "best-practices": 1,
+      "seo": 1
+    },
+    "metrics": {
+      "first-contentful-paint": 1811.7273,
+      "largest-contentful-paint": 1811.7273,
+      "total-blocking-time": 0,
+      "cumulative-layout-shift": 0,
+      "speed-index": 1811.7273
+    },
+    "warnings": []
+  },
+  {
+    "route": "index.html",
+    "mode": "desktop",
+    "scores": {
+      "performance": 0.99,
+      "accessibility": 1,
+      "best-practices": 1,
+      "seo": 1
+    },
+    "metrics": {
+      "first-contentful-paint": 408.6109,
+      "largest-contentful-paint": 892.9163500000002,
+      "total-blocking-time": 0,
+      "cumulative-layout-shift": 0,
+      "speed-index": 408.6109
+    },
+    "warnings": []
+  },
+  {
+    "route": "servicios.html",
+    "mode": "mobile",
+    "scores": {
+      "performance": 0.98,
+      "accessibility": 1,
+      "best-practices": 1,
+      "seo": 1
+    },
+    "metrics": {
+      "first-contentful-paint": 1814.7728,
+      "largest-contentful-paint": 1814.7728,
+      "total-blocking-time": 0,
+      "cumulative-layout-shift": 0,
+      "speed-index": 1814.7728
+    },
+    "warnings": []
+  },
+  {
+    "route": "servicios.html",
+    "mode": "desktop",
+    "scores": {
+      "performance": 0.99,
+      "accessibility": 1,
+      "best-practices": 1,
+      "seo": 1
+    },
+    "metrics": {
+      "first-contentful-paint": 410.84364610586715,
+      "largest-contentful-paint": 876.2654691588007,
+      "total-blocking-time": 0,
+      "cumulative-layout-shift": 0,
+      "speed-index": 410.84364610586715
+    },
+    "warnings": []
+  }
+]

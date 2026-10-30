@@ -2,139 +2,91 @@
 <html lang="es" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        window.__FORGELOCK_LOAD_GTM = function () {
-            if (window.__FORGELOCK_GTM_LOADING || window.__FORGELOCK_GTM_LOADED) return;
-            window.__FORGELOCK_GTM_LOADING = true;
-            var script = document.createElement('script');
-            script.async = true;
-            script.src = 'https://www.googletagmanager.com/gtm.js?id=GTM-WJMDTTWM';
-            script.onload = function () {
-                window.__FORGELOCK_GTM_LOADING = false;
-                window.__FORGELOCK_GTM_LOADED = true;
-            };
-            script.onerror = function () {
-                window.__FORGELOCK_GTM_LOADING = false;
-                script.remove();
-                console.warn('ForgeLock Tag Manager no pudo cargar.');
-            };
-            document.head.appendChild(script);
-        };
-        window.__FORGELOCK_ANALYTICS_ID = 'G-2TM3PHXG24';
-        window.__FORGELOCK_LOAD_ANALYTICS = function () {
-            if (window.__FORGELOCK_GA_LOADED || window.__FORGELOCK_GA_LOADING) {
-                window.__FORGELOCK_LOAD_GTM();
-                return;
-            }
-            gtag('consent', 'default', {
-                analytics_storage: 'denied',
-                ad_storage: 'denied',
-                ad_user_data: 'denied',
-                ad_personalization: 'denied'
-            });
-            window.__FORGELOCK_LOAD_GTM();
-            var script = document.createElement('script');
-            script.async = true;
-            script.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(window.__FORGELOCK_ANALYTICS_ID);
-            script.onload = function () {
-                window.__FORGELOCK_GA_LOADING = false;
-                window.__FORGELOCK_GA_LOADED = true;
-                gtag('consent', 'update', {
-                    analytics_storage: 'granted',
-                    ad_storage: 'denied',
-                    ad_user_data: 'denied',
-                    ad_personalization: 'denied'
-                });
-                gtag('js', new Date());
-                gtag('config', window.__FORGELOCK_ANALYTICS_ID, { send_page_view: true });
-                gtag('event', 'analytics_consent_granted', { consent_method: 'cookie_banner' });
-                document.documentElement.dataset.forgeLockAnalytics = 'loaded';
-            };
-            script.onerror = function () {
-                window.__FORGELOCK_GA_LOADING = false;
-                window.__FORGELOCK_GA_LOADED = false;
-                script.remove();
-                document.documentElement.dataset.forgeLockAnalytics = 'load_error';
-                console.warn('ForgeLock Analytics no pudo cargar. Recarga la página para volver a intentarlo.');
-            };
-            window.__FORGELOCK_GA_LOADING = true;
-            document.head.appendChild(script);
-        };
-    </script>
-    <meta name="google-site-verification" content="peYxRjV0Snt4fmiTcjCgkCfvDrTBws3qGUMy8vJVwjQ">
+    <link rel="preload" href="./src/vendor/inter/files/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="./src/vendor/inter/files/inter-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<meta name="google-site-verification" content="ChwXmsaiRN157JtTwqIuE19hC7GzP7kRmgQkiiQTK5A" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0b1120">
     <link rel="manifest" href="./site.webmanifest">
-    <meta name="description" content="Páginas web, landing pages, catálogos digitales y branding para emprendedores y negocios en Colombia.">
+    <meta name="description" content="Landing pages para emprendedores y pequeños negocios. Catálogos digitales y branding en Colombia. Conoce planes y precios de ForgeLock.">
     <meta name="author" content="ForgeLock">
     <meta name="robots" content="index,follow,max-image-preview:large">
     <meta property="og:site_name" content="ForgeLock">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="ForgeLock | Páginas web, catálogos digitales y branding">
-    <meta property="og:description" content="Páginas web, landing pages, catálogos digitales y branding para emprendedores y negocios en Colombia.">
-    <meta property="og:url" content="https://forgelock-solution.github.io/ForgeLock/">
-    <meta property="og:image" content="https://forgelock-solution.github.io/ForgeLock/resource/forgelock-social-preview.png">
+    <meta property="og:title" content="Landing pages para negocios | ForgeLock">
+    <meta property="og:description" content="Landing pages para emprendedores y pequeños negocios. Catálogos digitales y branding en Colombia. Conoce planes y precios de ForgeLock.">
+    <meta property="og:url" content="https://forgelock.forge-look19.workers.dev/">
+    <meta property="og:image" content="https://forgelock.forge-look19.workers.dev/resource/forgelock-social-preview.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:type" content="image/png">
     <meta property="og:image:alt" content="ForgeLock: experiencias digitales para negocios">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="ForgeLock | Páginas web, catálogos digitales y branding">
-    <meta name="twitter:description" content="Páginas web, landing pages, catálogos digitales y branding para emprendedores y negocios en Colombia.">
-    <meta name="twitter:image" content="https://forgelock-solution.github.io/ForgeLock/resource/forgelock-social-preview.png">
+    <meta name="twitter:title" content="Landing pages para negocios | ForgeLock">
+    <meta name="twitter:description" content="Landing pages para emprendedores y pequeños negocios. Catálogos digitales y branding en Colombia. Conoce planes y precios de ForgeLock.">
+    <meta name="twitter:image" content="https://forgelock.forge-look19.workers.dev/resource/forgelock-social-preview.png">
     <meta name="twitter:image:alt" content="ForgeLock: experiencias digitales para negocios">
-    <link rel="canonical" href="https://forgelock-solution.github.io/ForgeLock/">
-    <link rel="alternate" hreflang="es-CO" href="https://forgelock-solution.github.io/ForgeLock/">
+    <link rel="canonical" href="https://forgelock.forge-look19.workers.dev/">
+    <link rel="alternate" hreflang="es-CO" href="https://forgelock.forge-look19.workers.dev/">
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@graph": [
         {
           "@type": "Organization",
-          "@id": "https://forgelock-solution.github.io/ForgeLock/#organization",
+          "@id": "https://forgelock.forge-look19.workers.dev/#organization",
           "name": "ForgeLock",
           "alternateName": "ForgeLock Soluciones Digitales",
-          "url": "https://forgelock-solution.github.io/ForgeLock/",
+          "url": "https://forgelock.forge-look19.workers.dev/",
           "logo": {
             "@type": "ImageObject",
-            "url": "https://forgelock-solution.github.io/ForgeLock/resource/Logo.png"
+            "url": "https://forgelock.forge-look19.workers.dev/resource/Logo.png"
           },
-          "description": "ForgeLock crea páginas web, landing pages, catálogos digitales, branding y soluciones visuales para emprendedores y pequeños negocios."
+          "description": "ForgeLock ofrece landing pages, catálogos digitales y branding o diseño digital para emprendedores y pequeños negocios."
         },
         {
           "@type": "WebSite",
-          "@id": "https://forgelock-solution.github.io/ForgeLock/#website",
-          "url": "https://forgelock-solution.github.io/ForgeLock/",
+          "@id": "https://forgelock.forge-look19.workers.dev/#website",
+          "url": "https://forgelock.forge-look19.workers.dev/",
           "name": "ForgeLock",
           "alternateName": "ForgeLock",
           "inLanguage": "es-CO",
           "publisher": {
-            "@id": "https://forgelock-solution.github.io/ForgeLock/#organization"
+            "@id": "https://forgelock.forge-look19.workers.dev/#organization"
           }
         },
         {
           "@type": "WebPage",
-          "@id": "https://forgelock-solution.github.io/ForgeLock/#webpage",
-          "url": "https://forgelock-solution.github.io/ForgeLock/",
-          "name": "ForgeLock | Páginas web y catálogos digitales",
-          "description": "Páginas web, landing pages, catálogos digitales y branding para emprendedores y negocios en Colombia.",
+          "@id": "https://forgelock.forge-look19.workers.dev/#webpage",
+          "url": "https://forgelock.forge-look19.workers.dev/",
+          "name": "Landing pages, catálogos digitales y branding | ForgeLock",
+          "description": "Landing pages para emprendedores y pequeños negocios. Catálogos digitales y branding en Colombia. Conoce planes y precios de ForgeLock.",
           "inLanguage": "es-CO",
           "isPartOf": {
-            "@id": "https://forgelock-solution.github.io/ForgeLock/#website"
-          },
+            "@id": "https://forgelock.forge-look19.workers.dev/#website"
+        },
           "about": {
-            "@id": "https://forgelock-solution.github.io/ForgeLock/#organization"
+            "@id": "https://forgelock.forge-look19.workers.dev/#organization"
+        }
+        ,
+          "mainEntity": {
+            "@type": "ItemList",
+            "name": "Servicios de ForgeLock",
+            "numberOfItems": 3,
+            "itemListElement": [
+              { "@type": "ListItem", "position": 1, "item": { "@type": "Service", "name": "Landing pages", "provider": { "@id": "https://forgelock.forge-look19.workers.dev/#organization" } } },
+              { "@type": "ListItem", "position": 2, "item": { "@type": "Service", "name": "Catálogos digitales", "provider": { "@id": "https://forgelock.forge-look19.workers.dev/#organization" } } },
+              { "@type": "ListItem", "position": 3, "item": { "@type": "Service", "name": "Branding y diseño digital", "provider": { "@id": "https://forgelock.forge-look19.workers.dev/#organization" } } }
+            ]
           }
         }
       ]
     }
     </script>
-    <link rel="icon" href="./favicon.ico" sizes="any">\n    <link rel="apple-touch-icon" href="./Apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="48x48" href="https://forgelock-solution.github.io/ForgeLock/resource/favicon-48.png">
-    <link rel="shortcut icon" type="image/png" href="https://forgelock-solution.github.io/ForgeLock/resource/favicon-48.png">
-    <title>ForgeLock | Páginas web, catálogos digitales y branding</title>
+    <link rel="icon" href="./favicon.ico" sizes="any">    <link rel="apple-touch-icon" href="./Apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="https://forgelock.forge-look19.workers.dev/resource/favicon-48.png">
+    <link rel="shortcut icon" type="image/png" href="https://forgelock.forge-look19.workers.dev/resource/favicon-48.png">
+    <title>Landing pages para negocios | ForgeLock</title>
 
     <!-- Recursos compilados y servidos localmente: no requieren CDN en producción. -->
     <link rel="stylesheet" href="./src/styles/tailwind.css">
@@ -168,9 +120,9 @@
                 <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="max-w-3xl mx-auto space-y-5 text-slate-600 leading-relaxed">
                         <div class="flex justify-center mb-4"><img src="./resource/isotipo.png" alt="Símbolo de ForgeLock, marca de soluciones digitales" width="64" height="64" loading="lazy" decoding="async"></div>
-                        <h2 id="informacion-forgelock-titulo" class="text-2xl sm:text-3xl font-bold text-slate-900">Soluciones digitales para emprendedores y negocios</h2>
-                        <p>ForgeLock transforma ideas y negocios en experiencias digitales que destacan. Ayudamos a emprendedores, profesionales y pequeñas empresas a presentar mejor sus servicios, explicar qué ofrecen y facilitar el contacto con potenciales clientes.</p>
-                        <h3 class="text-xl font-semibold text-slate-900">Páginas web y landing pages</h3>
+                        <h2 id="informacion-forgelock-titulo" class="text-2xl sm:text-3xl font-bold text-slate-900">Landing pages para emprendedores y pequeños negocios</h2>
+                        <p>ForgeLock diseña landing pages para presentar negocios, servicios o productos, con información y canales de contacto. También ofrece catálogos digitales y branding o diseño digital.</p>
+                        <h3 class="text-xl font-semibold text-slate-900">Landing pages</h3>
                         <p>Una página web permite reunir en un solo lugar la información de tu negocio, tus servicios, preguntas frecuentes y canales de contacto. Una landing page puede enfocarse en un servicio o una oferta concreta, con una estructura clara y adaptable a celulares y computadores.</p>
                         <h3 class="text-xl font-semibold text-slate-900">Catálogos digitales y branding</h3>
                         <p>Los catálogos digitales organizan productos o servicios para que las personas puedan consultarlos fácilmente. El branding y la identidad visual ayudan a mantener una presentación coherente en los canales digitales y materiales de comunicación de tu negocio.</p>
@@ -178,7 +130,7 @@
                         <p>Primero conversamos sobre las necesidades y objetivos de tu negocio; después definimos el alcance de la solución, desarrollamos la propuesta y revisamos los ajustes acordados antes de la entrega. El alcance, el precio y el plazo se confirman en la cotización de cada proyecto.</p>
                         <h3 class="text-xl font-semibold text-slate-900">Preguntas frecuentes sobre los servicios digitales</h3>
                         <p><strong>¿Qué solución necesita mi negocio?</strong> Depende de tu objetivo: una página web presenta tu negocio y sus servicios; una landing page concentra la atención en una oferta; y un catálogo digital facilita consultar productos o servicios. Puedes <a class="font-semibold text-emerald-800 underline" href="./servicios.html">conocer los servicios de ForgeLock</a> y comparar opciones.</p>
-                        <p><strong>¿La página puede incluir WhatsApp?</strong> Sí, podemos integrar enlaces de contacto por WhatsApp y otras funciones según el alcance y los requisitos del proyecto.</p>
+                        <p><strong>¿La página puede incluir WhatsApp?</strong> Sí, podemos integrar enlaces de contacto por WhatsApp y como parte de tu landing page.</p>
                         <p><strong>¿Cómo se define el precio?</strong> Revisamos los objetivos, el contenido y las funciones necesarias antes de confirmar el alcance y la cotización. No se inicia el desarrollo sin acordar esos puntos.</p>
                         <div class="pt-2">
                             <a href="https://wa.me/573043402589?text=Hola%2C%20quiero%20consultar%20por%20una%20soluci%C3%B3n%20digital%20para%20mi%20negocio." target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-brand-500 text-slate-950 font-bold">Solicitar información por WhatsApp</a>
@@ -193,15 +145,14 @@
 
     <noscript>
         <section aria-label="ForgeLock - soluciones digitales">
-            <h2>Páginas web, catálogos digitales y branding para negocios</h2>
-            <p>ForgeLock transforma ideas y negocios en experiencias digitales que destacan.</p>
-            <p>Diseñamos páginas web, catálogos digitales, identidad visual y soluciones digitales para emprendedores y pequeñas empresas.</p>
-            <h2>Soluciones para tu negocio</h2>
+            <h2>Landing pages, catálogos digitales y branding para negocios</h2>
+            <p>ForgeLock ofrece landing pages, catálogos digitales y branding o diseño digital.</p>
+            <p>Diseñamos landing pages para emprendedores y pequeños negocios; también puedes consultar por catálogos digitales y branding o diseño digital.</p>
+            <h2>Servicios para tu negocio</h2>
             <ul>
-                <li><strong>Páginas web:</strong> presencia digital profesional, adaptable a celulares y orientada a captar clientes.</li>
+                <li><strong>Landing pages:</strong> páginas adaptables para presentar un negocio, sus servicios o productos y sus canales de contacto.</li>
                 <li><strong>Catálogos digitales:</strong> una forma clara y profesional de mostrar productos o servicios.</li>
-                <li><strong>Branding e identidad visual:</strong> una imagen coherente para comunicar mejor el valor de tu negocio.</li>
-                <li><strong>Soluciones visuales:</strong> piezas y experiencias digitales adaptadas a las necesidades de tu negocio.</li>
+                <li><strong>Branding e identidad visual:</strong> recursos visuales para la marca y sus canales digitales.</li>
             </ul>
             <h2>¿Cómo trabajamos?</h2>
             <ol>
@@ -215,56 +166,12 @@
     </noscript>
     <!-- Punto de entrada: el controlador inicia la aplicación MVC. -->
     <script type="module" src="./src/controllers/app-controller.js"></script>
+<div class="px-4 py-3 text-center"><button id="cookie-settings" type="button" class="text-sm text-slate-700 underline">Preferencias de cookies</button></div>
 <div id="cookie-consent" class="hidden fixed bottom-0 inset-x-0 z-[100] p-4 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 shadow-2xl" role="dialog" aria-label="Preferencias de cookies"><div class="max-w-7xl mx-auto flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between"><div class="text-sm text-slate-300 max-w-3xl"><strong class="text-white">Privacidad y analítica.</strong> La analítica es opcional. Puedes aceptar o rechazarla. <a class="text-brand-400 underline" href="./politica-cookies.html">Ver política de cookies</a>.</div><div class="flex gap-2 shrink-0"><button id="cookie-reject" type="button" class="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-200 font-semibold">Rechazar</button><button id="cookie-accept" type="button" class="px-4 py-2.5 rounded-xl bg-brand-500 text-slate-950 font-bold">Aceptar analítica</button></div></div></div>
-<script>
-(function () {
-    var key = 'forgelock_analytics_consent';
-    var banner = document.getElementById('cookie-consent');
-    var choice = null;
-
-    // El sitio debe seguir siendo usable aunque el navegador bloquee el almacenamiento.
-    try {
-        choice = window.localStorage.getItem(key);
-    } catch (error) {
-        choice = null;
-    }
-
-    function saveChoice(value) {
-        try {
-            window.localStorage.setItem(key, value);
-        } catch (error) {
-            // La decisión se aplica durante esta visita aunque no pueda persistirse.
-        }
-    }
-
-    var acceptButton = document.getElementById('cookie-accept');
-    var rejectButton = document.getElementById('cookie-reject');
-
-    if (choice === 'accepted') {
-        window.__FORGELOCK_LOAD_ANALYTICS();
-    } else if (choice !== 'rejected') {
-        banner.classList.remove('hidden');
-    }
-
-    acceptButton.onclick = function () {
-        saveChoice('accepted');
-        banner.classList.add('hidden');
-        window.__FORGELOCK_LOAD_ANALYTICS();
-    };
-
-    rejectButton.onclick = function () {
-        saveChoice('rejected');
-        if (typeof window.gtag === 'function') {
-            window.gtag('consent', 'update', {
-                analytics_storage: 'denied',
-                ad_storage: 'denied',
-                ad_user_data: 'denied',
-                ad_personalization: 'denied'
-            });
-        }
-        banner.classList.add('hidden');
-    };
-})();
-</script>
+<script src="./src/services/consent.js"></script>
 </body>
 </html>
+
+
+
+

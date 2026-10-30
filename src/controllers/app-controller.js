@@ -8,6 +8,7 @@ import { AnalyticsService } from '../services/analytics-service.js';
  * volver a pintar únicamente los componentes que cambiaron.
  */
 export const AppController = {
+    eventsDocument: null,
     init() {
         // Primero se crea el DOM; después se instala una sola delegación de eventos.
         this.renderAll();
@@ -29,6 +30,8 @@ export const AppController = {
     },
 
     setupEventListeners() {
+        if (this.eventsDocument === document) return;
+        this.eventsDocument = document;
         // Delegación: sigue funcionando aunque la Vista reemplace botones con innerHTML.
         document.addEventListener('click', (event) => {
             const menuButton = event.target.closest('#mobile-menu-btn');
@@ -38,15 +41,24 @@ export const AppController = {
             if (menuButton) {
                 AppModel.state.isMenuOpen = !AppModel.state.isMenuOpen;
                 AppView.renderHeader();
+                document.querySelector('#mobile-menu-btn')?.focus();
             }
             if (mobileLink) {
                 AppModel.state.isMenuOpen = false;
                 AppView.renderHeader();
+                document.querySelector(mobileLink.getAttribute('href'))?.scrollIntoView?.();
             }
             if (bannerButton) {
                 AppModel.state.activeBannerIndex = Number(bannerButton.dataset.banner);
                 AppView.renderSolutions();
+                document.querySelector(`[data-banner="${AppModel.state.activeBannerIndex}"]`)?.focus();
             }
+        });
+        document.addEventListener('keydown', (event) => {
+            if (event.key !== 'Escape' || !AppModel.state.isMenuOpen) return;
+            AppModel.state.isMenuOpen = false;
+            AppView.renderHeader();
+            document.querySelector('#mobile-menu-btn')?.focus();
         });
     },
 

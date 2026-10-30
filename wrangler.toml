@@ -1,6 +1,12 @@
-# Cloudflare Pages static build configuration.
-# Build command in Cloudflare Pages: npm run build:dist
-# Build output directory: dist
+# Cloudflare Worker configuration for the static ForgeLock site.
+# Build and validate command: npm run build:cloudflare
+# Future publish only through npm run deploy:cloudflare after explicit authorization.
 name = "forgelock"
-pages_build_output_dir = "./dist"
+account_id = "fc854c3291faa99f884d4568138cff95"
 compatibility_date = "2026-10-19"
+previews = {}
+
+[assets]
+directory = "./dist-cloudflare"
+html_handling = "auto-trailing-slash"
+not_found_handling = "404-page"
