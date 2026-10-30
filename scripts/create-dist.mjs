@@ -5,6 +5,7 @@ import { cp, mkdir, readdir } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { getDistDirectory, discoverPublicHtmlFiles } from './seo-helpers.mjs';
+import { renderHome } from './render-home.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
@@ -53,5 +54,7 @@ await mkdir(outputStyles, { recursive: true });
 for (const file of ['app.css', 'tailwind.css', 'legal.css']) {
     await cp(join(sourceRoot, 'styles', file), join(outputStyles, file));
 }
+
+await renderHome(join(output, 'index.html'));
 
 console.log('dist/ generado correctamente.');

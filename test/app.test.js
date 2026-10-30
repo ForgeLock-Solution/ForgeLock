@@ -55,6 +55,22 @@ test('los selectores de solución usan la transición declarada', () => {
     assert.ok(document.querySelector('[data-banner]').classList.contains('solution-card-transition'));
 });
 
+test('el menú conserva foco, cierra con Escape y no duplica listeners al reiniciar', () => {
+    AppModel.state.isMenuOpen = false;
+    AppView.renderHeader();
+    AppController.setupEventListeners();
+    AppController.setupEventListeners();
+    document.querySelector('#mobile-menu-btn').click();
+    assert.equal(AppModel.state.isMenuOpen, true);
+    assert.equal(document.activeElement.id, 'mobile-menu-btn');
+    document.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    assert.equal(AppModel.state.isMenuOpen, false);
+    assert.equal(document.activeElement.id, 'mobile-menu-btn');
+    document.querySelector('[data-banner="1"]').click();
+    assert.equal(document.activeElement.dataset.banner, '1');
+    assert.equal(document.activeElement.getAttribute('aria-pressed'), 'true');
+});
+
 test('renderiza redes sociales y contacto sin correo no verificado', () => {
     const facebookLinks = [...document.querySelectorAll('a[href="https://www.facebook.com/profile.php?id=61594009876448"]')];
     assert.equal(facebookLinks.length, 1);

@@ -39,6 +39,10 @@ async function copyInter() {
         join(interSource, 'files', 'inter-latin-700-normal.woff2'),
         join(interDestination, 'files', 'inter-latin-700-normal.woff2')
     );
+    for (const weight of [400, 700]) {
+        const file = `inter-latin-${weight}-normal.woff`;
+        await cp(join(interSource, 'files', file), join(interDestination, 'files', file));
+    }
 }
 
 await mkdir(destination, { recursive: true });

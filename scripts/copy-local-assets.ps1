@@ -19,3 +19,5 @@ Add-Content -Path (Join-Path $interDestination 'inter.css') -Value "`n"
 Get-Content 'node_modules\@fontsource\inter\latin-700.css' | Add-Content -Path (Join-Path $interDestination 'inter.css')
 Copy-Item -Force 'node_modules\@fontsource\inter\files\inter-latin-400-normal.woff2' (Join-Path $interDestination 'files')
 Copy-Item -Force 'node_modules\@fontsource\inter\files\inter-latin-700-normal.woff2' (Join-Path $interDestination 'files')
+Copy-Item -Force 'node_modules\@fontsource\inter\files\inter-latin-400-normal.woff' (Join-Path $interDestination 'files')
+Copy-Item -Force 'node_modules\@fontsource\inter\files\inter-latin-700-normal.woff' (Join-Path $interDestination 'files')
