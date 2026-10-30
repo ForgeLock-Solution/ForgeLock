@@ -42,6 +42,8 @@ for (const file of ['favicon.ico', 'Apple-touch-icon.png', 'Icon-192.png']) {
     if (existsSync(join(root, file))) await cp(join(root, file), join(output, file));
 }
 await cp(join(root, 'resource'), join(output, 'resource'), { recursive: true });
+// Conceptual previews are served as standalone noindex assets, outside the sitemap.
+if (existsSync(join(root, 'ejemplos'))) await cp(join(root, 'ejemplos'), join(output, 'ejemplos'), { recursive: true });
 
 // Copia solo los módulos y recursos que utiliza el navegador; no se filtran
 // herramientas de desarrollo ni el archivo fuente de compilación de Tailwind.

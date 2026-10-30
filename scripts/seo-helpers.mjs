@@ -73,16 +73,16 @@ export function getSeoConfig(env = process.env) {
   };
 }
 
-// Public-page convention: every root-level *.html file is a public route.
-// HTML below subdirectories (for example admin/, templates/, test/) is never
-// packaged as a route; callers fail explicitly if one is present.
+// Public pages live in the root. Concept previews under ejemplos/ are copied
+// as noindex assets, but are intentionally not discovered as sitemap routes.
+// Other nested HTML remains an error so accidental public routes are caught.
 export async function discoverPublicHtmlFiles(root) {
   const files = await readdir(root, { withFileTypes: true });
   const nestedHtml = [];
   async function scan(directory, prefix = '') {
     for (const entry of await readdir(directory, { withFileTypes: true })) {
       const relativePath = prefix ? `${prefix}/${entry.name}` : entry.name;
-      if (entry.isDirectory() && !['.git', 'dist', 'dist-cloudflare', 'node_modules', 'scripts', 'src', 'test', 'tests'].includes(entry.name.toLowerCase())) await scan(join(directory, entry.name), relativePath);
+      if (entry.isDirectory() && !['.git', 'dist', 'dist-cloudflare', 'node_modules', 'scripts', 'src', 'test', 'tests', 'ejemplos'].includes(entry.name.toLowerCase())) await scan(join(directory, entry.name), relativePath);
       else if (entry.isFile() && entry.name.toLowerCase().endsWith('.html')) nestedHtml.push(relativePath);
     }
   }
