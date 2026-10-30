@@ -194,7 +194,11 @@ test('builds SEO variants independently for GitHub Pages and Cloudflare Worker',
   assert.equal(await readFile(join(existingOutput, 'preserve.txt'), 'utf8'), 'keep this artifact');
 
   const deployConfig = await readFile(new URL('../wrangler.toml', import.meta.url), 'utf8');
-  assert.doesNotMatch(deployConfig, /^account_id\s*=/m, 'no se debe inventar una identidad de cuenta no confirmada');
+  assert.match(deployConfig, /^account_id\s*=\s*["']fc854c3291faa99f884d4568138cff95["']\s*$/m,
+    'wrangler debe usar el account_id confirmado');
+  assert.match(deployConfig, /^name\s*=\s*["']forgelock["']\s*$/m);
+  assert.match(deployConfig, /^compatibility_date\s*=\s*["']2026-10-19["']\s*$/m);
+  assert.match(deployConfig, /^directory\s*=\s*["']\.\/dist-cloudflare["']\s*$/m);
   const outputSnapshotBeforePreflight = await Promise.all(preservedDistPaths.map(async (path) => existsSync(path) ? readFile(path) : null));
   const preflightEnv = { ...process.env };
   delete preflightEnv.FORGELOCK_DEPLOY_CONFIRMATION;
@@ -203,8 +207,8 @@ test('builds SEO variants independently for GitHub Pages and Cloudflare Worker',
     encoding: 'utf8',
     env: preflightEnv
   });
-  assert.notEqual(preflight.status, 0);
-  assert.match(`${preflight.stdout}\n${preflight.stderr}`, /account_id.*confirmado/i);
+  assert.equal(preflight.status, 0, `${preflight.stdout}\n${preflight.stderr}`);
+  assert.match(`${preflight.stdout}\n${preflight.stderr}`, /Preflight correcto[\s\S]*no se desplegó/i);
   const outputSnapshotAfterPreflight = await Promise.all(preservedDistPaths.map(async (path) => existsSync(path) ? readFile(path) : null));
   assert.deepEqual(outputSnapshotAfterPreflight, outputSnapshotBeforePreflight, 'el preflight no debe crear ni reemplazar distribuciones existentes');
   assert.deepEqual(await snapshotTrackedFiles(), sourceSnapshots, 'los builds y pruebas no deben modificar archivos versionados');
