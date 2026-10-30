@@ -34,10 +34,11 @@ test('la página de servicios presenta solo la oferta autorizada y CTA de WhatsA
   assert.match(html, /class="[^"]*whatsapp-button/);
   assert.match(html, /https:\/\/wa\.me\/573043402589/);
   assert.doesNotMatch(html, /20 productos|15 días hábiles|250\.000 COP|500\.000 COP/);
-  const serviceModel = await readFile(new URL('../src/models/service-page-model.js', import.meta.url), 'utf8');
-  assert.match(serviceModel, /Aún no hay un precio, alcance ni plazo publicados/);
-  assert.match(serviceModel, /Aún no hay entregables, precio ni plazo publicados/);
   assert.match(html, /Aún no hay un alcance, precio ni plazo publicados para el catálogo digital/);
+  const serviceModel = await readFile(new URL('../src/models/service-page-model.js', import.meta.url), 'utf8');
+  assert.match(serviceModel, /Aún no hay un precio, alcance ni plazo publicados para este servicio/);
+  assert.doesNotMatch(serviceModel, /hasta 20 productos|500\.000 COP|15 días hábiles|250\.000 COP/);
+  assert.match(serviceModel, /Aún no hay entregables, precio ni plazo publicados/);
   assert.match(html, /target="_blank" rel="noopener noreferrer"/);
 });
 

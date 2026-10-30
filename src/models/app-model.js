@@ -25,7 +25,7 @@ export const AppModel = {
     ],
     featuredSolutions: [
         { id: 'web', title: 'Una landing clara para tu negocio', tag: 'Landing pages', icon: 'fa-solid fa-globe', tone: 'blue', description: 'Presenta tu negocio, tus productos o servicios y facilita el contacto desde una página diseñada para celular y computador.', highlights: ['Diseño personalizado', 'WhatsApp y formulario de contacto', 'Opciones Básica y Profesional'], whatsappText: 'Hola, quiero información sobre una landing page para mi negocio.' },
-        { id: 'catalog', title: 'Catálogos digitales', tag: 'Productos organizados', icon: 'fa-solid fa-book-open', tone: 'emerald', description: 'Consulta por un catálogo digital para presentar tus productos o servicios.', highlights: ['Referencia desde $500.000 COP', 'Cotización según tu catálogo'], whatsappText: 'Hola, quiero cotizar un catálogo digital para mi negocio.' },
+        { id: 'catalog', title: 'Catálogos digitales', tag: 'Productos organizados', icon: 'fa-solid fa-book-open', tone: 'emerald', description: 'Consulta por un catálogo digital para presentar tus productos o servicios.', highlights: ['Información y alcance por cotizar'], whatsappText: 'Hola, quiero cotizar un catálogo digital para mi negocio.' },
         { id: 'branding', title: 'Branding y diseño digital', tag: 'Identidad visual', icon: 'fa-solid fa-pen-nib', tone: 'purple', description: 'Conversemos sobre branding y diseño digital para tu negocio.', highlights: ['Consulta por WhatsApp', 'Alcance según cotización'], whatsappText: 'Hola, quiero información sobre branding y diseño digital.' }
     ],
     services: [

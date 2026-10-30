@@ -9,7 +9,7 @@ test('Fase 4: diseño claro con identidad ForgeLock y contacto intactos', async 
   ]);
   assert.match(html, /id="services-container" class="py-20 bg-white"/);
   assert.match(html, /id="solutions-carousel-container" class="py-20 bg-slate-50"/);
-  assert.match(view, /\.\/resource\/favicon-48\.png/);
+  assert.match(view, /\.\/resource\/isotipo\.png/);
   assert.match(view, /wa\.me\/\$\{AppModel\.state\.whatsappNumber\}/);
   assert.match(view, /Landing pages, catálogos y branding/);
   assert.doesNotMatch(view, /text-white|bg-slate-950|bg-slate-900/);
