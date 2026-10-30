@@ -14,8 +14,8 @@ export const AppModel = {
     navLinks: [
         { name: 'Inicio', href: '#inicio' },
         { name: 'Soluciones', href: '#soluciones' },
-        { name: '¿Cómo trabajamos?', href: '#proceso' },
         { name: 'Servicios', href: '#servicios' },
+        { name: '¿Cómo trabajamos?', href: '#proceso' },
         { name: 'Contacto', href: '#contacto' }
     ],
     socialLinks: [
@@ -29,9 +29,9 @@ export const AppModel = {
         { id: 'branding', title: 'Branding y diseño digital', tag: 'Identidad visual', icon: 'fa-solid fa-pen-nib', tone: 'purple', description: 'Conversemos sobre branding y diseño digital para tu negocio.', highlights: ['Consulta por WhatsApp', 'Alcance según cotización'], whatsappText: 'Hola, quiero información sobre branding y diseño digital.' }
     ],
     services: [
-        ['Landing pages', 'Páginas para presentar tu negocio, servicios o productos y facilitar el contacto.', 'fa-solid fa-window-maximize'],
-        ['Catálogos digitales', 'Consulta por una cotización según tu catálogo.', 'fa-solid fa-book-open'],
-        ['Branding y diseño digital', 'Consulta por WhatsApp sobre branding y diseño digital.', 'fa-solid fa-pen-nib']
+        ['Landing pages', 'Páginas para presentar tu negocio, servicios o productos y facilitar el contacto.', 'fa-solid fa-window-maximize', 'landing'],
+        ['Catálogos digitales', 'Consulta por una cotización según tu catálogo.', 'fa-solid fa-book-open', 'catalogos'],
+        ['Branding y diseño digital', 'Consulta por WhatsApp sobre branding y diseño digital.', 'fa-solid fa-pen-nib', 'branding']
     ],
     workflow: [
         ['01', 'Cuéntanos', 'Nos explicas qué necesitas o qué problema te quita tiempo.'],

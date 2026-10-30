@@ -134,10 +134,10 @@ test('builds SEO variants independently for GitHub Pages and Cloudflare Worker',
   const distAfterBuild = await Promise.all(preservedDistPaths.map(async (path) => existsSync(path) ? readFile(path) : null));
   assert.deepEqual(distAfterBuild, distSnapshots, 'los builds SEO de prueba no deben reemplazar un dist/ preexistente');
   const workerView = await readFile(join(distDirs.cloudflare, 'src/views/app-view.js'), 'utf8');
-  assert.match(workerView, /href="\.\/servicios"/);
+  assert.match(workerView, /href="\.\/servicios\?servicio=/);
   assert.doesNotMatch(workerView, /href="\.\/servicios\.html"/);
   const workerService = await readFile(join(distDirs.cloudflare, 'servicios.html'), 'utf8');
-  assert.match(workerService, /href="\.\/#servicios"/);
+  assert.match(workerService, /href="#servicios"/);
   assert.doesNotMatch(workerService, /href="\.\/index\.html/);
 
   // Reject regressions in a complete preview artifact, then restore it.

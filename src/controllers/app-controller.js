@@ -46,7 +46,8 @@ export const AppController = {
             if (mobileLink) {
                 AppModel.state.isMenuOpen = false;
                 AppView.renderHeader();
-                document.querySelector(mobileLink.getAttribute('href'))?.scrollIntoView?.();
+                const href = mobileLink.getAttribute('href');
+                if (href.startsWith('#')) document.querySelector(href)?.scrollIntoView?.();
             }
             if (bannerButton) {
                 AppModel.state.activeBannerIndex = Number(bannerButton.dataset.banner);
