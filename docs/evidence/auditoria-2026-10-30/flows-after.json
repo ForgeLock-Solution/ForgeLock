@@ -1,0 +1,45 @@
+[
+  {
+    "route": "index.html",
+    "step": "reject-reload",
+    "loaded": 0
+  },
+  {
+    "route": "index.html",
+    "step": "accept-click",
+    "events": 1,
+    "configs": 1
+  },
+  {
+    "route": "index.html",
+    "step": "revoke-reload",
+    "choice": "rejected",
+    "loaded": 0
+  },
+  {
+    "route": "servicios.html",
+    "step": "reject-reload",
+    "loaded": 0
+  },
+  {
+    "route": "servicios.html",
+    "step": "accept-click",
+    "events": 1,
+    "configs": 1
+  },
+  {
+    "route": "servicios.html",
+    "step": "revoke-reload",
+    "choice": "rejected",
+    "loaded": 0
+  },
+  {
+    "step": "menu-escape",
+    "expanded": "false",
+    "focus": "mobile-menu-btn"
+  },
+  {
+    "step": "generated-proposal",
+    "axe": []
+  }
+]

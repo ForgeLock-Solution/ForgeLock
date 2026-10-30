@@ -1,5 +1,7 @@
 # ForgeLock
 
+Consulta la [especificación maestra](SPEC.md) y la [auditoría del 30 de octubre de 2026](docs/auditoria-maestra-2026-10-30.md).
+
 Landing estática de servicios tecnológicos para emprendedores, negocios y pequeñas empresas.
 
 ## Descripción
@@ -66,6 +68,10 @@ npm test
 ```
 
 La suite valida el render de la landing y la persistencia del borrador del formulario sin romper la estructura MVC. Las pruebas SEO construyen en directorios temporales y los eliminan al terminar, sin reemplazar un `dist/` existente. La prueba HTTP de Workers Static Assets solo se ejecuta si Wrangler está instalado localmente.
+
+El build reutiliza las vistas MVC en `scripts/render-home.mjs` para entregar las secciones de inicio en el HTML inicial y evitar saltos al cargar los módulos. Requiere las dependencias de desarrollo instaladas por `npm ci`, incluido JSDOM. Tailwind analiza todos los HTML públicos de la raíz y los módulos de `src/`; después de cambiar clases, ejecuta `npm run build:styles` para actualizar también el CSS versionado usado por `npm run dev`.
+
+Inicio, servicios y 404 comparten `src/services/consent.js`. Inicio y servicios permiten cambiar la decisión desde «Preferencias de cookies»; revocar una aceptación recarga la página para descargar etiquetas activas. Los tests comprueban estados de consentimiento, eventos únicos y navegación por teclado. GA4 se configura directamente y GTM conserva su contenedor actual: cualquier etiqueta futura de GA4 en GTM debe revisarse para evitar una segunda configuración o eventos duplicados.
 
 ## Supabase
 
