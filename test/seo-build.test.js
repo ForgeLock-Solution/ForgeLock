@@ -106,6 +106,22 @@ test('builds SEO variants independently for GitHub Pages and Cloudflare Worker',
   run('npm', ['run', 'validate:dist:cloudflare'], { DIST_DIR: distDirs.cloudflare });
   await checkVariant('cloudflare');
 
+  for (const target of ['github-pages', 'cloudflare']) {
+    const css = await readFile(join(distDirs[target], 'src/styles/tailwind.css'), 'utf8');
+    assert.ok(css.includes('.sm\\:h-\\[440px\\]'), 'el CSS debe incluir la altura de imagen usada solo en servicios');
+    assert.ok(css.includes('.text-brand-700'), 'los textos de marca deben tener su color definido');
+    const home = new JSDOM(await readFile(join(distDirs[target], 'index.html'), 'utf8')).window.document;
+    assert.equal(home.querySelectorAll('#header-container nav a').length, 5);
+    assert.equal(home.querySelectorAll('#services-container article').length, 6);
+    assert.ok(home.querySelector('#idea-textarea'));
+    assert.equal(home.querySelectorAll('h1').length, 1);
+    const errorPage = new JSDOM(await readFile(join(distDirs[target], '404.html'), 'utf8'), {
+      url: `https://example.test/${target === 'github-pages' ? 'ForgeLock/' : ''}carpeta/ausente`
+    }).window.document;
+    assert.equal(errorPage.querySelector('base').getAttribute('href'), new URL(bases[target]).pathname);
+    assert.equal(new URL(errorPage.querySelector('a').href).pathname, new URL(bases[target]).pathname);
+  }
+
   const wrongTarget = spawnSync(process.execPath, ['./scripts/validate-dist.mjs'], {
     cwd: fileURLToPath(root),
     encoding: 'utf8',

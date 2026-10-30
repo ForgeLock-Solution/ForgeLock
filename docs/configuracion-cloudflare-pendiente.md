@@ -2,6 +2,8 @@
 
 Estado: preparación pendiente. La política vigente es [GitHub Pages como producción y Cloudflare como pruebas no indexables](seo-cloudflare-transition.md). No realizar despliegues desde este documento.
 
+Revisión de solo lectura del 30 de octubre de 2026: el trigger de `forgelock` sigue usando `npm run build:dist` y `npx wrangler deploy` sobre `main`. La URL pública del Worker y su sitemap respondieron 404; eso no permite validar la política SEO del despliegue remoto. Los builds locales y el preview de Workers Static Assets sí se verificaron. Consulta las evidencias y limitaciones en [la auditoría maestra](auditoria-maestra-2026-10-30.md). No se modificó el trigger ni se publicó un artefacto.
+
 ## Dominio temporal confirmado
 
 Mientras se prepara Cloudflare, se conserva GitHub Pages como URL canónica de producción: `https://forgelock-solution.github.io/ForgeLock/`. `BASE_URL` identifica cada alojamiento; las URLs SEO de producción se conservan en ambas variantes. El Worker se genera con noindex y sin URLs de sitemap. La migración canónica está deshabilitada; requiere autorización y revisión separadas.

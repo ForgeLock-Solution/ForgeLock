@@ -176,6 +176,15 @@ test('Workers Static Assets sirve las rutas SEO locales con señales coherentes'
   console.log(`Workers Static Assets preview routes: ${JSON.stringify(records)}`);
   assert.equal(sitemapUrls.length, 0);
 
+  const missing = await fetch(`${origin}/carpeta/pagina-inexistente`);
+  assert.equal(missing.status, 404);
+  const errorDocument = new JSDOM(await missing.text(), { url: missing.url }).window.document;
+  assert.equal(errorDocument.querySelector('h1').textContent, 'Esta página no existe');
+  assert.equal(errorDocument.querySelector('base').getAttribute('href'), '/');
+  assert.equal(errorDocument.querySelector('a').href, `${origin}/`);
+  assert.match(errorDocument.querySelector('meta[name="robots"]').content, /noindex/);
+  assert.equal((await fetch(errorDocument.querySelector('script[src]').src)).status, 200);
+
   for (const asset of ['resource/forgelock-social-preview.png', 'resource/Logo.png', 'src/styles/tailwind.css']) {
     assert.equal((await fetch(`${origin}/${asset}`)).status, 200, `${asset} debe servirse`);
   }

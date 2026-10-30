@@ -63,6 +63,11 @@ export async function generateSeo({
   for (const file of htmlFiles) {
     const path = join(dist, file);
     let html = await readFile(path, 'utf8');
+    if (file === '404.html') {
+      // El servidor conserva la URL solicitada, que puede tener carpetas anidadas.
+      html = html.replace(/<base\b[^>]*>/gi, '');
+      html = html.replace(/<head>/i, `<head>\n    <base href="${baseUrl.pathname}">`);
+    }
     if (target === 'cloudflare') {
       // Adapt local navigation; preserve canonical, social metadata and JSON-LD.
       html = html.replace(/href="\.\/index\.html(?=[#"?])/g, 'href="./');
