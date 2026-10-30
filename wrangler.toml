@@ -2,6 +2,7 @@
 # Build and validate command: npm run build:cloudflare
 # Future publish only through npm run deploy:cloudflare after explicit authorization.
 name = "forgelock"
+account_id = "fc854c3291faa99f884d4568138cff95"
 compatibility_date = "2026-10-19"
 previews = {}
 
