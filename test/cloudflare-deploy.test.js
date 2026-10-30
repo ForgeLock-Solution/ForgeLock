@@ -8,7 +8,9 @@ import { createDeploymentConfig, deployCloudflare } from '../scripts/deploy-clou
 
 const sourceConfig = await readFile(new URL('../wrangler.toml', import.meta.url), 'utf8');
 // A synthetic account is used only in isolated tests; never written to the project.
-const confirmedConfig = `account_id = "${'a'.repeat(32)}"\n${sourceConfig}`;
+const confirmedConfig = sourceConfig.replace(/^account_id\s*=.*\r?\n/m, '')
+  .replace(/^name\s*=.*$/m, `account_id = "${'a'.repeat(32)}"\nname = "forgelock"`);
+const missingAccountConfig = confirmedConfig.replace(/^account_id\s*=.*\r?\n/m, '');
 const runtimeOptions = { skip: Number(process.versions.node.split('.')[0]) < 22
   ? 'El preflight de Cloudflare requiere Node.js 22 o superior.' : false };
 
@@ -20,7 +22,8 @@ test('la configuración temporal conserva previews y solo cambia la ruta de acti
 });
 
 test('rechaza cuentas, Worker y activos incorrectos o ambiguos antes de construir', () => {
-  assert.throws(() => createDeploymentConfig(sourceConfig), /account_id.*confirmado/);
+  assert.throws(() => createDeploymentConfig(missingAccountConfig), /account_id.*confirmado/);
+  assert.throws(() => createDeploymentConfig(confirmedConfig.replace(/^account_id\s*=.*$/m, 'account_id = "not-a-valid-id"')), /account_id.*confirmado/);
   assert.throws(() => createDeploymentConfig(confirmedConfig.replace('"forgelock"', '"otro-worker"')), /Worker forgelock/);
   assert.throws(() => createDeploymentConfig(confirmedConfig.replace('"./dist-cloudflare"', '"./dist"')), /Destino rechazado/);
   assert.throws(() => createDeploymentConfig(`account_id = "${'b'.repeat(32)}"\n${confirmedConfig}`), /duplicado/);
