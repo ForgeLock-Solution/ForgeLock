@@ -1,6 +1,4 @@
-const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-}[character]));
+import { escapeHtml } from './html-helpers.js';
 
 const listMarkup = (items) => items.map((item) => `<li class="flex gap-2"><span class="text-brand-500">•</span><span>${escapeHtml(item)}</span></li>`).join('');
 
