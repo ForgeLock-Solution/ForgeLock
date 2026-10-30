@@ -21,16 +21,16 @@ test('los planes publican solo precios y tiempos autorizados con CTA contextual'
   assert.doesNotMatch(document.querySelector('#planes-landing').textContent, /Premium|\?/);
 });
 
-test('la página de servicios tiene descripciones, imágenes con alt y enlaces WhatsApp destacados', async () => {
+test('la página de servicios presenta solo la oferta autorizada y CTA de WhatsApp', async () => {
   const html = await readFile(new URL('../servicios.html', import.meta.url), 'utf8');
-  assert.match(html, /<title>Servicios digitales para negocios \| ForgeLock<\/title>/);
-  assert.match(html, /Páginas web y landing pages/);
+  assert.match(html, /<title>Planes de landing pages \| ForgeLock<\/title>/);
+  assert.match(html, /Landing pages para presentar tu negocio/);
   assert.match(html, /Catálogos digitales/);
   assert.match(html, /Branding y diseño digital/);
-  assert.match(html, /Sistemas y automatización/);
+  assert.doesNotMatch(html, /Automatización de WhatsApp|Sistemas y automatización|Soluciones personalizadas|CRM|pasarelas de pago/);
+  assert.match(html, /Ejemplo conceptual de diseño/);
   assert.doesNotMatch(html, /photo-1547658788-1b9d4f3c2e9f|photo-1634942536790-2536c7f6f5f0/);
-  assert.match(html, /service-image-fallback/);
-  assert.match(html, /alt="[^"]+"/);
+  assert.match(html, /<iframe[^>]+title="[^"]+"/);
   assert.match(html, /class="[^"]*whatsapp-button/);
   assert.match(html, /https:\/\/wa\.me\/573043402589/);
   assert.match(html, /target="_blank" rel="noopener noreferrer"/);

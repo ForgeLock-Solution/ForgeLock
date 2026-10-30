@@ -63,16 +63,13 @@ export function getSeoConfig(env = process.env) {
   }
 
   const transition = getSeoTransition(env);
-  if (target === 'cloudflare' && env.INDEXABLE && env.INDEXABLE !== 'false') {
-    throw new Error('Cloudflare es un entorno de pruebas no indexable; INDEXABLE solo puede ser false para este destino.');
-  }
   return {
     target,
     transition,
     baseUrl: new URL(expectedBaseUrl),
-    canonicalBaseUrl: new URL(DEFAULT_BASE_URL),
-    canonicalTarget: 'github-pages',
-    indexable: target === 'github-pages' && env.INDEXABLE !== 'false'
+    canonicalBaseUrl: new URL(expectedBaseUrl),
+    canonicalTarget: target,
+    indexable: env.INDEXABLE !== 'false'
   };
 }
 
@@ -90,13 +87,16 @@ export async function discoverPublicHtmlFiles(root) {
     }
   }
   for (const entry of files) {
-    if (entry.isDirectory() && !['.git', 'dist', 'dist-cloudflare', 'node_modules', 'scripts', 'src', 'test', 'tests'].includes(entry.name.toLowerCase())) await scan(join(root, entry.name), entry.name);
+      if (entry.isDirectory() && !['.git', 'dist', 'dist-cloudflare', 'node_modules', 'scripts', 'src', 'test', 'tests'].includes(entry.name.toLowerCase())) await scan(join(root, entry.name), entry.name);
   }
-  if (nestedHtml.length) {
-    throw new Error(`No se admiten páginas HTML anidadas; muévalas a la raíz o exclúyalas del proyecto: ${nestedHtml.sort().join(', ')}`);
+  const unexpectedNestedHtml = nestedHtml.filter((file) => !file.startsWith('ejemplos/'));
+  if (unexpectedNestedHtml.length) {
+    throw new Error(`No se admiten páginas HTML anidadas fuera de ejemplos/: ${unexpectedNestedHtml.sort().join(', ')}`);
   }
-  return files.filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith('.html'))
-    .map((entry) => entry.name).sort();
+  return [
+    ...files.filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith('.html')).map((entry) => entry.name),
+    ...nestedHtml
+  ].sort();
 }
 
 export function comparePublicHtmlFiles(sourceFiles, artifactFiles) {

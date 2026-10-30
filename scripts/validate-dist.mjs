@@ -165,22 +165,13 @@ for (const file of artifactFiles.filter((entry) => entry.endsWith('.html'))) {
   for (const match of html.matchAll(/<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)) {
     try {
       const json = JSON.parse(match[1]);
-      if (!JSON.stringify(json).includes(canonicalBaseUrl.href)) fail(`JSON-LD de dist/${file} no incluye la URL de producción de GitHub Pages.`);
+      if (!JSON.stringify(json).includes(canonicalBaseUrl.href)) fail(`JSON-LD de dist/${file} no incluye la URL canónica de ${target}.`);
     } catch (error) { fail(`JSON-LD inválido en dist/${file}: ${error.message}`); }
   }
-  if (html.includes('forgelock.forge-look19.workers.dev')) fail(`Referencia SEO de Cloudflare no autorizada en dist/${file}.`);
-
-  if (target === 'cloudflare' && sourceHtmlFiles.includes(file)) {
-    const source = await readFile(join(root, file), 'utf8');
-    const signals = (content) => {
-      const dom = new JSDOM(content);
-      const selector = 'link[rel="canonical"], link[rel="alternate"], meta[property^="og:"], meta[name^="twitter:"], script[type="application/ld+json"]';
-      const values = [...dom.window.document.querySelectorAll(selector)].map((node) => node.outerHTML);
-      dom.window.close();
-      return JSON.stringify(values);
-    };
-    if (signals(html) !== signals(source)) fail(`dist/${file} debe conservar las señales SEO de producción del archivo fuente.`);
-  }
+  const otherProductionBase = target === 'cloudflare'
+    ? 'https://forgelock-solution.github.io/ForgeLock/'
+    : 'https://forgelock.forge-look19.workers.dev/';
+  if (html.includes(otherProductionBase)) fail(`dist/${file} contiene señales SEO del destino distinto de ${target}.`);
 
   for (const match of html.matchAll(/\b(?:href|src)\s*=\s*["']([^"']+)["']/gi)) {
     const value = match[1].trim();

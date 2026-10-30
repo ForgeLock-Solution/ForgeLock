@@ -23,7 +23,11 @@ if (existsSync(output)) {
 }
 await mkdir(output, { recursive: true });
 
-for (const file of publicHtmlFiles) await cp(join(root, file), join(output, file));
+for (const file of publicHtmlFiles) {
+    const destination = join(output, file);
+    await mkdir(dirname(destination), { recursive: true });
+    await cp(join(root, file), destination);
+}
 await cp(join(root, 'robots.txt'), join(output, 'robots.txt'));
 await cp(join(root, 'sitemap.xml'), join(output, 'sitemap.xml'));
 await cp(join(root, '404.html'), join(output, '404.html'));

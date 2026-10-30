@@ -19,7 +19,7 @@ export const AppModel = {
         { name: 'Contacto', href: '#contacto' }
     ],
     socialLinks: [
-        { name: 'Facebook', href: 'https://www.facebook.com/ForgeLock', icon: 'fa-brands fa-facebook-f' },
+        { name: 'Facebook', href: 'https://www.facebook.com/profile.php?id=61594009876448', icon: 'fa-brands fa-facebook-f' },
         { name: 'Instagram', href: 'https://www.instagram.com/forgelock/', icon: 'fa-brands fa-instagram' },
         { name: 'TikTok', href: 'https://www.tiktok.com/@forge.lock', icon: 'fa-brands fa-tiktok' }
     ],
@@ -40,3 +40,4 @@ export const AppModel = {
         ['04', 'Desarrollamos', 'Construimos, probamos y entregamos una solución lista.']
     ]
 };
+

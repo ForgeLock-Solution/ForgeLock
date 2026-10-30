@@ -1,33 +1,20 @@
-# Política SEO vigente: GitHub Pages y pruebas en Cloudflare
+# Política SEO vigente: Cloudflare como URL oficial temporal
 
-Actualizada el 29 de octubre de 2026 durante la fase 1 autorizada. Sustituye el procedimiento anterior de transición canónica al Worker. No autoriza publicaciones ni cambios remotos.
+Actualizada el 30 de octubre de 2026 por decisión del responsable de ForgeLock. La URL oficial temporal es `https://forgelock.forge-look19.workers.dev/` hasta conseguir la primera venta. Esta decisión autoriza los cambios locales de canonicals y señales SEO; no autoriza publicación ni cambios en GitHub Pages, Workers Builds, GitHub Actions, DNS o cuentas.
 
-## Producción preservada
-
-La única URL canónica de producción es `https://forgelock-solution.github.io/ForgeLock/`. Se mantiene exactamente la marca ForgeLock. El Worker `https://forgelock.forge-look19.workers.dev/` se prepara como entorno de pruebas.
-
-| Variante | Salida predeterminada | Canonical y señales sociales | Indexación |
+| Variante | Salida | Canonical y señales sociales | Indexación |
 |---|---|---|---|
-| GitHub Pages | `dist/` | GitHub Pages, con `/ForgeLock/` y rutas `.html` | Portada y servicios en sitemap; legales y 404 con noindex |
-| Cloudflare Worker de pruebas | `dist-cloudflare/` | Conserva canonical, hreflang, OG, Twitter y JSON-LD del fuente de Pages | Todas las páginas con noindex; sitemap vacío y robots sin Sitemap |
+| Cloudflare Worker oficial temporal | `dist-cloudflare/` | `https://forgelock.forge-look19.workers.dev/`, rutas sin `.html` | Portada y servicios indexables y en sitemap; legales, 404 y ejemplos conceptuales con noindex |
+| GitHub Pages | `dist/` | Su URL y rutas `.html` propias al construir esa variante | Portada y servicios indexables y en sitemap; legales y 404 con noindex |
 
-`BASE_URL` identifica el alojamiento del artefacto, no decide la canonical. Si se define, debe coincidir con `SEO_TARGET`. Los enlaces relativos del Worker se adaptan a las rutas de Static Assets; las URLs canónicas siguen identificando las páginas de producción.
+`SEO_TARGET` selecciona destino y canonical en conjunto. `BASE_URL`, si se proporciona, debe coincidir exactamente con el destino seleccionado. La generación adapta canonical, hreflang, Open Graph, Twitter y JSON-LD por destino. La navegación del Worker usa rutas sin `.html`. Los cuatro ejemplos se copian como HTML independiente, quedan fuera del sitemap y llevan `noindex`.
 
-## Protecciones locales
+## Protecciones y validación
 
-- `INDEXABLE=true` se rechaza para Cloudflare antes de crear la salida. El generador también rechaza ese intento si se invoca directamente desde JavaScript.
-- Cualquier `SEO_TRANSITION` no vacío se rechaza. El comando heredado `npm run build:dist:pages-transition` termina con error sin generar artefactos.
-- El validador rechaza señales SEO del Worker, cambios respecto al fuente en los metadatos del preview, páginas de prueba sin noindex y sitemaps de prueba con URLs.
-- Se conserva el rastreo en robots para permitir leer noindex. No se publica una directiva Sitemap en el preview.
-- El build no modifica los HTML, robots, sitemap ni estilos fuente. El cálculo de lastmod de Pages continúa usando Git.
-- No se sobrescriben distribuciones existentes. Las pruebas usan salidas temporales y comprueban que los artefactos previos permanezcan intactos.
+- Ambos destinos son indexables por defecto; `INDEXABLE=false` permite crear artefactos no indexables con sitemap vacío.
+- `SEO_TRANSITION` y el comando heredado `npm run build:dist:pages-transition` siguen bloqueados.
+- No se sobrescriben directorios de salida existentes. Ejecuta los builds en carpetas temporales vacías para validar sin tocar artefactos previos.
+- `npm run build:dist:cloudflare` y `npm run validate:dist:cloudflare` verifican el artefacto del Worker; `npm test` comprueba las dos variantes.
+- Los resultados de builds locales no confirman el estado del Worker remoto ni el envío/aceptación de su sitemap en Search Console.
 
-Estas protecciones corresponden al artefacto construido y validado. No corrigen retrospectivamente el `dist/` antiguo ni aseguran que el Worker remoto ya publique esos archivos.
-
-## Validación y siguiente fase
-
-Ejecutar `npm test` valida ambos destinos en carpetas temporales. El test runtime usa Wrangler local cuando está disponible y no publica cambios. Para builds manuales, seleccionar una carpeta temporal vacía mediante `DIST_DIR` y usar ese mismo valor al validar.
-
-Antes de cualquier push o publicación, revisar Workers Builds y GitHub Actions por separado. En la auditoría del 29 de octubre el trigger remoto tenía `npm run build:dist` seguido de `npx wrangler deploy`, mientras Wrangler esperaba `dist-cloudflare/`. La fase 1 no modifica ese trigger, cuentas, dominios, DNS, secretos ni configuración remota.
-
-Una futura migración necesita autorización específica sobre la URL final, un plan coordinado para ambos hosts, cambios revisados en generador y validadores y una comprobación de Search Console. No enviar un sitemap Worker ni solicitar indexación de ese entorno como parte de esta fase.
+El ajuste SEO de los archivos fuente y de la generación local no sube cambios ni despliega. Antes de publicar el Worker se debe revisar el trigger remoto descrito en [configuración Cloudflare pendiente](configuracion-cloudflare-pendiente.md). El workflow de GitHub Pages no se modifica en esta tarea.

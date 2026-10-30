@@ -127,8 +127,9 @@ try {
 
 ## Canonical y migración deshabilitada
 
-No hay una migración canónica autorizada. `SEO_TRANSITION` y el comando heredado `npm run build:dist:pages-transition` fallan antes de crear artefactos. Una migración futura requiere una decisión explícita sobre la URL final, revisión de generador, validadores y pruebas, y autorización separada para publicar. Consulta la [política SEO vigente](docs/seo-cloudflare-transition.md).
+La URL oficial temporal ya está decidida; `SEO_TRANSITION` y el comando heredado `npm run build:dist:pages-transition` siguen deshabilitados. El cambio local de señales SEO no publica el Worker ni modifica GitHub Pages. Consulta la [política SEO vigente](docs/seo-cloudflare-transition.md).
 
 Los cambios locales de las fases 1 y 2 no actualizan Workers Builds, GitHub Actions ni el Worker publicado. Antes de cualquier push, confirma el [ajuste remoto pendiente](docs/configuracion-cloudflare-pendiente.md); el trigger remoto auditado ejecuta Wrangler directamente y no utiliza el preflight de este repositorio.
 
 `docs/seo-audit.md` y `docs/cloudflare-pages-migration-audit.md` conservan auditorías anteriores; sus resultados no equivalen a verificaciones actuales.
+

@@ -38,11 +38,11 @@ ForgeLock ayuda a emprendedores, profesionales y pequeños negocios colombianos 
 - `supabase/migrations/`: esquema y políticas de leads; su presencia NO prueba aplicación remota.
 
 ## 5. Estado verificado y límites
-- Producción: `https://forgelock-solution.github.io/ForgeLock/`, canónica actual.
+- URL oficial temporal: `https://forgelock.forge-look19.workers.dev/` hasta conseguir la primera venta; esta decisión no publica ni actualiza remotamente el Worker. GitHub Pages no se toca.
 - Sitemap accesible con dos URLs: home y servicios. La respuesta pública no confirma la aceptación del sitemap por Search Console.
 - Canonical, OG, Twitter Card y favicon están presentes en home; revisar cada página y funcionamiento real por separado.
-- GitHub Pages: `npm run build:dist` -> `dist/`.
-- Cloudflare Worker: `npm run build:dist:cloudflare` -> `dist-cloudflare/`, por política `noindex`, sitemap vacío y sin migración canónica.
+- GitHub Pages: `npm run build:dist` -> `dist/`; su destino y flujo remoto permanecen independientes.
+- Cloudflare Worker: `npm run build:dist:cloudflare` -> `dist-cloudflare/`, canonical y señales sociales/JSON-LD en la URL oficial; portada y servicios en sitemap; páginas legales, 404 y ejemplos conceptuales con `noindex`.
 - No publicar Cloudflare ni modificar Workers Builds sin autorización expresa. Revisar `docs/configuracion-cloudflare-pendiente.md`.
 - Supabase: migraciones versionadas; el README señala que la landing todavía dirige a WhatsApp sin guardar leads en base de datos.
 - El HTML de home define GA4 y GTM; comprobar consentimiento y duplicados en navegador antes de afirmar que la medición funciona.
@@ -70,7 +70,7 @@ Los builds rechazan directorios de salida no vacíos; usar directorios temporale
 ### Tanda 2 — SEO y Search Console [P0]
 - [ ] Comprobar robots/sitemap/canonical/metadatos, códigos HTTP y enlaces de ambas URLs indexables.
 - [ ] Contrastar el estado real de sitemap/indexación dentro de GSC; corregir solo defectos reproducidos.
-- [ ] Mantener canónica de GitHub Pages y `noindex` en Worker.
+- [ ] Mantener canonicals por destino: GitHub Pages con su ruta propia y Cloudflare con la URL oficial temporal.
 **Terminado:** validaciones automáticas y evidencias de GSC, sin duplicar indexación.
 
 ### Tanda 3 — UX, responsive y accesibilidad [P1]
@@ -96,7 +96,7 @@ Los builds rechazan directorios de salida no vacíos; usar directorios temporale
 2. Trabajar en rama nueva desde `main`; nunca modificar producción o desplegar sin permiso expreso.
 3. Proponer cambios por bloques funcionales completos, indicando archivos y pruebas.
 4. No inventar estado de GSC, Cloudflare, Supabase, analítica o precios.
-5. Respetar rutas relativas `/ForgeLock/`, canonical y política `noindex` del Worker.
+5. Respetar rutas relativas por destino, canonicals por destino y `noindex` de legales, 404 y ejemplos conceptuales.
 6. No añadir frameworks ni dependencias sin justificarlo; mantener MVC actual.
 7. No publicar secretos; jamás exponer la `SUPABASE_SERVICE_ROLE_KEY`.
 8. Entregar resumen, diff, pruebas y riesgos; detenerse antes del merge.
@@ -109,3 +109,4 @@ Los builds rechazan directorios de salida no vacíos; usar directorios temporale
 - `docs/seo-cloudflare-transition.md`
 - `docs/configuracion-cloudflare-pendiente.md`
 - `docs/seo-audit.md` (histórica)
+

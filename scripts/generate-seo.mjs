@@ -21,6 +21,15 @@ import {
 
 const scriptPath = fileURLToPath(import.meta.url);
 const projectRoot = join(dirname(scriptPath), '..');
+function rewriteProductionUrls(html, target, baseUrl) {
+  return html.replace(/https:\/\/(?:forgelock-solution\.github\.io\/ForgeLock\/|forgelock\.forge-look19\.workers\.dev\/)([^"'\s<>#]*)/g, (_match, rawPath) => {
+    let route = rawPath;
+    if (route === 'index.html') route = '';
+    if (target === 'cloudflare' && route.endsWith('.html')) route = route.slice(0, -5);
+    if (target === 'github-pages' && route && !/\.[a-z0-9]+$/i.test(route)) route = `${route}.html`;
+    return new URL(route, baseUrl).href;
+  });
+}
 
 function lastModifiedFromGit(root, pagePath) {
   try {
@@ -46,9 +55,6 @@ export async function generateSeo({
   const config = getSeoConfig(env);
   const target = config.target;
   const indexable = requestedIndexable ?? config.indexable;
-  if (target === 'cloudflare' && indexable) {
-    throw new Error('Cloudflare es un entorno de pruebas no indexable.');
-  }
   const baseUrl = normalizeBaseUrl(baseUrlValue || config.baseUrl.href || DEFAULT_BASE_URL);
   if (baseUrl.href !== config.baseUrl.href) throw new Error('baseUrl no coincide con el destino SEO configurado.');
   const { canonicalBaseUrl, canonicalTarget } = config;
@@ -73,6 +79,7 @@ export async function generateSeo({
       html = html.replace(/href="\.\/index\.html(?=[#"?])/g, 'href="./');
       html = html.replace(/href="\.\/([a-z0-9-]+)\.html(?=[#"?])/gi, 'href="./$1');
     }
+    html = rewriteProductionUrls(html, target, canonicalBaseUrl);
     if (!indexable) html = setNoindex(html);
     await writeFile(path, html, 'utf8');
   }

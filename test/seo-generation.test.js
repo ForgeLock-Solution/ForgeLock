@@ -53,24 +53,27 @@ function parseSitemap(xml) {
   return document;
 }
 
-test('separa el host de pruebas de la URL canónica de producción', () => {
+test('cada destino genera sus señales SEO con su propia URL canónica', () => {
   const pages = getSeoConfig({});
   const worker = getSeoConfig({ SEO_TARGET: 'cloudflare' });
   assert.equal(pages.indexable, true);
-  assert.equal(worker.indexable, false);
+  assert.equal(worker.indexable, true);
   assert.equal(worker.baseUrl.href, 'https://forgelock.forge-look19.workers.dev/');
-  assert.equal(worker.canonicalBaseUrl.href, DEFAULT_BASE_URL);
-  assert.equal(worker.canonicalTarget, 'github-pages');
-  assert.throws(() => getSeoConfig({ SEO_TARGET: 'cloudflare', INDEXABLE: 'true' }), /no indexable/);
+  assert.equal(worker.canonicalBaseUrl.href, 'https://forgelock.forge-look19.workers.dev/');
+  assert.equal(worker.canonicalTarget, 'cloudflare');
+  assert.equal(getSeoConfig({ SEO_TARGET: 'cloudflare', INDEXABLE: 'true' }).indexable, true);
   assert.throws(() => getSeoConfig({ SEO_TRANSITION: 'cloudflare' }), /Migración canónica deshabilitada/);
 });
 
-test('la API del generador tampoco permite indexar el Worker ni cambiar su base', async () => {
+test('la API del generador permite indexar el Worker y rechaza una base no configurada', async () => {
   await withFixture(async ({ root, dist, addPage }) => {
     const original = await addPage('index.html');
-    await assert.rejects(generateSeo({ root, dist, env: { SEO_TARGET: 'cloudflare' }, indexable: true }), /no indexable/);
+    const result = await generateSeo({ root, dist, env: { SEO_TARGET: 'cloudflare' } });
+    assert.equal(result.pageCount, 1);
+    assert.match(await readFile(join(dist, 'index.html'), 'utf8'), /canonical" href="https:\/\/forgelock\.forge-look19\.workers\.dev\//);
+    assert.match(result.sitemap, /https:\/\/forgelock\.forge-look19\.workers\.dev\//);
     await assert.rejects(generateSeo({ root, dist, baseUrl: 'https://example.test/' }), /baseUrl no coincide/);
-    assert.equal(await readFile(join(dist, 'index.html'), 'utf8'), original);
+    assert.notEqual(await readFile(join(dist, 'index.html'), 'utf8'), original);
   });
 });
 
@@ -103,7 +106,7 @@ test('genera sitemap desde las páginas HTML canónicas e indexables de dist', a
       new URL('oferta&a.html', baseUrl).href,
       new URL('servicios.html', baseUrl).href
     ]);
-    assert.ok(locations.every((location) => location.startsWith('https://forgelock-solution.github.io/ForgeLock/')));
+    assert.ok(locations.every((location) => location.startsWith(baseUrl.href)));
     assert.equal(urls[0].getElementsByTagNameNS(SITEMAP_NAMESPACE, 'lastmod')[0].textContent, '2026-10-27');
     assert.equal(urls[1].getElementsByTagNameNS(SITEMAP_NAMESPACE, 'lastmod')[0].textContent, '2026-10-21');
     assert.equal(urls[2].getElementsByTagNameNS(SITEMAP_NAMESPACE, 'lastmod').length, 0);
@@ -166,7 +169,7 @@ test('INDEXABLE=false reemplaza directivas robots en conflicto y no publica URL'
 test('rechaza una canonical que no corresponde a la URL del entorno', async () => {
   await withFixture(async ({ root, dist, baseUrl, addPage }) => {
     await addPage('index.html');
-    await writeFile(join(dist, 'servicios.html'), '<!doctype html><html><head><link rel="canonical" href="https://forgelock.forge-look19.workers.dev/servicios.html"></head><body></body></html>');
+    await writeFile(join(dist, 'servicios.html'), '<!doctype html><html><head><link rel="canonical" href="https://example.test/servicios.html"></head><body></body></html>');
     await assert.rejects(
       generateSeo({ root, dist, baseUrl: baseUrl.href, getLastModified: () => '' }),
       /canonical propia/
