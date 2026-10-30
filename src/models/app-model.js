@@ -19,24 +19,19 @@ export const AppModel = {
         { name: 'Contacto', href: '#contacto' }
     ],
     socialLinks: [
-        { name: 'Facebook', href: 'https://www.facebook.com/profile.php?id=61594009876448', icon: 'fa-brands fa-facebook-f' },
+        { name: 'Facebook', href: 'https://www.facebook.com/ForgeLock', icon: 'fa-brands fa-facebook-f' },
         { name: 'Instagram', href: 'https://www.instagram.com/forgelock/', icon: 'fa-brands fa-instagram' },
-        { name: 'X', href: 'https://x.com/forgelock', icon: 'fa-brands fa-x-twitter' },
         { name: 'TikTok', href: 'https://www.tiktok.com/@forge.lock', icon: 'fa-brands fa-tiktok' }
     ],
     featuredSolutions: [
-        { id: 'whatsapp', title: 'Automatiza tu WhatsApp Business', tag: 'Solución Estelar', icon: 'fa-brands fa-whatsapp', tone: 'emerald', description: 'Convierte WhatsApp en una herramienta para atender clientes, registrar información y automatizar procesos sin perder el toque humano.', highlights: ['Atención 24/7 automática', 'Registro automático de clientes', 'Filtros y derivación de solicitudes'], whatsappText: 'Hola, estoy interesado en automatizar WhatsApp Business.' },
-        { id: 'web', title: 'Crea una presencia web profesional', tag: 'Imagen Digital', icon: 'fa-solid fa-globe', tone: 'blue', description: 'Diseñamos páginas web adaptadas a tu negocio para ayudarte a tener una presencia digital profesional que genere confianza y ventas.', highlights: ['Diseño adaptable a celulares', 'Optimizado para Google', 'Enfoque en captar clientes'], whatsappText: 'Hola, estoy interesado en crear una página web para mi negocio.' },
-        { id: 'systems', title: 'Un sistema hecho para tu negocio', tag: 'A Medida', icon: 'fa-solid fa-laptop-code', tone: 'purple', description: 'Desarrollamos sistemas personalizados para organizar información, clientes, ventas, inventarios y operaciones de forma centralizada.', highlights: ['Adiós a archivos desordenados', 'Reportes en tiempo real', 'Acceso seguro desde cualquier lugar'], whatsappText: 'Hola, estoy interesado en desarrollar un sistema personalizado.' },
-        { id: 'automation', title: 'Deja que la tecnología haga el trabajo repetitivo', tag: 'Eficiencia Total', icon: 'fa-solid fa-gears', tone: 'amber', description: 'Automatizamos tareas y procesos internos para reducir trabajo manual, errores humanos y pérdida de tiempo operativo.', highlights: ['Sincronización entre aplicaciones', 'Alertas automáticas', 'Mayor productividad diaria'], whatsappText: 'Hola, quiero conocer qué procesos de mi negocio se pueden automatizar.' }
+        { id: 'web', title: 'Una landing clara para tu negocio', tag: 'Landing pages', icon: 'fa-solid fa-globe', tone: 'blue', description: 'Presenta tu negocio, tus productos o servicios y facilita el contacto desde una página diseñada para celular y computador.', highlights: ['Diseño personalizado', 'WhatsApp y formulario de contacto', 'Opciones Básica y Profesional'], whatsappText: 'Hola, quiero información sobre una landing page para mi negocio.' },
+        { id: 'catalog', title: 'Catálogos digitales', tag: 'Productos organizados', icon: 'fa-solid fa-book-open', tone: 'emerald', description: 'Consulta por un catálogo digital para presentar tus productos o servicios.', highlights: ['Referencia desde $500.000 COP', 'Cotización según tu catálogo'], whatsappText: 'Hola, quiero cotizar un catálogo digital para mi negocio.' },
+        { id: 'branding', title: 'Branding y diseño digital', tag: 'Identidad visual', icon: 'fa-solid fa-pen-nib', tone: 'purple', description: 'Conversemos sobre branding y diseño digital para tu negocio.', highlights: ['Consulta por WhatsApp', 'Alcance según cotización'], whatsappText: 'Hola, quiero información sobre branding y diseño digital.' }
     ],
     services: [
-        ['Automatización de WhatsApp', 'Bots inteligentes, atención automática y registro de información.', 'fa-brands fa-whatsapp'],
-        ['Desarrollo Web', 'Páginas corporativas, landing pages y catálogos digitales.', 'fa-solid fa-code'],
-        ['Sistemas Empresariales', 'Paneles de control adaptados a los flujos de cada empresa.', 'fa-solid fa-server'],
-        ['Automatización de Procesos', 'Reducimos tareas repetitivas conectando tus herramientas.', 'fa-solid fa-bolt'],
-        ['Integraciones', 'Conectamos plataformas, pasarelas de pago, CRMs y herramientas.', 'fa-solid fa-puzzle-piece'],
-        ['Soluciones Personalizadas', 'Diseñamos la respuesta para tu reto tecnológico único.', 'fa-solid fa-lightbulb']
+        ['Landing pages', 'Páginas para presentar tu negocio, servicios o productos y facilitar el contacto.', 'fa-solid fa-window-maximize'],
+        ['Catálogos digitales', 'Consulta por una cotización según tu catálogo.', 'fa-solid fa-book-open'],
+        ['Branding y diseño digital', 'Consulta por WhatsApp sobre branding y diseño digital.', 'fa-solid fa-pen-nib']
     ],
     workflow: [
         ['01', 'Cuéntanos', 'Nos explicas qué necesitas o qué problema te quita tiempo.'],
