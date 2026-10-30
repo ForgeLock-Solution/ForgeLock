@@ -2,11 +2,6 @@ import { AppModel } from '../models/app-model.js';
 
 // La Vista centraliza la creación de enlaces para que cada CTA use el mismo número.
 const whatsappUrl = (text) => `https://wa.me/${AppModel.state.whatsappNumber}?text=${encodeURIComponent(text)}`;
-// El texto escrito por la persona vuelve a mostrarse en un <textarea>; se escapa
-// antes de interpolarlo para que nunca sea interpretado como HTML.
-const escapeHtml = (value) => value.replace(/[&<>\"']/g, (character) => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-}[character]));
 // Clases explícitas: Tailwind puede detectarlas sin depender de nombres dinámicos.
 const badgeClasses = {
     emerald: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',

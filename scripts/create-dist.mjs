@@ -50,7 +50,7 @@ for (const folder of ['controllers', 'models', 'services', 'views', 'vendor']) {
 
 const outputStyles = join(outputSource, 'styles');
 await mkdir(outputStyles, { recursive: true });
-for (const file of ['app.css', 'tailwind.css']) {
+for (const file of ['app.css', 'tailwind.css', 'legal.css']) {
     await cp(join(sourceRoot, 'styles', file), join(outputStyles, file));
 }
 

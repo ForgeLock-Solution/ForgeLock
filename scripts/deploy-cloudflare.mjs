@@ -1,82 +1,71 @@
-// Future publication only: build, validate and deploy the same isolated artifact.
+// Build, validate and optionally publish the same isolated Worker artifact.
 import { mkdtemp, readFile, writeFile, rm } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 
-const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 function readConfigValue(config, key) {
-  return config.match(new RegExp(`^${key}\\s*=\\s*["']([^"']+)["']\\s*$`, 'm'))?.[1];
+  const matches = [...config.matchAll(new RegExp(`^\\s*${key}\\s*=\\s*["']([^"'\\r\\n]+)["'][ \\t]*(?:#.*)?$`, 'gm'))];
+  if (matches.length > 1) throw new Error(`Configuración ambigua: ${key} está duplicado.`);
+  return matches[0]?.[1];
 }
 
-function requireConfirmedTarget(config) {
-  const accountId = readConfigValue(config, 'account_id');
+export function createDeploymentConfig(sourceConfig) {
+  const topLevel = sourceConfig.split(/^\s*\[/m)[0];
+  const accountId = readConfigValue(topLevel, 'account_id');
   if (!accountId || !/^[a-f0-9]{32}$/i.test(accountId)) {
     throw new Error('Destino Cloudflare no confirmado: añade a wrangler.toml el account_id de 32 caracteres hexadecimales confirmado por el responsable de la cuenta.');
   }
-  const name = readConfigValue(config, 'name');
-  if (name !== 'forgelock') throw new Error('Destino rechazado: wrangler.toml debe declarar el Worker forgelock.');
-  if (readConfigValue(config, 'directory') !== './dist-cloudflare') {
-    throw new Error('Destino rechazado: wrangler.toml debe configurar ./dist-cloudflare como fuente de activos.');
+  if (readConfigValue(topLevel, 'name') !== 'forgelock') {
+    throw new Error('Destino rechazado: wrangler.toml debe declarar el Worker forgelock.');
   }
-  if (readConfigValue(config, 'html_handling') !== 'auto-trailing-slash') {
-    throw new Error('Destino rechazado: wrangler.toml debe fijar html_handling=auto-trailing-slash.');
+  if (!readConfigValue(topLevel, 'compatibility_date')) throw new Error('wrangler.toml debe fijar compatibility_date.');
+  const assets = [...sourceConfig.matchAll(/(^\[assets\][^\S\r\n]*(?:#.*)?\r?\n)([\s\S]*?)(?=^\s*\[|(?![\s\S]))/gm)];
+  if (assets.length !== 1 ||
+      readConfigValue(assets[0][2], 'directory') !== './dist-cloudflare' ||
+      readConfigValue(assets[0][2], 'html_handling') !== 'auto-trailing-slash') {
+    throw new Error('Destino rechazado: [assets] debe fijar directory=./dist-cloudflare y html_handling=auto-trailing-slash.');
   }
-  const compatibilityDate = readConfigValue(config, 'compatibility_date');
-  if (!compatibilityDate) throw new Error('wrangler.toml debe fijar compatibility_date.');
-  return { accountId, name, compatibilityDate };
+  // Preserve the existing configuration; only the temporary asset path changes.
+  const isolatedAssets = assets[0][0].replace(/^(\s*directory\s*=\s*)["'][^"'\r\n]+["']/m, '$1"./assets"');
+  return sourceConfig.replace(assets[0][0], isolatedAssets);
 }
 
-function runNpm(args, label, env) {
-  const npmCli = process.env.npm_execpath;
-  const result = spawnSync(npmCli ? process.execPath : 'npm', npmCli ? [npmCli, ...args] : args, {
-    cwd: root,
-    stdio: 'inherit',
-    env,
-    shell: !npmCli && process.platform === 'win32'
-  });
-  if (result.error) throw result.error;
-  if (result.status !== 0) throw new Error(`${label} falló; Wrangler no se invocará.`);
-}
+export async function deployCloudflare({ root = projectRoot, env = process.env, run = spawnSync } = {}) {
+  const sourceConfig = await readFile(join(root, 'wrangler.toml'), 'utf8');
+  const isolatedConfig = createDeploymentConfig(sourceConfig);
+  if (Number(process.versions.node.split('.')[0]) < 22) throw new Error('Cloudflare requiere Node.js 22 o superior.');
+  const wranglerCli = join(root, 'node_modules', 'wrangler', 'bin', 'wrangler.js');
+  if (!existsSync(wranglerCli)) throw new Error('Wrangler local no está instalado. Ejecuta npm ci antes del preflight.');
+  const tempRoot = await mkdtemp(join(tmpdir(), 'forgelock-cloudflare-deploy-'));
+  const assetsDir = join(tempRoot, 'assets');
+  const tempConfig = join(tempRoot, 'wrangler.toml');
+  const buildEnv = { ...env, SEO_TARGET: 'cloudflare', DIST_DIR: assetsDir };
 
-const sourceConfig = await readFile(resolve(root, 'wrangler.toml'), 'utf8');
-const target = requireConfirmedTarget(sourceConfig);
-const tempRoot = await mkdtemp(join(tmpdir(), 'forgelock-cloudflare-deploy-'));
-const assetsDir = join(tempRoot, 'assets');
-const tempConfig = join(tempRoot, 'wrangler.toml');
-const env = { ...process.env, SEO_TARGET: 'cloudflare', DIST_DIR: assetsDir };
-
-try {
-  runNpm(['run', 'build:dist:cloudflare'], 'Build Cloudflare', env);
-  runNpm(['run', 'validate:dist:cloudflare'], 'Validación Cloudflare', env);
-
-  const config = [
-    `name = "${target.name}"`,
-    `account_id = "${target.accountId}"`,
-    `compatibility_date = "${target.compatibilityDate}"`,
-    '',
-    '[assets]',
-    'directory = "./assets"',
-    'html_handling = "auto-trailing-slash"',
-    ''
-  ].join('\n');
-  await writeFile(tempConfig, config, { flag: 'wx' });
-
-  if (process.env.FORGELOCK_DEPLOY_CONFIRMATION !== 'deploy-forgelock') {
-    console.log('Preflight correcto. El artefacto temporal validado se eliminará al terminar; no se desplegó.');
-    process.exitCode = 0;
-  } else {
-    const result = spawnSync('wrangler', ['deploy', '--config', tempConfig], {
-      cwd: root,
-      stdio: 'inherit',
-      env,
-      shell: process.platform === 'win32'
-    });
+  function runNode(args, label) {
+    const result = run(process.execPath, args, { cwd: root, stdio: 'inherit', env: buildEnv });
     if (result.error) throw result.error;
-    if (result.status !== 0) process.exitCode = result.status ?? 1;
+    if (result.status !== 0) throw new Error(`${label} falló con código ${result.status ?? 'desconocido'}.`);
   }
-} finally {
-  await rm(tempRoot, { recursive: true, force: true });
+
+  try {
+    // build-dist already generates SEO and validates this exact artifact.
+    runNode([join(root, 'scripts', 'build-dist.mjs'), 'cloudflare'], 'Build y validación Cloudflare');
+    await writeFile(tempConfig, isolatedConfig, { flag: 'wx' });
+    if (env.FORGELOCK_DEPLOY_CONFIRMATION !== 'deploy-forgelock') {
+      console.log('Preflight correcto. El artefacto temporal validado se eliminará al terminar; no se desplegó.');
+    } else {
+      runNode([wranglerCli, 'deploy', '--config', tempConfig], 'Despliegue Cloudflare');
+    }
+  } finally {
+    await rm(tempRoot, { recursive: true, force: true });
+  }
+}
+
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  await deployCloudflare();
 }

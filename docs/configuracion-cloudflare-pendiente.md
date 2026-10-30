@@ -8,6 +8,27 @@ Mientras se prepara Cloudflare, se conserva GitHub Pages como URL canónica de p
 
 ## Datos por confirmar
 
+### Paso 2: propuesta remota preparada, todavía sin aplicar
+
+El trigger de Workers Builds se consultó nuevamente: continúa ejecutando `npm run build:dist` seguido de `npx wrangler deploy`, sobre `main`. El build genera `dist/`, pero Wrangler espera `dist-cloudflare/`. GitHub Pages conserva su workflow independiente y su producción actual.
+
+Propuesta para usar el flujo protegido existente sin duplicar la construcción de publicación:
+
+| Ajuste | Valor propuesto |
+|---|---|
+| Worker | `forgelock` |
+| Cuenta detectada, pendiente de confirmación del responsable | `fc854c3291faa99f884d4568138cff95` |
+| Build command de Workers Builds | `npm test` |
+| Deploy command | `npm run deploy:cloudflare` |
+| Autorización de publicación automática, solo si se aprueba expresamente | `FORGELOCK_DEPLOY_CONFIRMATION=deploy-forgelock` |
+| Node para Workers Builds | 22–24 |
+
+`npm test` construye y prueba en salidas temporales. El comando de despliegue construye después el único artefacto destinado a publicación y lo valida mediante el build compartido. No se reutiliza el `dist/` antiguo ni se ejecuta una segunda validación redundante. El script mantiene su modo preflight sin publicación cuando falta la confirmación de despliegue.
+
+Antes de aplicar esta propuesta, confirmar la cuenta y el Worker; autorizar por separado el cambio del trigger y la publicación automática desde `main`. Revisar las variables de build sin exponer secretos: `INDEXABLE` debe estar ausente o ser `false` para Cloudflare; `BASE_URL`, si existe, debe corresponder al Worker; `SEO_TRANSITION` debe estar ausente. El `account_id` sigue sin añadirse al archivo local. No se modificó el trigger remoto ni se publicó nada.
+
+Las pruebas nuevas simulan la invocación de publicación; comprueban la configuración conservada, el mismo artefacto y el rechazo de fallos sin llamar a Cloudflare.
+
 - [ ] Dominio propio exacto.
 - [ ] Dominio canónico: raíz o www; definir una única versión y redirigir la otra.
 - [ ] Confirmar que el dominio está comprado y quién administra su DNS.
