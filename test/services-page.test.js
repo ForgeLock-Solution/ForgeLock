@@ -13,6 +13,8 @@ test('la página de servicios tiene contenido descriptivo, imágenes accesibles 
     assert.match(html, /Landing pages para presentar tu negocio/);
     assert.match(html, /Catálogos digitales/);
     assert.match(html, /Branding y diseño digital/);
+    assert.match(html, /class="hero-service-image[^\"]*" src="\.\/resource\/isotipo\.png" alt="Isotipo de ForgeLock: candado con elementos digitales"/);
+    assert.doesNotMatch(html, /hero-service-image[^>]+images\.unsplash\.com/);
     assert.doesNotMatch(html, /Automatización de WhatsApp|Sistemas y automatización|Soluciones personalizadas|CRM|pasarelas de pago/);
     assert.match(html, /Landing Básica[\s\S]*?Una ronda de cambios/);
     assert.match(html, /Landing Profesional[\s\S]*?Dos rondas de cambios/);
@@ -23,18 +25,36 @@ test('la página de servicios tiene contenido descriptivo, imágenes accesibles 
 });
 
 test('las tarjetas de servicios enlazan el servicio elegido en la ficha', async () => {
-    const dom = new JSDOM('<div id="services-container"></div>');
+    const dom = new JSDOM('<header id="header-container"></header><div id="services-container"></div>');
     globalThis.document = dom.window.document;
+    AppView.renderHeader();
     AppView.renderServices();
     const links = [...document.querySelectorAll('a[href^="./servicios.html?servicio="]')];
     assert.equal(links.length, AppModel.services.length);
     assert.equal(AppModel.services.length, 3);
+    assert.ok(document.querySelector('#header-container nav a[href="#servicios"]'), 'el enlace de escritorio debe apuntar al destino existente');
+    assert.ok(document.querySelector('#mobile-menu a[href="#servicios"]'), 'el menú móvil debe incluir Servicios');
+    assert.equal(document.querySelector('#services-container #servicios')?.id, 'servicios');
+    assert.ok(document.querySelector('#services-container #servicios').classList.contains('scroll-mt-24'));
     assert.doesNotMatch(document.querySelector('#services-container').textContent, /automatización|sistemas empresariales|integraciones|soluciones personalizadas/i);
+    assert.doesNotMatch(document.querySelector('#services-container').textContent, /500\.000 COP|15 días hábiles|250\.000 COP|20 productos/);
     links.forEach((link, index) => {
         assert.ok(link.textContent.includes(AppModel.services[index][0]));
         assert.equal(link.target, '');
         assert.equal(new URL(link.getAttribute('href'), 'https://example.test/').searchParams.get('servicio'), ['landing', 'catalogos', 'branding'][index]);
     });
+    dom.window.close();
+});
+
+test('el encabezado de portada y servicios usa el isotipo aprobado', async () => {
+    const html = await readFile(new URL('../servicios.html', import.meta.url), 'utf8');
+    const isotipo = await readFile(new URL('../resource/isotipo.png', import.meta.url));
+    const dom = new JSDOM('<header id="header-container"></header>');
+    globalThis.document = dom.window.document;
+    AppView.renderHeader();
+    assert.match(document.querySelector('#header-container img').getAttribute('src'), /resource\/isotipo\.png$/);
+    assert.match(html, /<img src="\.\/resource\/isotipo\.png" alt=""/);
+    assert.equal(isotipo.subarray(1, 4).toString(), 'PNG');
     dom.window.close();
 });
 
@@ -52,6 +72,7 @@ test('cada pestaña presenta el servicio elegido, su CTA y su estado accesible',
         assert.equal(selected.tabIndex, 0);
         assert.equal(document.querySelector('#detalle-titulo').textContent, service.title);
         assert.equal(document.querySelector('#detalle-descripcion').textContent, service.description);
+        assert.equal(document.querySelector('#detalle-informacion').textContent, service.information);
         assert.equal(document.querySelector('#detalle-cta').textContent, service.action);
         assert.equal(document.querySelector('#detalle-enlace').hidden, !service.detailsHref);
         assert.equal(document.querySelector('#detalle-enlace').classList.contains('inline-flex'), Boolean(service.detailsHref));
