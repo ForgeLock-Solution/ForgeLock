@@ -8,8 +8,8 @@
     "node": ">=20 <25"
   },
   "scripts": {
-    "dev": "serve . --listen 3001",
-    "start": "serve . --listen 3001",
+    "dev": "serve --config scripts/serve.local.json --listen 3001 .",
+    "start": "serve --config scripts/serve.local.json --listen 3001 .",
     "build:styles": "node ./scripts/build-styles.mjs",
     "build:assets": "node ./scripts/copy-local-assets.mjs",
     "build:assets:windows": "powershell -ExecutionPolicy Bypass -File ./scripts/copy-local-assets.ps1",

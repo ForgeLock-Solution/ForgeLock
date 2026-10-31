@@ -1,3 +1,2 @@
-# ForgeLock Cloudflare Pages redirects.
-# Intentionally no active redirects until the custom domain and canonical URL are confirmed.
-# Add redirects here only after verifying source paths, destination paths and status codes.
+# Static redirect rules cannot test query parameters; the Worker entry handles the
+# legacy /servicios?servicio=automatizacion-whatsapp route for Cloudflare only.

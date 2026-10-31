@@ -28,7 +28,7 @@ test('renderiza las secciones principales de la landing', () => {
 test('el controlador cambia la solución activa y conserva el borrador', () => {
     document.querySelector('[data-banner="2"]').click();
     assert.equal(AppModel.state.activeBannerIndex, 2);
-    assert.match(document.querySelector('#solutions-carousel-container').textContent, /branding y diseño digital/i);
+    assert.match(document.querySelector('#solutions-carousel-container').textContent, /Un sistema hecho para tu negocio/i);
 
     const input = document.querySelector('#idea-textarea');
     input.value = '<b>Necesito automatizar</b>';

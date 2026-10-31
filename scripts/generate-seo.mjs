@@ -93,6 +93,11 @@ export async function generateSeo({
       const appView = await readFile(appViewPath, 'utf8');
       await writeFile(appViewPath, appView.replace(/href="\.\/([a-z0-9-]+)\.html(?=[#"?])/gi, 'href="./$1'));
     }
+    const serviceCatalogPath = join(dist, 'src', 'models', 'service-catalog.js');
+    if (existsSync(serviceCatalogPath)) {
+      const serviceCatalog = await readFile(serviceCatalogPath, 'utf8');
+      await writeFile(serviceCatalogPath, serviceCatalog.replace(/\.\/servicios\.html(?=[#?])/gi, './servicios'));
+    }
   }
 
   const entries = [];

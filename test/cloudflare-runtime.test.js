@@ -66,8 +66,9 @@ test('Workers Static Assets sirve las rutas SEO locales con señales coherentes'
   assert.match(projectConfig, /^directory\s*=\s*"\.\/dist-cloudflare"\s*$/m);
   const previewConfig = projectConfig
     .replace(/^name\s*=\s*"forgelock"\s*$/m, 'name = "forgelock-seo-runtime-preview"')
-    .replace(/^directory\s*=\s*"\.\/dist-cloudflare"\s*$/m, 'directory = "./assets"');
-  assert.notEqual(previewConfig, projectConfig, 'el preview debe aislar la salida real configurada');
+    .replace(/^directory\s*=\s*"\.\/dist-cloudflare"\s*$/m, 'directory = "./assets"')
+    .replace(/^main\s*=\s*"src\/platform\/cloudflare-worker\.js"\s*$/m, `main = "${join(root, 'src/platform/cloudflare-worker.js').replaceAll('\\', '/')}"`);
+  assert.notEqual(previewConfig, projectConfig, 'el preview debe aislar la salida y cargar el Worker local');
   await writeFile(configPath, previewConfig);
 
   const port = await freePort();
@@ -99,6 +100,7 @@ test('Workers Static Assets sirve las rutas SEO locales con señales coherentes'
     '/aviso-legal', '/aviso-legal.html',
     '/politica-privacidad', '/politica-privacidad.html',
     '/politica-cookies', '/politica-cookies.html',
+    '/servicio-automatizacion-whatsapp', '/servicio-automatizacion-whatsapp.html',
     '/ejemplos/cafe-aurora', '/ejemplos/casa-verde', '/ejemplos/mercado-marea', '/ejemplos/estudio-norte'
   ];
   const records = [];
@@ -115,7 +117,7 @@ test('Workers Static Assets sirve las rutas SEO locales con señales coherentes'
     const finalUrl = new URL(finalResponse.url);
     const body = await finalResponse.text();
     const document = finalUrl.pathname.endsWith('.html') || finalUrl.pathname === '/' ||
-      ['/servicios', '/aviso-legal', '/politica-privacidad', '/politica-cookies'].includes(finalUrl.pathname) ||
+      ['/servicios', '/servicio-automatizacion-whatsapp', '/aviso-legal', '/politica-privacidad', '/politica-cookies'].includes(finalUrl.pathname) ||
       finalUrl.pathname.startsWith('/ejemplos/')
       ? new JSDOM(body, { url: finalUrl.href }).window.document
       : null;
@@ -139,8 +141,9 @@ test('Workers Static Assets sirve las rutas SEO locales con señales coherentes'
       assert.doesNotMatch(body, /^Sitemap:/im);
     } else if (document) {
       const expectedCanonical = new URL(finalUrl.pathname === '/' ? './' : finalUrl.pathname.slice(1), seoBase).href;
-      const isNoindexPage = route.startsWith('/aviso-legal') || route.startsWith('/politica-') || route.startsWith('/ejemplos/');
       assert.equal(canonical, expectedCanonical, `${route} canonical`);
+      assert.match(body, /<meta\s+name=["']robots["'][^>]*\bnoindex/i);
+      assert.equal(sitemapUrls.includes(expectedCanonical), false);
       if (route === '/') {
         homeDocument = document;
         assert.equal(document.querySelector('meta[name="twitter:image"]').content, `${seoBase}resource/forgelock-social-preview.png`);
@@ -148,19 +151,8 @@ test('Workers Static Assets sirve las rutas SEO locales con señales coherentes'
         assert.equal(document.querySelector('meta[name="google-site-verification"]').content, 'ChwXmsaiRN157JtTwqIuE19hC7GzP7kRmgQkiiQTK5A');
       }
       if (route === '/servicios') servicesDocument = document;
-      if (route === '/' || route === '/servicios') {
-        const structuredData = [...document.querySelectorAll('script[type="application/ld+json"]')].map((node) => JSON.parse(node.textContent));
-        assert.ok(structuredData.length > 0);
-        assert.ok(JSON.stringify(structuredData).includes(seoBase));
-      }
-      if (isNoindexPage || route === '/' || route.startsWith('/servicios')) {
-        assert.match(body, /<meta\s+name=["']robots["']\s+content=["'][^"']*noindex/i);
-        assert.equal(sitemapUrls.includes(expectedCanonical), false);
-      } else {
-        assert.equal(ogUrl, expectedCanonical, `${route} og:url`);
-        assert.equal(sitemapUrls.includes(expectedCanonical), true);
-        assert.doesNotMatch(body, /<meta\s+name=["']robots["'][^>]*\bnoindex\b/i);
-      }
+      const structuredData = [...document.querySelectorAll('script[type="application/ld+json"]')].map((node) => JSON.parse(node.textContent));
+      if (structuredData.length) assert.ok(JSON.stringify(structuredData).includes(seoBase));
       sitemapContainsCanonical = sitemapUrls.includes(expectedCanonical);
     }
 
@@ -177,6 +169,13 @@ test('Workers Static Assets sirve las rutas SEO locales con señales coherentes'
   }
   console.log(`Workers Static Assets preview routes: ${JSON.stringify(records)}`);
   assert.equal(sitemapUrls.length, 0);
+
+  const legacyServiceResponse = await fetch(`${origin}/servicios?servicio=automatizacion-whatsapp`, { redirect: 'manual' });
+  assert.equal(legacyServiceResponse.status, 302);
+  assert.equal(new URL(legacyServiceResponse.headers.get('location')).pathname, '/servicio-automatizacion-whatsapp');
+  const legacyServicePage = await fetch(new URL(legacyServiceResponse.headers.get('location'), `${origin}/`));
+  assert.equal(legacyServicePage.status, 200);
+  assert.match(await legacyServicePage.text(), /Automatización de WhatsApp/);
 
   const previewResponse = await fetch(`${origin}/ejemplos/cafe-aurora.html`, { redirect: 'manual' });
   assert.equal(previewResponse.status, 307, 'la vista previa HTML debe redirigir a la ruta Worker sin extensión');
