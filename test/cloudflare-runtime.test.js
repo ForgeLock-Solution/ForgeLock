@@ -134,32 +134,32 @@ test('Workers Static Assets sirve las rutas SEO locales con señales coherentes'
     if (route === '/sitemap.xml') {
       const sitemap = new JSDOM(body, { contentType: 'application/xml' }).window.document;
       sitemapUrls = [...sitemap.getElementsByTagNameNS('*', 'loc')].map((node) => node.textContent.trim());
-      assert.deepEqual(sitemapUrls, [seoBase, `${seoBase}servicios`]);
+      assert.deepEqual(sitemapUrls, []);
     } else if (route === '/robots.txt') {
-      assert.ok(body.includes(`Sitemap: ${seoBase}sitemap.xml`));
+      assert.doesNotMatch(body, /^Sitemap:/im);
     } else if (document) {
       const expectedCanonical = new URL(finalUrl.pathname === '/' ? './' : finalUrl.pathname.slice(1), seoBase).href;
       const isNoindexPage = route.startsWith('/aviso-legal') || route.startsWith('/politica-') || route.startsWith('/ejemplos/');
-      if (isNoindexPage) {
-        assert.equal(canonical, expectedCanonical, `${route} canonical`);
-        assert.match(body, /<meta\s+name=["']robots["']\s+content=["'][^"']*noindex/i);
-        assert.equal(sitemapUrls.includes(expectedCanonical), false);
-      } else {
-        assert.equal(canonical, expectedCanonical, `${route} canonical`);
-        assert.equal(ogUrl, expectedCanonical, `${route} og:url`);
-        assert.equal(sitemapUrls.includes(expectedCanonical), true);
-        assert.doesNotMatch(body, /<meta\s+name=["']robots["'][^>]*\bnoindex\b/i);
-        if (route === '/') {
-          homeDocument = document;
-          assert.equal(document.querySelector('meta[name="twitter:image"]').content, `${seoBase}resource/forgelock-social-preview.png`);
-          assert.equal(document.querySelectorAll('meta[name="google-site-verification"]').length, 1);
-          assert.equal(document.querySelector('meta[name="google-site-verification"]').content, 'ChwXmsaiRN157JtTwqIuE19hC7GzP7kRmgQkiiQTK5A');
-        }
-        if (route === '/servicios') servicesDocument = document;
+      assert.equal(canonical, expectedCanonical, `${route} canonical`);
+      if (route === '/') {
+        homeDocument = document;
+        assert.equal(document.querySelector('meta[name="twitter:image"]').content, `${seoBase}resource/forgelock-social-preview.png`);
+        assert.equal(document.querySelectorAll('meta[name="google-site-verification"]').length, 1);
+        assert.equal(document.querySelector('meta[name="google-site-verification"]').content, 'ChwXmsaiRN157JtTwqIuE19hC7GzP7kRmgQkiiQTK5A');
+      }
+      if (route === '/servicios') servicesDocument = document;
+      if (route === '/' || route === '/servicios') {
         const structuredData = [...document.querySelectorAll('script[type="application/ld+json"]')].map((node) => JSON.parse(node.textContent));
         assert.ok(structuredData.length > 0);
         assert.ok(JSON.stringify(structuredData).includes(seoBase));
-        assert.equal(JSON.stringify(structuredData).includes(seoBase), true);
+      }
+      if (isNoindexPage || route === '/' || route.startsWith('/servicios')) {
+        assert.match(body, /<meta\s+name=["']robots["']\s+content=["'][^"']*noindex/i);
+        assert.equal(sitemapUrls.includes(expectedCanonical), false);
+      } else {
+        assert.equal(ogUrl, expectedCanonical, `${route} og:url`);
+        assert.equal(sitemapUrls.includes(expectedCanonical), true);
+        assert.doesNotMatch(body, /<meta\s+name=["']robots["'][^>]*\bnoindex\b/i);
       }
       sitemapContainsCanonical = sitemapUrls.includes(expectedCanonical);
     }
@@ -176,7 +176,7 @@ test('Workers Static Assets sirve las rutas SEO locales con señales coherentes'
     });
   }
   console.log(`Workers Static Assets preview routes: ${JSON.stringify(records)}`);
-  assert.equal(sitemapUrls.length, 2);
+  assert.equal(sitemapUrls.length, 0);
 
   const previewResponse = await fetch(`${origin}/ejemplos/cafe-aurora.html`, { redirect: 'manual' });
   assert.equal(previewResponse.status, 307, 'la vista previa HTML debe redirigir a la ruta Worker sin extensión');
