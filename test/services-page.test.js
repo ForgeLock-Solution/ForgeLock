@@ -36,6 +36,7 @@ test('el catálogo tiene nueve servicios, imágenes locales y textos comerciales
         const image = await readFile(new URL(`../${service.image.slice(2)}`, import.meta.url));
         assert.equal(image.subarray(0, 4).toString(), 'RIFF');
         assert.equal(image.subarray(8, 12).toString(), 'WEBP');
+        assert.ok(image.byteLength < 150 * 1024, `${service.id} supera 150 KB: ${image.byteLength} bytes`);
         assert.ok(service.imageAlt.length > 10, `${service.id} requiere texto alternativo descriptivo`);
         assert.ok(service.message.includes(service.name) || service.id === 'soluciones-personalizadas');
         assert.ok(service.heroText, `${service.id} requiere el texto autorizado para el hero`);

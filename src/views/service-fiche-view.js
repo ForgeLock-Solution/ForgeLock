@@ -75,7 +75,7 @@ export function renderServiceFiche(service) {
         <a class="font-semibold text-slate-700 underline-offset-4 hover:text-emerald-800 hover:underline focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-emerald-700" href="./index.html#servicios">Inicio</a>
         <a class="font-semibold text-slate-700 underline-offset-4 hover:text-emerald-800 hover:underline focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-emerald-700" href="./servicios.html#servicios">Servicios</a>
       </nav>
-      <a class="whatsapp-button hidden sm:inline-flex" href="https://wa.me/${SERVICE_WHATSAPP_NUMBER}?text=${whatsappText}" target="_blank" rel="noopener noreferrer">Consultar por WhatsApp</a>
+      <a class="whatsapp-button !hidden sm:!inline-flex" href="https://wa.me/${SERVICE_WHATSAPP_NUMBER}?text=${whatsappText}" target="_blank" rel="noopener noreferrer">Consultar por WhatsApp</a>
     </div>
   </header>
   <main id="contenido" class="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-2 lg:items-center lg:px-8">
