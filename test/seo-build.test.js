@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { existsSync } from 'node:fs';
+import { SERVICE_CATALOG } from '../src/models/service-catalog.js';
 
 const root = new URL('../', import.meta.url);
 const bases = {
@@ -61,7 +62,8 @@ function run(command, args, env = {}) {
 async function checkVariant(target) {
   const base = bases[target];
   const canonicalBase = bases[target];
-  const indexedPages = ['index.html', 'servicios.html', 'servicio-automatizacion-whatsapp.html'];
+  const ficheFiles = SERVICE_CATALOG.map((service) => service.fichePath);
+  const indexedPages = ['index.html', 'servicios.html', ...ficheFiles];
   for (const file of indexedPages) {
     const html = await readFile(join(distDirs[target], file), 'utf8');
     const dom = new JSDOM(html);
@@ -71,11 +73,12 @@ async function checkVariant(target) {
     assert.equal(document.querySelectorAll('link[rel="canonical"]').length, 1);
     assert.equal(document.querySelector('link[rel="canonical"]').href, pageUrl);
     assert.equal(document.querySelector('meta[property="og:url"]').content, pageUrl);
-    const expectedShareImage = file === 'servicio-automatizacion-whatsapp.html'
-      ? `${canonicalBase}resource/service/automatizacion-whatsapp.webp`
+    const fiche = SERVICE_CATALOG.find((service) => service.fichePath === file);
+    const expectedShareImage = fiche
+      ? `${canonicalBase}${fiche.image.slice(2)}`
       : `${canonicalBase}resource/forgelock-social-preview.png`;
     assert.equal(document.querySelector('meta[property="og:image"]').content, expectedShareImage);
-    if (file !== 'servicio-automatizacion-whatsapp.html') assert.equal(document.querySelector('meta[name="twitter:image"]').content, expectedShareImage);
+    assert.equal(document.querySelector('meta[name="twitter:image"]').content, expectedShareImage);
     const jsonLd = [...document.querySelectorAll('script[type="application/ld+json"]')].map((node) => JSON.parse(node.textContent));
     assert.ok(jsonLd.length > 0);
     assert.ok(JSON.stringify(jsonLd).includes(canonicalBase));
@@ -90,7 +93,8 @@ async function checkVariant(target) {
   else assert.ok(robots.includes(`Sitemap: ${canonicalBase}sitemap.xml`));
   const sitemap = new JSDOM(await readFile(join(distDirs[target], 'sitemap.xml'), 'utf8'), { contentType: 'application/xml' }).window.document;
   const urls = [...sitemap.getElementsByTagNameNS('*', 'loc')].map((node) => node.textContent.trim());
-  assert.deepEqual(urls, target === 'cloudflare' ? [] : [canonicalBase, `${canonicalBase}servicio-automatizacion-whatsapp.html`, `${canonicalBase}servicios.html`]);
+  const expectedUrls = target === 'cloudflare' ? [] : [canonicalBase, `${canonicalBase}servicios.html`, ...SERVICE_CATALOG.map((service) => `${canonicalBase}${service.fichePath}`)].sort();
+  assert.deepEqual([...urls].sort(), expectedUrls);
   assert.equal(new Set(urls).size, urls.length);
   assert.ok(urls.every((url) => url.startsWith(base)));
 
@@ -99,13 +103,23 @@ async function checkVariant(target) {
   assert.match(fiche.querySelector('meta[name="description"]').content, /Bots para atención automática y registro de información/);
   assert.equal(fiche.querySelector('h1').textContent, 'Automatización de WhatsApp');
   assert.equal(fiche.querySelectorAll('a[data-related-service]').length, 2);
-  assert.ok([...fiche.querySelectorAll('a[data-related-service]')].every((link) => link.href.includes('servicio=')));
+  assert.ok([...fiche.querySelectorAll('a[data-related-service]')].every((link) => link.href.includes('/servicio-')));
   assert.ok(fiche.querySelector('a[href^="https://wa.me/"]'));
   assert.equal(fiche.querySelector('link[rel="canonical"]').href, `${canonicalBase}${target === 'cloudflare' ? 'servicio-automatizacion-whatsapp' : 'servicio-automatizacion-whatsapp.html'}`);
+
+  for (const service of SERVICE_CATALOG) {
+    assert.ok(service.fichePath, `falta ficha para ${service.id}`);
+    const serviceFiche = new JSDOM(await readFile(join(distDirs[target], service.fichePath), 'utf8')).window.document;
+    assert.equal(serviceFiche.querySelector('h1').textContent, service.name);
+    assert.equal(serviceFiche.querySelector('meta[name="description"]').content, service.ficheMetaDescription);
+    assert.equal(serviceFiche.querySelector('link[rel="canonical"]').href, `${canonicalBase}${target === 'cloudflare' ? service.fichePath.replace(/\.html$/, '') : service.fichePath}`);
+    assert.ok(serviceFiche.querySelector('a[href^="https://wa.me/"]'));
+  }
 
   for (const file of ['aviso-legal.html', 'politica-privacidad.html', 'politica-cookies.html']) {
     const html = await readFile(join(distDirs[target], file), 'utf8');
     assert.match(html, /<meta\s+name=["']robots["']\s+content=["'][^"']*noindex/i);
+    assert.doesNotMatch(html, /Nota de revisión|Antes de publicar|deben verificarse/i);
     const legalCanonical = `${canonicalBase}${target === 'cloudflare' ? file.replace(/\.html$/, '') : file}`;
     assert.equal(new JSDOM(html).window.document.querySelector('link[rel="canonical"]').href, legalCanonical);
   }
@@ -137,7 +151,7 @@ test('builds SEO variants independently for GitHub Pages and Cloudflare Worker',
     const servicePage = new JSDOM(await readFile(join(distDirs[target], 'servicios.html'), 'utf8')).window.document;
     assert.equal(servicePage.querySelectorAll('#services-catalogue-container [data-service-card]').length, 9);
     assert.equal(servicePage.querySelectorAll('#services-catalogue-container [data-service-card] a[aria-label^="Consultar por WhatsApp"]').length, 9);
-    assert.equal(servicePage.querySelectorAll('#services-catalogue-container [data-service-card] a[href*="?servicio="], #services-catalogue-container [data-service-card] a[href*="servicio-automatizacion-whatsapp"]').length, 9);
+    assert.equal(servicePage.querySelectorAll('#services-catalogue-container [data-service-card] a[href*="servicio-"]').length, 9);
     assert.equal(servicePage.querySelectorAll('#services-catalogue-container section[aria-labelledby="servicios-principales-titulo"] [data-service-card]').length, 6);
     assert.equal(servicePage.querySelectorAll('#services-catalogue-container section[aria-labelledby="servicios-digitales-titulo"] [data-service-card]').length, 3);
     assert.ok(servicePage.querySelector('#detalle-servicio[aria-live="polite"]'));
