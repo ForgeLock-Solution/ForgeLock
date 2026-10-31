@@ -1,0 +1,48 @@
+{
+  "visibility": "internal-only",
+  "offers": [
+    {
+      "id": "pagina-web-corporativa",
+      "approved": false,
+      "name": "Página Web Corporativa",
+      "priceCOP": 949000
+    },
+    {
+      "id": "ecommerce",
+      "approved": false,
+      "name": "E-commerce",
+      "priceCOP": 1690000
+    },
+    {
+      "id": "integracion-pago-basica",
+      "approved": false,
+      "name": "Integración de pago Básica",
+      "priceCOP": 249000
+    },
+    {
+      "id": "integracion-pago-avanzada",
+      "approved": false,
+      "name": "Integración de pago Avanzada",
+      "priceCOP": 449000
+    },
+    {
+      "id": "identidad-esencial",
+      "approved": false,
+      "name": "Identidad Esencial",
+      "priceCOP": 399000
+    },
+    {
+      "id": "identidad-profesional",
+      "approved": false,
+      "name": "Identidad Profesional",
+      "priceCOP": 699000
+    },
+    {
+      "id": "identidad-completa",
+      "approved": false,
+      "name": "Identidad Completa",
+      "priceCOP": 1200000,
+      "minimum": true
+    }
+  ]
+}

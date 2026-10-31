@@ -6,6 +6,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { getDistDirectory, discoverPublicHtmlFiles } from './seo-helpers.mjs';
 import { renderHome } from './render-home.mjs';
+import { renderServices } from './render-services.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
@@ -62,5 +63,6 @@ for (const file of ['app.css', 'tailwind.css', 'legal.css']) {
 }
 
 await renderHome(join(output, 'index.html'));
+await renderServices(join(output, 'servicios.html'));
 
 console.log('dist/ generado correctamente.');
