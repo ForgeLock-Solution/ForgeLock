@@ -38,7 +38,7 @@ export function getPageUrl(file, baseUrl, target) {
 export function getSeoTransition(env = process.env) {
   const transition = env.SEO_TRANSITION || '';
   if (transition) {
-    throw new Error('Migración canónica deshabilitada: GitHub Pages sigue siendo producción. SEO_TRANSITION requiere una nueva autorización y revisión del flujo.');
+    throw new Error('Migración canónica deshabilitada. SEO_TRANSITION requiere autorización y revisión explícitas del flujo antes de activar una transición entre alojamientos.');
   }
   return transition;
 }

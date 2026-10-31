@@ -298,6 +298,6 @@ test('blocks legacy transition flags and a mismatched destination before creatin
     env: { ...process.env, DIST_DIR: output }
   });
   assert.notEqual(legacy.status, 0);
-  assert.match(`${legacy.stdout}\n${legacy.stderr}`, /Migración canónica deshabilitada/);
+  assert.match(`${legacy.stdout}\n${legacy.stderr}`, /generación de una variante de transición canónica está deshabilitada/);
   assert.equal(existsSync(output), false);
 });

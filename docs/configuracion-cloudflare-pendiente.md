@@ -1,6 +1,6 @@
 # Configuración pendiente para publicar Cloudflare Worker Static Assets
 
-Estado: preparación pendiente. La URL oficial temporal ya es Cloudflare según decisión del responsable; la generación local prepara canonicals para ese destino y mantiene `noindex` con sitemap vacío, sin publicar ni modificar GitHub Pages. No realizar despliegues desde este documento.
+Este documento conserva la fotografía de configuración previa al despliegue, tomada el 30 de octubre de 2026; no describe el estado actual del Worker. El 31 de octubre de 2026 se publicó mediante Wrangler el Worker `forgelock` desde la rama `codex/audit-workers-dev`, commit `a808369f68cfcc19cb7f46d9a4c1d2ac4bb997d0`, versión `3776b071-3396-4379-bee5-9990ab4ee814` al 100% en `workers.dev`. La publicación no modificó DNS, dominios, secretos, Workers Builds ni GitHub Pages. El estado histórico y las propuestas que siguen no deben usarse como instrucciones de despliegue actuales.
 
 Revisión de solo lectura del 30 de octubre de 2026: el trigger de `forgelock` sigue usando `npm run build:dist` y `npx wrangler deploy` sobre `main`. La URL pública del Worker y su sitemap respondieron 404; eso no permite validar la política SEO del despliegue remoto. Los builds locales y el preview de Workers Static Assets sí se verificaron. Consulta las evidencias y limitaciones en [la auditoría maestra](auditoria-maestra-2026-10-30.md). No se modificó el trigger ni se publicó un artefacto.
 

@@ -1,6 +1,6 @@
 # Política SEO vigente: Cloudflare como URL oficial temporal
 
-Actualizada el 30 de octubre de 2026 por decisión del responsable de ForgeLock. La URL oficial temporal es `https://forgelock.forge-look19.workers.dev/` hasta conseguir la primera venta. Esta decisión autoriza los cambios locales de canonicals y señales SEO; no autoriza publicación ni cambios en GitHub Pages, Workers Builds, GitHub Actions, DNS o cuentas.
+Actualizada el 30 de octubre de 2026 por decisión del responsable de ForgeLock. La URL oficial temporal es `https://forgelock.forge-look19.workers.dev/` hasta conseguir la primera venta. El 31 de octubre de 2026 se autorizó y verificó el despliegue manual del Worker desde la rama de auditoría. Esto no autorizó cambios en GitHub Pages, Workers Builds, GitHub Actions, DNS o cuentas.
 
 | Variante | Salida | Canonical y señales sociales | Indexación |
 |---|---|---|---|
@@ -18,4 +18,4 @@ Actualizada el 30 de octubre de 2026 por decisión del responsable de ForgeLock.
 - `npm run build:dist:cloudflare` y `npm run validate:dist:cloudflare` verifican el artefacto del Worker; `npm test` comprueba las dos variantes.
 - Los resultados de builds locales no confirman el estado del Worker remoto ni el envío/aceptación de su sitemap en Search Console.
 
-El ajuste SEO de los archivos fuente y de la generación local no sube cambios ni despliega. Antes de publicar el Worker se debe revisar el trigger remoto descrito en [configuración Cloudflare pendiente](configuracion-cloudflare-pendiente.md). El workflow de GitHub Pages no se modifica en esta tarea.
+El despliegue manual del Worker se verificó el 31 de octubre de 2026. No se cambió el trigger remoto ni el workflow de GitHub Pages; cualquier automatización futura requiere revisar por separado la [configuración Cloudflare](configuracion-cloudflare-pendiente.md). El flujo de Pages conserva su publicación desde `main`.
