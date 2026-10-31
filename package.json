@@ -8,12 +8,10 @@
     "node": ">=20 <25"
   },
   "scripts": {
-    "dev": "serve --config scripts/serve.local.json --listen 3001 .",
-    "start": "serve --config scripts/serve.local.json --listen 3001 .",
-    "build:styles": "node ./scripts/build-styles.mjs",
-    "build:assets": "node ./scripts/copy-local-assets.mjs",
-    "build:assets:windows": "powershell -ExecutionPolicy Bypass -File ./scripts/copy-local-assets.ps1",
-    "build": "npm run build:assets && npm run build:styles",
+    "dev": "vite --host 0.0.0.0 --port 3000",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0 --port 3000",
+    "lint": "tsc --noEmit",
     "build:dist": "node ./scripts/build-dist.mjs github-pages",
     "build:cloudflare": "node ./scripts/build-dist.mjs cloudflare",
     "build:dist:cloudflare": "node ./scripts/build-dist.mjs cloudflare",
@@ -28,13 +26,20 @@
   "devDependencies": {
     "@fontsource/inter": "^5.1.1",
     "@fortawesome/fontawesome-free": "^6.7.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
     "jsdom": "^26.0.0",
     "serve": "14.2.6",
     "tailwindcss": "^3.4.17",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5",
     "wrangler": "4.155.0"
   },
   "dependencies": {
-    "@supabase/supabase-js": "2.116.0"
+    "@supabase/supabase-js": "2.116.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
   },
   "overrides": {
     "compression": "1.8.2"

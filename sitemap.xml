@@ -2,38 +2,8 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://forgelock-solution.github.io/ForgeLock/</loc>
-    <lastmod>2026-10-30</lastmod>
-  </url>
-  <url>
-    <loc>https://forgelock-solution.github.io/ForgeLock/servicio-automatizacion-procesos.html</loc>
-  </url>
-  <url>
-    <loc>https://forgelock-solution.github.io/ForgeLock/servicio-automatizacion-whatsapp.html</loc>
     <lastmod>2026-10-31</lastmod>
-  </url>
-  <url>
-    <loc>https://forgelock-solution.github.io/ForgeLock/servicio-branding-diseno-digital.html</loc>
-  </url>
-  <url>
-    <loc>https://forgelock-solution.github.io/ForgeLock/servicio-catalogos-digitales.html</loc>
-  </url>
-  <url>
-    <loc>https://forgelock-solution.github.io/ForgeLock/servicio-desarrollo-web.html</loc>
-  </url>
-  <url>
-    <loc>https://forgelock-solution.github.io/ForgeLock/servicio-integraciones.html</loc>
-  </url>
-  <url>
-    <loc>https://forgelock-solution.github.io/ForgeLock/servicio-landing-pages.html</loc>
-  </url>
-  <url>
-    <loc>https://forgelock-solution.github.io/ForgeLock/servicio-sistemas-empresariales.html</loc>
-  </url>
-  <url>
-    <loc>https://forgelock-solution.github.io/ForgeLock/servicio-soluciones-personalizadas.html</loc>
-  </url>
-  <url>
-    <loc>https://forgelock-solution.github.io/ForgeLock/servicios.html</loc>
-    <lastmod>2026-10-31</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
   </url>
 </urlset>

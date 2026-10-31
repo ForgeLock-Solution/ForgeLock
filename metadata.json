@@ -1,0 +1,8 @@
+{
+  "name": "ForgeLock",
+  "description": "Landing pages, catálogos digitales y branding para emprendedores y pequeños negocios en Colombia.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://forgelock-solution.github.io/ForgeLock/sitemap.xml
