@@ -18,7 +18,7 @@ ForgeLock ayuda a emprendedores, profesionales y pequeños negocios colombianos 
 - Premium/Empresarial: precio y alcance **no confirmados**. Nunca inventarlos.
 
 ## 3. Identidad visual
-- Mantener el logotipo original en `resource/Logo.png` y `resource/Logo.svg`, sin rediseñarlo.
+- Mantener el logotipo original en `resource/Logo.png` y `resource/Logo.svg`, sin rediseñarlo. El encabezado del sitio usa el isotipo aprobado `resource/isotipo.png`; no sustituirlo por el logotipo de los datos estructurados ni por el favicon.
 - Fondo oscuro identificado en metadatos: `#0b1120`.
 - Verde de marca en Tailwind: `#4ade80` (400), `#22c55e` (500), `#16a34a` (600).
 - Familia tipográfica declarada: Inter, fallback sans-serif; incluye fuentes vendorizadas.

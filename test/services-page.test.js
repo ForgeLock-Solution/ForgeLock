@@ -58,6 +58,13 @@ test('el encabezado de portada y servicios usa el isotipo aprobado', async () =>
     dom.window.close();
 });
 
+test('las páginas legales incluyen el isotipo de marca en el encabezado', async () => {
+    for (const file of ['aviso-legal.html', 'politica-cookies.html', 'politica-privacidad.html']) {
+        const html = await readFile(new URL(`../${file}`, import.meta.url), 'utf8');
+        assert.match(html, /<header class="site-header"><a class="brand"[^>]*><img src="\.\/resource\/isotipo\.png" alt="" width="40" height="40"><span>ForgeLock<\/span><\/a><\/header>/, file);
+    }
+});
+
 test('cada pestaña presenta el servicio elegido, su CTA y su estado accesible', async () => {
     const html = await readFile(new URL('../servicios.html', import.meta.url), 'utf8');
     const dom = new JSDOM(html, { url: 'https://example.test/servicios.html' });
