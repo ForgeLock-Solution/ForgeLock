@@ -7,10 +7,12 @@ import { AppModel } from '../src/models/app-model.js';
 import { SERVICE_CATALOG, SERVICE_BY_ID, SERVICE_WHATSAPP_NUMBER, serviceQueryUrl } from '../src/models/service-catalog.js';
 import { ServicePageModel } from '../src/models/service-page-model.js';
 import { ServicePageView } from '../src/views/service-page-view.js';
+import { ServicePageController } from '../src/controllers/service-page-controller.js';
 
 function createServiceDom(url = 'https://example.test/servicios.html') {
     const dom = new JSDOM(`<body>
       <div id="services-catalogue-container"></div>
+      <p id="servicios-hero-text" aria-live="polite">Elige un servicio para conocer la información disponible y contactar a ForgeLock.</p>
       <article id="detalle-servicio"><span id="detalle-etiqueta"></span><h3 id="detalle-titulo"></h3><p id="detalle-descripcion"></p><div id="detalle-informacion"></div><a id="detalle-enlace"></a><a id="detalle-cta"></a></article>
       <section data-landing-content></section>
       <section data-landing-content></section>
@@ -26,6 +28,8 @@ test('el catálogo tiene nueve servicios, imágenes locales y textos comerciales
     assert.equal(new Set(SERVICE_CATALOG.map((service) => service.id)).size, 9);
     assert.equal(SERVICE_CATALOG.filter((service) => service.group === 'featured').length, 6);
     assert.equal(SERVICE_CATALOG.filter((service) => service.group === 'digital').length, 3);
+    assert.equal(AppModel.featuredSolutions.length, 4);
+    assert.ok(AppModel.featuredSolutions.some((service) => service.id === 'automatizacion-whatsapp'));
 
     for (const service of SERVICE_CATALOG) {
         assert.match(service.image, /^\.\/resource\/service\/[a-z0-9-]+\.webp$/);
@@ -34,6 +38,7 @@ test('el catálogo tiene nueve servicios, imágenes locales y textos comerciales
         assert.equal(image.subarray(8, 12).toString(), 'WEBP');
         assert.ok(service.imageAlt.length > 10, `${service.id} requiere texto alternativo descriptivo`);
         assert.ok(service.message.includes(service.name) || service.id === 'soluciones-personalizadas');
+        assert.ok(service.heroText, `${service.id} requiere el texto autorizado para el hero`);
         assert.equal(service.relatedIds.length >= 2, true);
         assert.equal(service.relatedIds.includes(service.id), false);
         assert.ok(service.relatedIds.every((id) => Object.hasOwn(SERVICE_BY_ID, id)), `${service.id} tiene una relación rota`);
@@ -77,13 +82,17 @@ test('las tarjetas de portada y servicios usan el catálogo y enlazan al detalle
             assert.equal(card.querySelector('img').getAttribute('src'), service.image);
             assert.equal(card.querySelector('a[aria-label^="Consultar por WhatsApp"]').target, '_blank');
             assert.equal(card.querySelector('a[aria-label^="Consultar por WhatsApp"]').rel, 'noopener noreferrer');
-            const detailLink = card.querySelector('a[href*="?servicio="]');
+            const detailLink = service.fichePath
+                ? card.querySelector(`a[href$="${service.fichePath}"]`)
+                : card.querySelector('a[href*="?servicio="]');
             assert.equal(detailLink.tabIndex, 0);
             assert.match(detailLink.className, /focus-visible:outline/);
             assert.match(detailLink.textContent, new RegExp(`Conocer ${service.name}`));
-            assert.equal(new URL(detailLink.href, 'https://example.test/').searchParams.get('servicio'), service.id);
+            if (service.fichePath) assert.ok(detailLink.href.endsWith(service.fichePath));
+            else assert.equal(new URL(detailLink.href, 'https://example.test/').searchParams.get('servicio'), service.id);
         }
     }
+    assert.equal(serviceQueryUrl(SERVICE_BY_ID['automatizacion-whatsapp']), './servicio-automatizacion-whatsapp.html');
     assert.equal(serviceQueryUrl(SERVICE_BY_ID.landing), './servicios.html?servicio=landing#detalle-servicio');
     assert.equal(home.window.document.querySelectorAll('#services-container section[aria-labelledby="servicios-principales-titulo"] [data-service-card]').length, 6);
     assert.equal(home.window.document.querySelectorAll('#services-container section[aria-labelledby="servicios-digitales-titulo"] [data-service-card]').length, 3);
@@ -91,16 +100,60 @@ test('las tarjetas de portada y servicios usan el catálogo y enlazan al detalle
     dom.window.close();
 });
 
+test('la portada muestra cuatro soluciones, selecciona WhatsApp y enlaza cada una con su servicio', () => {
+    const dom = new JSDOM('<div id="solutions-carousel-container"></div>', { url: 'https://example.test/' });
+    globalThis.document = dom.window.document;
+    AppModel.state.activeBannerIndex = 0;
+
+    for (let index = 0; index < AppModel.featuredSolutions.length; index += 1) {
+        AppModel.state.activeBannerIndex = index;
+        AppView.renderSolutions();
+        const buttons = [...document.querySelectorAll('#soluciones button[data-banner]')];
+        assert.equal(buttons.length, 4, 'la portada debe conservar cuatro soluciones destacadas');
+        assert.ok(buttons.some((button) => button.textContent.includes('Automatiza tu WhatsApp Business')));
+        assert.equal(buttons.filter((button) => button.getAttribute('aria-pressed') === 'true').length, 1);
+
+        const service = AppModel.featuredSolutions[index];
+        const panel = document.querySelector('#solution-panel');
+        assert.equal(panel.getAttribute('aria-live'), 'polite');
+        assert.equal(panel.querySelector('h3').textContent, service.title);
+        assert.equal(panel.querySelector('p.text-lg').textContent, service.heroText);
+        assert.equal(panel.querySelector('a[href*="wa.me"]').textContent.trim(), 'Quiero esta solución');
+        assert.equal(panel.querySelector('a[href*="servicio"], a[href*="servicios.html?"]').getAttribute('href'), service.detailsUrl);
+    }
+
+    AppModel.state.activeBannerIndex = 0;
+    AppView.renderSolutions();
+    assert.equal(document.querySelector('#solution-panel h3').textContent, 'Automatiza tu WhatsApp Business');
+    assert.equal(document.querySelectorAll('#solution-panel [data-solution-highlights] > div').length, 2);
+    assert.deepEqual([...document.querySelectorAll('#solution-panel [data-solution-highlights] > div')].map((chip) => chip.textContent.trim()), [
+        'Bots para atención automática', 'Registro de información'
+    ]);
+    assert.equal(AppModel.featuredSolutions[0].id, 'automatizacion-whatsapp');
+    dom.window.close();
+});
+
+test('servicios.html conserva la selección directa por query sin redirigir', () => {
+    const dom = createServiceDom('https://example.test/servicios.html?servicio=automatizacion-procesos#detalle-servicio');
+    ServicePageController.init();
+    assert.equal(window.location.pathname, '/servicios.html');
+    assert.equal(window.location.search, '?servicio=automatizacion-procesos');
+    assert.equal(document.querySelector('#detalle-servicio').dataset.service, 'automatizacion-procesos');
+    assert.equal(document.querySelector('#detalle-titulo').textContent, 'Automatización de Procesos');
+    dom.window.close();
+});
+
 test('el detalle seleccionado comunica contenido propio, CTA y estado accesible', () => {
     const dom = createServiceDom('https://example.test/servicios.html?servicio=integraciones');
     for (const service of SERVICE_CATALOG) {
         assert.equal(ServicePageView.update(service.id), true);
-        const selected = document.querySelector(`[data-service-card="${service.id}"] a[href*="?servicio="]`);
+        const selected = document.querySelector(`[data-service-card="${service.id}"] a[aria-current="page"]`);
         assert.equal(selected.getAttribute('aria-current'), 'page');
         assert.equal(document.querySelectorAll('[data-service-card] a[aria-current="page"]').length, 1);
         assert.equal(document.querySelector('#detalle-servicio').dataset.service, service.id);
         assert.equal(document.querySelector('#detalle-titulo').textContent, service.detailTitle || service.name);
         assert.equal(document.querySelector('#detalle-descripcion').textContent, service.description);
+        assert.equal(document.querySelector('#servicios-hero-text').textContent, `${service.heroText} Consulta la información disponible y contacta a ForgeLock.`);
         assert.equal(document.querySelector('#detalle-cta').getAttribute('aria-label'), `Consultar por WhatsApp sobre ${service.name}`);
         assert.equal(new URL(document.querySelector('#detalle-cta').href).searchParams.get('text'), service.message);
         assert.equal(document.querySelectorAll('[data-landing-content]:not([hidden])').length, service.id === 'landing' ? 3 : 0);
@@ -113,7 +166,7 @@ test('el detalle seleccionado comunica contenido propio, CTA y estado accesible'
 
 test('servicios elimina las pestañas y presenta las nueve tarjetas en el HTML construido', async () => {
     const html = await readFile(new URL('../servicios.html', import.meta.url), 'utf8');
-    assert.match(html, /<title>Servicios digitales para negocios \| ForgeLock<\/title>/);
+    assert.match(html, /<title>Servicios ForgeLock para negocios \| Web, sistemas y automatización<\/title>/);
     assert.match(html, /services-catalogue-container/);
     assert.match(html, /<section id="proceso" data-landing-content/);
     assert.match(html, /El pago se divide en tres partes: 30% para iniciar, 30% cuando el proyecto llegue al 50% y 40% al terminar/);
@@ -134,6 +187,13 @@ test('el encabezado de portada y servicios usa el isotipo aprobado', async () =>
     dom.window.close();
 });
 
+test('el encabezado de la ficha piloto usa isotipo y referencias locales de iconos', async () => {
+    const html = await readFile(new URL('../servicio-automatizacion-whatsapp.html', import.meta.url), 'utf8');
+    assert.match(html, /src="\.\/resource\/isotipo\.png"/);
+    assert.match(html, /href="\.\/favicon\.ico"/);
+    assert.match(html, /href="\.\/site\.webmanifest"/);
+});
+
 test('las páginas legales incluyen el isotipo de marca en el encabezado', async () => {
     for (const file of ['aviso-legal.html', 'politica-cookies.html', 'politica-privacidad.html']) {
         const html = await readFile(new URL(`../${file}`, import.meta.url), 'utf8');
@@ -142,7 +202,7 @@ test('las páginas legales incluyen el isotipo de marca en el encabezado', async
 });
 
 test('las páginas públicas declaran iconos locales y el manifiesto referencia tamaños reales', async () => {
-    const pages = ['index.html', 'servicios.html', '404.html', 'aviso-legal.html', 'politica-cookies.html', 'politica-privacidad.html'];
+    const pages = ['index.html', 'servicios.html', 'servicio-automatizacion-whatsapp.html', '404.html', 'aviso-legal.html', 'politica-cookies.html', 'politica-privacidad.html'];
     for (const page of pages) {
         const html = await readFile(new URL(`../${page}`, import.meta.url), 'utf8');
         assert.match(html, /href="\.\/favicon\.ico"/i, page);

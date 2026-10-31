@@ -1,12 +1,12 @@
 # Configuración pendiente para publicar Cloudflare Worker Static Assets
 
-Estado: preparación pendiente. La URL oficial temporal ya es Cloudflare según decisión del responsable; la generación local prepara canonicals y sitemap para ese destino, sin publicar ni modificar GitHub Pages. No realizar despliegues desde este documento.
+Estado: preparación pendiente. La URL oficial temporal ya es Cloudflare según decisión del responsable; la generación local prepara canonicals para ese destino y mantiene `noindex` con sitemap vacío, sin publicar ni modificar GitHub Pages. No realizar despliegues desde este documento.
 
 Revisión de solo lectura del 30 de octubre de 2026: el trigger de `forgelock` sigue usando `npm run build:dist` y `npx wrangler deploy` sobre `main`. La URL pública del Worker y su sitemap respondieron 404; eso no permite validar la política SEO del despliegue remoto. Los builds locales y el preview de Workers Static Assets sí se verificaron. Consulta las evidencias y limitaciones en [la auditoría maestra](auditoria-maestra-2026-10-30.md). No se modificó el trigger ni se publicó un artefacto.
 
 ## Dominio temporal confirmado
 
-La URL oficial temporal es `https://forgelock.forge-look19.workers.dev/` hasta la primera venta. El build de Cloudflare usa esa URL para canonical, metadatos sociales, JSON-LD y sitemap; la salida de GitHub Pages conserva su canonical propia y su flujo independiente. La publicación, los cambios remotos y cualquier ajuste de Workers Builds quedan pendientes de autorización separada.
+La URL oficial temporal es `https://forgelock.forge-look19.workers.dev/` hasta la primera venta. El build de Cloudflare usa esa URL para canonical, metadatos sociales y JSON-LD; genera todas las páginas con `noindex,follow`, sitemap vacío y robots.txt sin directiva Sitemap. La salida de GitHub Pages conserva su canonical propia y su flujo independiente. La publicación, los cambios remotos y cualquier ajuste de Workers Builds quedan pendientes de autorización separada.
 
 ## Datos por confirmar
 
@@ -27,7 +27,7 @@ Propuesta para usar el flujo protegido existente sin duplicar la construcción d
 
 `npm test` construye y prueba en salidas temporales. El comando de despliegue construye después el único artefacto destinado a publicación y lo valida mediante el build compartido. No se reutiliza el `dist/` antiguo ni se ejecuta una segunda validación redundante. El script mantiene su modo preflight sin publicación cuando falta la confirmación de despliegue.
 
-Antes de aplicar esta propuesta, confirmar la cuenta y el Worker; autorizar por separado el cambio del trigger y la publicación automática desde `main`. Revisar las variables de build sin exponer secretos: Cloudflare es indexable por defecto; `INDEXABLE=false` solo para una salida de prueba no indexable. `BASE_URL`, si existe, debe corresponder al Worker; `SEO_TRANSITION` debe estar ausente. El `account_id` sigue sin añadirse al archivo local. No se modificó el trigger remoto ni se publicó nada.
+Antes de aplicar esta propuesta, confirmar la cuenta y el Worker; autorizar por separado el cambio del trigger y la publicación automática desde `main`. Revisar las variables de build sin exponer secretos: Cloudflare permanece no indexable; `INDEXABLE=true` se rechaza. `BASE_URL`, si existe, debe corresponder al Worker; `SEO_TRANSITION` debe estar ausente. El `account_id` sigue sin añadirse al archivo local. No se modificó el trigger remoto ni se publicó nada.
 
 Las pruebas nuevas simulan la invocación de publicación; comprueban la configuración conservada, el mismo artefacto y el rechazo de fallos sin llamar a Cloudflare.
 

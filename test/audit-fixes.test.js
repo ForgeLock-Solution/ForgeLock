@@ -35,7 +35,7 @@ test('la página de servicios presenta solo la oferta autorizada y CTA de WhatsA
   ServicePageView.renderLandingPricing();
   ServicePageView.update('landing');
   const rendered = dom.serialize();
-  assert.match(rendered, /<title>Servicios digitales para negocios \| ForgeLock<\/title>/);
+  assert.match(rendered, /<title>Servicios ForgeLock para negocios \| Web, sistemas y automatización<\/title>/);
   assert.match(rendered, /Landing pages para presentar tu negocio/);
   assert.match(rendered, /Catálogos digitales/);
   assert.match(rendered, /Branding y diseño digital/);

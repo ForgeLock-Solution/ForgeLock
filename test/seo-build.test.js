@@ -61,7 +61,8 @@ function run(command, args, env = {}) {
 async function checkVariant(target) {
   const base = bases[target];
   const canonicalBase = bases[target];
-  for (const file of ['index.html', 'servicios.html']) {
+  const indexedPages = ['index.html', 'servicios.html', 'servicio-automatizacion-whatsapp.html'];
+  for (const file of indexedPages) {
     const html = await readFile(join(distDirs[target], file), 'utf8');
     const dom = new JSDOM(html);
     const document = dom.window.document;
@@ -70,23 +71,37 @@ async function checkVariant(target) {
     assert.equal(document.querySelectorAll('link[rel="canonical"]').length, 1);
     assert.equal(document.querySelector('link[rel="canonical"]').href, pageUrl);
     assert.equal(document.querySelector('meta[property="og:url"]').content, pageUrl);
-    assert.equal(document.querySelector('meta[property="og:image"]').content, `${canonicalBase}resource/forgelock-social-preview.png`);
-    assert.equal(document.querySelector('meta[name="twitter:image"]').content, `${canonicalBase}resource/forgelock-social-preview.png`);
+    const expectedShareImage = file === 'servicio-automatizacion-whatsapp.html'
+      ? `${canonicalBase}resource/service/automatizacion-whatsapp.webp`
+      : `${canonicalBase}resource/forgelock-social-preview.png`;
+    assert.equal(document.querySelector('meta[property="og:image"]').content, expectedShareImage);
+    if (file !== 'servicio-automatizacion-whatsapp.html') assert.equal(document.querySelector('meta[name="twitter:image"]').content, expectedShareImage);
     const jsonLd = [...document.querySelectorAll('script[type="application/ld+json"]')].map((node) => JSON.parse(node.textContent));
     assert.ok(jsonLd.length > 0);
     assert.ok(JSON.stringify(jsonLd).includes(canonicalBase));
     const otherBase = target === 'cloudflare' ? bases['github-pages'] : bases.cloudflare;
     assert.equal(html.includes(otherBase), false);
-    assert.doesNotMatch(html, /<meta\s+name=["']robots["'][^>]*\bnoindex\b/i);
+    if (target === 'cloudflare') assert.match(html, /<meta\s+name=["']robots["'][^>]*\bnoindex\b/i);
+    else assert.doesNotMatch(html, /<meta\s+name=["']robots["'][^>]*\bnoindex\b/i);
   }
 
   const robots = await readFile(join(distDirs[target], 'robots.txt'), 'utf8');
-  assert.ok(robots.includes(`Sitemap: ${canonicalBase}sitemap.xml`));
+  if (target === 'cloudflare') assert.doesNotMatch(robots, /^Sitemap:/im);
+  else assert.ok(robots.includes(`Sitemap: ${canonicalBase}sitemap.xml`));
   const sitemap = new JSDOM(await readFile(join(distDirs[target], 'sitemap.xml'), 'utf8'), { contentType: 'application/xml' }).window.document;
   const urls = [...sitemap.getElementsByTagNameNS('*', 'loc')].map((node) => node.textContent.trim());
-  assert.deepEqual(urls, [canonicalBase, `${canonicalBase}${target === 'cloudflare' ? 'servicios' : 'servicios.html'}`]);
+  assert.deepEqual(urls, target === 'cloudflare' ? [] : [canonicalBase, `${canonicalBase}servicio-automatizacion-whatsapp.html`, `${canonicalBase}servicios.html`]);
   assert.equal(new Set(urls).size, urls.length);
   assert.ok(urls.every((url) => url.startsWith(base)));
+
+  const fiche = new JSDOM(await readFile(join(distDirs[target], 'servicio-automatizacion-whatsapp.html'), 'utf8')).window.document;
+  assert.equal(fiche.querySelector('title').textContent, 'Automatización de WhatsApp para negocios | ForgeLock');
+  assert.match(fiche.querySelector('meta[name="description"]').content, /Bots para atención automática y registro de información/);
+  assert.equal(fiche.querySelector('h1').textContent, 'Automatización de WhatsApp');
+  assert.equal(fiche.querySelectorAll('a[data-related-service]').length, 2);
+  assert.ok([...fiche.querySelectorAll('a[data-related-service]')].every((link) => link.href.includes('servicio=')));
+  assert.ok(fiche.querySelector('a[href^="https://wa.me/"]'));
+  assert.equal(fiche.querySelector('link[rel="canonical"]').href, `${canonicalBase}${target === 'cloudflare' ? 'servicio-automatizacion-whatsapp' : 'servicio-automatizacion-whatsapp.html'}`);
 
   for (const file of ['aviso-legal.html', 'politica-privacidad.html', 'politica-cookies.html']) {
     const html = await readFile(join(distDirs[target], file), 'utf8');
@@ -122,7 +137,7 @@ test('builds SEO variants independently for GitHub Pages and Cloudflare Worker',
     const servicePage = new JSDOM(await readFile(join(distDirs[target], 'servicios.html'), 'utf8')).window.document;
     assert.equal(servicePage.querySelectorAll('#services-catalogue-container [data-service-card]').length, 9);
     assert.equal(servicePage.querySelectorAll('#services-catalogue-container [data-service-card] a[aria-label^="Consultar por WhatsApp"]').length, 9);
-    assert.equal(servicePage.querySelectorAll('#services-catalogue-container [data-service-card] a[href*="?servicio="]').length, 9);
+    assert.equal(servicePage.querySelectorAll('#services-catalogue-container [data-service-card] a[href*="?servicio="], #services-catalogue-container [data-service-card] a[href*="servicio-automatizacion-whatsapp"]').length, 9);
     assert.equal(servicePage.querySelectorAll('#services-catalogue-container section[aria-labelledby="servicios-principales-titulo"] [data-service-card]').length, 6);
     assert.equal(servicePage.querySelectorAll('#services-catalogue-container section[aria-labelledby="servicios-digitales-titulo"] [data-service-card]').length, 3);
     assert.ok(servicePage.querySelector('#detalle-servicio[aria-live="polite"]'));

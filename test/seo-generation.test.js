@@ -57,21 +57,24 @@ test('cada destino genera sus señales SEO con su propia URL canónica', () => {
   const pages = getSeoConfig({});
   const worker = getSeoConfig({ SEO_TARGET: 'cloudflare' });
   assert.equal(pages.indexable, true);
-  assert.equal(worker.indexable, true);
+  assert.equal(worker.indexable, false);
   assert.equal(worker.baseUrl.href, 'https://forgelock.forge-look19.workers.dev/');
   assert.equal(worker.canonicalBaseUrl.href, 'https://forgelock.forge-look19.workers.dev/');
   assert.equal(worker.canonicalTarget, 'cloudflare');
-  assert.equal(getSeoConfig({ SEO_TARGET: 'cloudflare', INDEXABLE: 'true' }).indexable, true);
+  assert.throws(() => getSeoConfig({ SEO_TARGET: 'cloudflare', INDEXABLE: 'true' }), /Cloudflare se mantiene noindex/);
   assert.throws(() => getSeoConfig({ SEO_TRANSITION: 'cloudflare' }), /Migración canónica deshabilitada/);
 });
 
-test('la API del generador permite indexar el Worker y rechaza una base no configurada', async () => {
+test('el Worker se mantiene noindex y rechaza una base no configurada', async () => {
   await withFixture(async ({ root, dist, addPage }) => {
     const original = await addPage('index.html');
     const result = await generateSeo({ root, dist, env: { SEO_TARGET: 'cloudflare' } });
-    assert.equal(result.pageCount, 1);
+    assert.equal(result.pageCount, 0);
     assert.match(await readFile(join(dist, 'index.html'), 'utf8'), /canonical" href="https:\/\/forgelock\.forge-look19\.workers\.dev\//);
-    assert.match(result.sitemap, /https:\/\/forgelock\.forge-look19\.workers\.dev\//);
+    assert.match(await readFile(join(dist, 'index.html'), 'utf8'), /name="robots" content="noindex,follow"/);
+    assert.doesNotMatch(result.sitemap, /<loc>/);
+    assert.doesNotMatch(result.robots, /Sitemap:/);
+    await assert.rejects(generateSeo({ root, dist, indexable: true, env: { SEO_TARGET: 'cloudflare' } }), /Cloudflare se mantiene noindex/);
     await assert.rejects(generateSeo({ root, dist, baseUrl: 'https://example.test/' }), /baseUrl no coincide/);
     assert.notEqual(await readFile(join(dist, 'index.html'), 'utf8'), original);
   });
