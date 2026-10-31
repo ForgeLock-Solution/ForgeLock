@@ -105,11 +105,21 @@
         <img src="./resource/isotipo.png" alt="" width="40" height="40" class="w-10 h-10 object-contain">
         <span class="text-xl font-bold">Forge<span class="text-brand-700">Lock</span><span class="block text-[10px] text-slate-500 tracking-wider uppercase">Tecnología & Negocios</span></span>
       </a>
-      <nav class="flex items-center gap-3 sm:gap-6 text-sm font-semibold">
+      <nav aria-label="Navegación principal" class="hidden sm:flex items-center gap-3 sm:gap-6 text-sm font-semibold">
         <a href="#servicios" aria-current="location" class="text-slate-800 hover:text-brand-600 font-bold">Servicios</a>
-        <a href="#proceso" class="hidden sm:inline text-slate-600 hover:text-brand-600">Proceso</a>
-        <a href="#preguntas" class="hidden sm:inline text-slate-600 hover:text-brand-600">Preguntas</a>
+        <a href="#presencia-digital" class="text-slate-600 hover:text-brand-600">Presencia digital</a>
+        <a href="#proceso" class="text-slate-600 hover:text-brand-600">Proceso</a>
+        <a href="#preguntas" class="text-slate-600 hover:text-brand-600">Preguntas</a>
       </nav>
+      <details class="relative sm:hidden">
+        <summary class="cursor-pointer rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-emerald-700">Menú</summary>
+        <nav aria-label="Navegación móvil" class="absolute right-0 top-full z-50 mt-2 grid min-w-48 gap-1 rounded-xl border border-slate-200 bg-white p-2 text-sm font-semibold shadow-lg">
+          <a href="#servicios" class="rounded-lg px-3 py-2 hover:bg-slate-50">Servicios</a>
+          <a href="#presencia-digital" class="rounded-lg px-3 py-2 hover:bg-slate-50">Presencia digital</a>
+          <a href="#proceso" class="rounded-lg px-3 py-2 hover:bg-slate-50">Proceso</a>
+          <a href="#preguntas" class="rounded-lg px-3 py-2 hover:bg-slate-50">Preguntas</a>
+        </nav>
+      </details>
       <a href="https://wa.me/573043402589?text=Hola%2C%20quiero%20conocer%20los%20servicios%20de%20ForgeLock." target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 rounded-xl bg-brand-500 hover:bg-brand-600 px-4 py-3 font-bold text-slate-950 text-sm whatsapp-button"><i class="fa-brands fa-whatsapp text-lg"></i><span class="hidden sm:inline">Hablar por WhatsApp</span><span class="sm:hidden">Contactar</span></a>
     </div>
   </header>
@@ -127,7 +137,7 @@
           <p class="text-sm text-slate-500">Te orientamos según tus objetivos, necesidades y presupuesto. El alcance se define antes de comenzar.</p>
         </div>
         <div class="flex min-h-[320px] flex-col items-center justify-center gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-xl sm:min-h-[440px] sm:p-10">
-          <img width="725" height="715" class="hero-service-image h-auto max-h-[300px] w-full max-w-[300px] object-contain sm:max-h-[350px] sm:max-w-[350px]" src="./resource/isotipo.png" alt="Isotipo de ForgeLock: candado con elementos digitales" loading="eager" decoding="async">
+          <img width="1200" height="1000" class="hero-service-image h-auto max-h-[300px] w-full max-w-[360px] object-cover sm:max-h-[350px] sm:max-w-[420px]" src="./resource/hero/servicios-hero.webp" alt="Emprendedor trabajando frente a su computador en su negocio" fetchpriority="high" loading="eager" decoding="async">
           <div class="text-center"><p class="font-bold text-slate-900">Tecnología con propósito</p><p class="text-sm text-slate-500">Diseñada alrededor de tu negocio</p></div>
         </div>
       </div>

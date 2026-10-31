@@ -74,6 +74,7 @@ test('las tarjetas de portada y servicios usan el catálogo y enlazan al detalle
     ServicePageView.renderCatalog();
     const pageCards = [...document.querySelectorAll('#services-catalogue-container [data-service-card]')];
     assert.equal(pageCards.length, SERVICE_CATALOG.length);
+    assert.ok(document.querySelector('#presencia-digital #servicios-digitales-titulo'));
     for (const service of SERVICE_CATALOG) {
         for (const cardSet of [homeCards, pageCards]) {
             const card = cardSet.find((node) => node.dataset.serviceCard === service.id);
@@ -169,10 +170,20 @@ test('servicios elimina las pestañas y presenta las nueve tarjetas en el HTML c
     assert.match(html, /<title>Servicios ForgeLock para negocios \| Web, sistemas y automatización<\/title>/);
     assert.match(html, /services-catalogue-container/);
     assert.match(html, /<section id="proceso" data-landing-content/);
+    const menu = new JSDOM(html).window.document;
+    assert.ok(menu.querySelector('nav[aria-label="Navegación principal"] a[href="#presencia-digital"]'));
+    assert.ok(menu.querySelector('details nav[aria-label="Navegación móvil"] a[href="#presencia-digital"]'));
     assert.match(html, /El pago se divide en tres partes: 30% para iniciar, 30% cuando el proyecto llegue al 50% y 40% al terminar/);
     assert.doesNotMatch(html, /role="tablist"|role="tab"|data-service="landing"/);
-    assert.match(html, /class="hero-service-image[^\"]*" src="\.\/resource\/isotipo\.png" alt="Isotipo de ForgeLock: candado con elementos digitales"/);
+    assert.match(html, /<img width="1200" height="1000" class="hero-service-image[^\"]*" src="\.\/resource\/hero\/servicios-hero\.webp" alt="Emprendedor trabajando frente a su computador en su negocio" fetchpriority="high" loading="eager"/);
     assert.doesNotMatch(html, /500\.000 COP|15 días hábiles|250\.000 COP|20 productos/);
+});
+
+test('la foto del hero es WebP y se mantiene por debajo de 150 KB', async () => {
+    const image = await readFile(new URL('../resource/hero/servicios-hero.webp', import.meta.url));
+    assert.equal(image.subarray(0, 4).toString(), 'RIFF');
+    assert.equal(image.subarray(8, 12).toString(), 'WEBP');
+    assert.ok(image.byteLength < 150 * 1024, `peso recibido: ${image.byteLength} bytes`);
 });
 
 test('el encabezado de portada y servicios usa el isotipo aprobado', async () => {

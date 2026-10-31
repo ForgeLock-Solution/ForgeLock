@@ -37,7 +37,7 @@ export function renderServiceCatalogSections(selectedId = null) {
         <h3 id="servicios-principales-titulo" class="mb-6 text-2xl font-bold text-slate-900">Servicios principales</h3>
         <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">${featured.map((service) => renderServiceCard(service, selectedId)).join('')}</div>
       </section>
-      <section aria-labelledby="servicios-digitales-titulo">
+      <section id="presencia-digital" aria-labelledby="servicios-digitales-titulo" class="scroll-mt-24">
         <h3 id="servicios-digitales-titulo" class="mb-6 text-2xl font-bold text-slate-900">Presencia digital</h3>
         <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">${digital.map((service) => renderServiceCard(service, selectedId)).join('')}</div>
       </section>
