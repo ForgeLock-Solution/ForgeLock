@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { SERVICE_CATALOG, WHATSAPP_NUMBER, getWhatsAppUrl } from '../data/services';
-import { Service } from '../types';
+import type { Service } from '../types.ts';
 
 interface SolutionsCarouselProps {
   onSelectService: (service: Service) => void;

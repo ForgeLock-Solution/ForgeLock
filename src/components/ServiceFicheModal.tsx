@@ -1,5 +1,5 @@
 import React from 'react';
-import { Service } from '../types';
+import type { Service } from '../types.ts';
 import { SERVICE_BY_ID, WHATSAPP_NUMBER, getWhatsAppUrl } from '../data/services';
 
 interface ServiceFicheModalProps {

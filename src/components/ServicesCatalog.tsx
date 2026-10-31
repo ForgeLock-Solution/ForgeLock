@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { SERVICE_CATALOG, WHATSAPP_NUMBER, formatPrice, getWhatsAppUrl } from '../data/services';
-import { Service } from '../types';
+import type { Service } from '../types.ts';
 
 interface ServicesCatalogProps {
   selectedService: Service | null;

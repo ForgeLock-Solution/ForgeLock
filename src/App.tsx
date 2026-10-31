@@ -10,7 +10,7 @@ import { Footer } from './components/Footer';
 import { ServiceFicheModal } from './components/ServiceFicheModal';
 import { LegalModal, LegalDocType } from './components/LegalModal';
 import { CookieConsent } from './components/CookieConsent';
-import { Service } from './types';
+import type { Service } from './types.ts';
 import { SERVICE_BY_ID } from './data/services';
 
 export const App: React.FC = () => {

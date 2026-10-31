@@ -1,4 +1,4 @@
-import { Service } from '../types';
+import type { Service } from '../types.ts';
 
 export const WHATSAPP_NUMBER = '573043402589';
 

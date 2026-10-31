@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { AIService } from '../services/aiService';
-import { IdeaProposal } from '../types';
+import type { IdeaProposal } from '../types.ts';
 import { WHATSAPP_NUMBER } from '../data/services';
 
 export const NeedFinder: React.FC = () => {

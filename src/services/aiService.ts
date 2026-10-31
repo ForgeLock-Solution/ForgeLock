@@ -1,4 +1,4 @@
-import { IdeaProposal } from '../types';
+import type { IdeaProposal } from '../types.ts';
 
 const includesAny = (text: string, terms: string[]) => terms.some((term) => text.includes(term));
 
