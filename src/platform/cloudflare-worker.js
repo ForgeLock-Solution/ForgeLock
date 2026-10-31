@@ -10,9 +10,22 @@ export default {
         const destinationPath = legacyServicePages[selectedService];
 
         if (isLegacyServicesPath && destinationPath && ['GET', 'HEAD'].includes(request.method)) {
-            return Response.redirect(new URL(destinationPath, url.origin), 302);
+            return new Response(null, {
+                status: 302,
+                headers: {
+                    Location: new URL(destinationPath, url.origin).href,
+                    'X-Robots-Tag': 'noindex, follow'
+                }
+            });
         }
 
-        return env.ASSETS.fetch(request);
+        const response = await env.ASSETS.fetch(request);
+        const headers = new Headers(response.headers);
+        headers.set('X-Robots-Tag', 'noindex, follow');
+        return new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers
+        });
     }
 };

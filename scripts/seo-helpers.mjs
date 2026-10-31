@@ -70,8 +70,8 @@ export function getSeoConfig(env = process.env) {
     target,
     transition,
     baseUrl: new URL(expectedBaseUrl),
-    canonicalBaseUrl: new URL(expectedBaseUrl),
-    canonicalTarget: target,
+    canonicalBaseUrl: new URL(SEO_TARGETS['github-pages']),
+    canonicalTarget: 'github-pages',
     indexable: target === 'cloudflare' ? false : env.INDEXABLE !== 'false'
   };
 }

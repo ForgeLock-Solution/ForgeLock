@@ -61,14 +61,14 @@ function run(command, args, env = {}) {
 
 async function checkVariant(target) {
   const base = bases[target];
-  const canonicalBase = bases[target];
+  const canonicalBase = bases['github-pages'];
   const ficheFiles = SERVICE_CATALOG.map((service) => service.fichePath);
   const indexedPages = ['index.html', 'servicios.html', ...ficheFiles];
   for (const file of indexedPages) {
     const html = await readFile(join(distDirs[target], file), 'utf8');
     const dom = new JSDOM(html);
     const document = dom.window.document;
-    const pageRoute = file === 'index.html' ? './' : target === 'cloudflare' ? file.replace(/\.html$/, '') : file;
+    const pageRoute = file === 'index.html' ? './' : file;
     const pageUrl = new URL(pageRoute, canonicalBase).href;
     assert.equal(document.querySelectorAll('link[rel="canonical"]').length, 1);
     assert.equal(document.querySelector('link[rel="canonical"]').href, pageUrl);
@@ -82,8 +82,7 @@ async function checkVariant(target) {
     const jsonLd = [...document.querySelectorAll('script[type="application/ld+json"]')].map((node) => JSON.parse(node.textContent));
     assert.ok(jsonLd.length > 0);
     assert.ok(JSON.stringify(jsonLd).includes(canonicalBase));
-    const otherBase = target === 'cloudflare' ? bases['github-pages'] : bases.cloudflare;
-    assert.equal(html.includes(otherBase), false);
+    assert.equal(html.includes(bases.cloudflare), false);
     if (target === 'cloudflare') assert.match(html, /<meta\s+name=["']robots["'][^>]*\bnoindex\b/i);
     else assert.doesNotMatch(html, /<meta\s+name=["']robots["'][^>]*\bnoindex\b/i);
   }
@@ -105,14 +104,14 @@ async function checkVariant(target) {
   assert.equal(fiche.querySelectorAll('a[data-related-service]').length, 2);
   assert.ok([...fiche.querySelectorAll('a[data-related-service]')].every((link) => link.href.includes('/servicio-')));
   assert.ok(fiche.querySelector('a[href^="https://wa.me/"]'));
-  assert.equal(fiche.querySelector('link[rel="canonical"]').href, `${canonicalBase}${target === 'cloudflare' ? 'servicio-automatizacion-whatsapp' : 'servicio-automatizacion-whatsapp.html'}`);
+  assert.equal(fiche.querySelector('link[rel="canonical"]').href, `${canonicalBase}servicio-automatizacion-whatsapp.html`);
 
   for (const service of SERVICE_CATALOG) {
     assert.ok(service.fichePath, `falta ficha para ${service.id}`);
     const serviceFiche = new JSDOM(await readFile(join(distDirs[target], service.fichePath), 'utf8')).window.document;
     assert.equal(serviceFiche.querySelector('h1').textContent, service.name);
     assert.equal(serviceFiche.querySelector('meta[name="description"]').content, service.ficheMetaDescription);
-    assert.equal(serviceFiche.querySelector('link[rel="canonical"]').href, `${canonicalBase}${target === 'cloudflare' ? service.fichePath.replace(/\.html$/, '') : service.fichePath}`);
+    assert.equal(serviceFiche.querySelector('link[rel="canonical"]').href, `${canonicalBase}${service.fichePath}`);
     assert.ok(serviceFiche.querySelector('a[href^="https://wa.me/"]'));
   }
 
@@ -120,7 +119,7 @@ async function checkVariant(target) {
     const html = await readFile(join(distDirs[target], file), 'utf8');
     assert.match(html, /<meta\s+name=["']robots["']\s+content=["'][^"']*noindex/i);
     assert.doesNotMatch(html, /Nota de revisión|Antes de publicar|deben verificarse/i);
-    const legalCanonical = `${canonicalBase}${target === 'cloudflare' ? file.replace(/\.html$/, '') : file}`;
+    const legalCanonical = `${canonicalBase}${file}`;
     assert.equal(new JSDOM(html).window.document.querySelector('link[rel="canonical"]').href, legalCanonical);
   }
   const allHtml = await Promise.all(['index.html', 'servicios.html', ...['aviso-legal.html', 'politica-privacidad.html', 'politica-cookies.html']].map((file) => readFile(join(distDirs[target], file), 'utf8')));
@@ -180,7 +179,7 @@ test('builds SEO variants independently for GitHub Pages and Cloudflare Worker',
     env: { ...process.env, SEO_TARGET: 'cloudflare', DIST_DIR: distDirs['github-pages'] }
   });
   assert.notEqual(wrongTarget.status, 0);
-  assert.match(`${wrongTarget.stdout}\n${wrongTarget.stderr}`, /Canonical incorrecto|destino distinto/);
+  assert.match(`${wrongTarget.stdout}\n${wrongTarget.stderr}`, /debe llevar noindex/);
 
   const distAfterBuild = await Promise.all(preservedDistPaths.map(async (path) => existsSync(path) ? readFile(path) : null));
   assert.deepEqual(distAfterBuild, distSnapshots, 'los builds SEO de prueba no deben reemplazar un dist/ preexistente');
@@ -195,9 +194,9 @@ test('builds SEO variants independently for GitHub Pages and Cloudflare Worker',
   const workerHomePath = join(distDirs.cloudflare, 'index.html');
   const workerHome = await readFile(workerHomePath, 'utf8');
   const mutations = [
-    [workerHome.replace(`href="${bases.cloudflare}"`, 'href="https://example.test/"'), /Canonical incorrecto/],
-    [workerHome.replace(`${bases.cloudflare}resource/forgelock-social-preview.png`, 'https://example.test/preview.png'), /og:image/],
-    [workerHome.replaceAll(bases.cloudflare, 'https://example.test/'), /Canonical incorrecto/]
+    [workerHome.replace(`href="${bases['github-pages']}"`, 'href="https://example.test/"'), /Canonical incorrecto/],
+    [workerHome.replace(`${bases['github-pages']}resource/forgelock-social-preview.png`, 'https://example.test/preview.png'), /og:image/],
+    [workerHome.replaceAll(bases['github-pages'], 'https://example.test/'), /Canonical incorrecto/]
   ];
   try {
     for (const [mutated, message] of mutations) {

@@ -96,11 +96,11 @@ npm run deploy:supabase
 
 ## SEO técnico
 
-La producción y la URL canónica siguen siendo `https://forgelock-solution.github.io/ForgeLock/`. `npm run build:dist` genera en `dist/` la variante GitHub Pages. `npm run build:dist:cloudflare` genera en `dist-cloudflare/` un entorno de pruebas para `https://forgelock.forge-look19.workers.dev/`; `wrangler.toml` declara esa segunda salida. Ningún build reemplaza una salida que ya contenga archivos: conserva los artefactos existentes y usa `DIST_DIR` con una carpeta temporal vacía para validar.
+GitHub Pages es el sitio oficial y canónico en `https://forgelock-solution.github.io/ForgeLock/`. `npm run build:dist` genera en `dist/` la variante Pages. `npm run build:dist:cloudflare` genera en `dist-cloudflare/` un entorno secundario de pruebas para `https://forgelock.forge-look19.workers.dev/`; `wrangler.toml` declara esa segunda salida. Ningún build reemplaza una salida que ya contenga archivos: conserva los artefactos existentes y usa `DIST_DIR` con una carpeta temporal vacía para validar.
 
-`SEO_TARGET` selecciona `github-pages` o `cloudflare`. `BASE_URL`, si se proporciona, identifica el alojamiento y debe coincidir exactamente con el destino, incluida la barra final. No selecciona la URL canónica: canonical, hreflang, Open Graph, Twitter Cards y JSON-LD conservan las señales de GitHub Pages en ambas variantes. El Worker adapta únicamente la navegación relativa a sus rutas sin `.html`; la canonical de servicios sigue siendo `/ForgeLock/servicios.html` en producción.
+`SEO_TARGET` selecciona `github-pages` o `cloudflare`. `BASE_URL`, si se proporciona, identifica el alojamiento y debe coincidir exactamente con el destino, incluida la barra final. Las URLs canonical, hreflang, Open Graph, Twitter Cards y JSON-LD siempre usan GitHub Pages en ambas variantes. El Worker adapta la navegación relativa a sus rutas sin `.html`, pero la canonical de servicios sigue siendo `/ForgeLock/servicios.html`.
 
-Cloudflare siempre genera todas sus páginas con `noindex,follow`, un sitemap sin URLs y un `robots.txt` sin directiva Sitemap. Se permite rastrear para que los motores puedan leer `noindex`. `INDEXABLE=true` se rechaza para Cloudflare antes de crear la salida. Pages conserva su sitemap de producción, con `lastmod` obtenido de Git; `INDEXABLE=false` permite construir una variante Pages no indexable. Los HTML, robots y sitemap fuente no se reescriben.
+Cloudflare siempre genera todas sus páginas con `noindex,follow`, un sitemap sin URLs, un `robots.txt` sin directiva Sitemap y una cabecera `X-Robots-Tag: noindex, follow`. Se permite rastrear para que los motores lean `noindex`. `INDEXABLE=true` se rechaza para Cloudflare. Pages conserva su sitemap indexable con `lastmod` obtenido de Git; `INDEXABLE=false` permite construir una variante Pages no indexable.
 
 Valida Pages con `npm run validate:dist` y el Worker con `npm run validate:dist:cloudflare`, usando el mismo `DIST_DIR` que al construir. El validador comprueba la canonical de Pages, la preservación de las señales SEO fuente en el Worker, `noindex`, el sitemap vacío y la verificación de Google. `npm test` construye en carpetas temporales, rechaza regresiones SEO y comprueba que fuentes y distribuciones existentes no cambien. Si Wrangler está instalado y Node es compatible, también prueba las rutas mediante un preview local; esto no verifica el Worker remoto.
 
@@ -127,7 +127,7 @@ try {
 
 ## Canonical y migración deshabilitada
 
-La URL oficial temporal ya está decidida; `SEO_TRANSITION` y el comando heredado `npm run build:dist:pages-transition` siguen deshabilitados. El cambio local de señales SEO no publica el Worker ni modifica GitHub Pages. Consulta la [política SEO vigente](docs/seo-cloudflare-transition.md).
+GitHub Pages es el sitio oficial y canónico; Cloudflare permanece como entorno secundario no indexable. `SEO_TRANSITION` y el comando heredado `npm run build:dist:pages-transition` siguen deshabilitados. Los cambios SEO locales no publican el Worker ni modifican GitHub Pages. Consulta la [política SEO vigente](docs/seo-cloudflare-transition.md).
 
 Los cambios locales de las fases 1 y 2 no actualizan Workers Builds, GitHub Actions ni el Worker publicado. Antes de cualquier push, confirma el [ajuste remoto pendiente](docs/configuracion-cloudflare-pendiente.md); el trigger remoto auditado ejecuta Wrangler directamente y no utiliza el preflight de este repositorio.
 

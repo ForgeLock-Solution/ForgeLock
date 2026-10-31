@@ -108,6 +108,15 @@ for (const file of requiredFiles) {
   if (!info.isFile() || info.size === 0) fail(`dist/${file} está vacío o no es un archivo`);
 }
 
+if (target === 'cloudflare') {
+  try {
+    const headers = await readFile(join(dist, '_headers'), 'utf8');
+    if (!/^https:\/\/forgelock\.forge-look19\.workers\.dev\/\*\s*\r?\n\s*X-Robots-Tag:\s*noindex,\s*follow\s*$/im.test(headers)) {
+      fail('dist/_headers debe preparar X-Robots-Tag: noindex, follow para el hostname Workers.');
+    }
+  } catch (error) { fail(`No se pudo validar dist/_headers para Cloudflare: ${error.message}`); }
+}
+
 let manifest;
 try { manifest = JSON.parse(await readFile(join(dist, 'site.webmanifest'), 'utf8')); }
 catch (error) { fail(`No se pudo leer site.webmanifest: ${error.message}`); }
@@ -179,10 +188,8 @@ for (const file of artifactFiles.filter((entry) => entry.endsWith('.html'))) {
       if (!JSON.stringify(json).includes(canonicalBaseUrl.href)) fail(`JSON-LD de dist/${file} no incluye la URL canónica de ${target}.`);
     } catch (error) { fail(`JSON-LD inválido en dist/${file}: ${error.message}`); }
   }
-  const otherProductionBase = target === 'cloudflare'
-    ? 'https://forgelock-solution.github.io/ForgeLock/'
-    : 'https://forgelock.forge-look19.workers.dev/';
-  if (html.includes(otherProductionBase)) fail(`dist/${file} contiene señales SEO del destino distinto de ${target}.`);
+  const secondaryBase = 'https://forgelock.forge-look19.workers.dev/';
+  if (html.includes(secondaryBase)) fail(`dist/${file} contiene una señal SEO del entorno secundario Cloudflare.`);
 
   for (const match of html.matchAll(/\b(?:href|src)\s*=\s*["']([^"']+)["']/gi)) {
     const value = match[1].trim();

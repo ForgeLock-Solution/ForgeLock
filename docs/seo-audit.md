@@ -32,3 +32,9 @@ BASE_URL: `https://forgelock-solution.github.io/ForgeLock/`
 - Se añadieron enlaces `./favicon.ico` a las páginas y se actualizó el build para copiar el ICO a `dist/`.
 - El workflow usa checkout con historial completo para que el `lastmod` calculado por Git no dependa de un clon superficial.
 - Las pruebas `npm test` y `npm run build:dist` aún no se han ejecutado desde esta sesión; no se afirma que pasen.
+
+## Verificación y política vigente (31 de octubre de 2026)
+
+GitHub Pages sigue siendo el sitio oficial: `https://forgelock-solution.github.io/ForgeLock/`. La portada, `servicios.html` y las nueve fichas individuales consultadas respondieron HTTP 200. Cada una declara su propia canonical de GitHub Pages y no tiene `noindex`. El sitemap publicado contiene exactamente esas once páginas, y `robots.txt` permite el rastreo y apunta al sitemap de Pages. Las fechas `lastmod` observadas en el sitemap publicado son 2026-10-30 para la portada y 2026-10-31 para la ficha de WhatsApp y servicios; el resto no declara esa etiqueta.
+
+La política local está alineada para mantener canonical y metadatos de GitHub Pages en ambos builds. Cloudflare se conserva como entorno secundario rastreable pero `noindex`, con sitemap vacío y cabecera `X-Robots-Tag: noindex, follow` preparada. No se publicó ni desplegó ningún cambio. La integración de Search Console de GSC Wizard devolvió `payment_required` porque su suscripción no está activa; el envío del sitemap y la inspección de URLs quedan para el procedimiento manual descrito en `docs/seo-cloudflare-transition.md`.

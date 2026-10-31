@@ -21,12 +21,11 @@ import {
 
 const scriptPath = fileURLToPath(import.meta.url);
 const projectRoot = join(dirname(scriptPath), '..');
-function rewriteProductionUrls(html, target, baseUrl) {
+function rewriteProductionUrls(html, baseUrl) {
   return html.replace(/https:\/\/(?:forgelock-solution\.github\.io\/ForgeLock\/|forgelock\.forge-look19\.workers\.dev\/)([^"'\s<>#]*)/g, (_match, rawPath) => {
     let route = rawPath;
     if (route === 'index.html') route = '';
-    if (target === 'cloudflare' && route.endsWith('.html')) route = route.slice(0, -5);
-    if (target === 'github-pages' && route && !/\.[a-z0-9]+$/i.test(route)) route = `${route}.html`;
+    if (route && !/\.[a-z0-9]+$/i.test(route)) route = `${route}.html`;
     return new URL(route, baseUrl).href;
   });
 }
@@ -78,11 +77,11 @@ export async function generateSeo({
       html = html.replace(/<head>/i, `<head>\n    <base href="${baseUrl.pathname}">`);
     }
     if (target === 'cloudflare') {
-      // Adapt local navigation; preserve canonical, social metadata and JSON-LD.
+      // Adapt local navigation while keeping SEO signals on official Pages.
       html = html.replace(/href="\.\/index\.html(?=[#"?])/g, 'href="./');
       html = html.replace(/href="\.\/([a-z0-9-]+)\.html(?=[#"?])/gi, 'href="./$1');
     }
-    html = rewriteProductionUrls(html, target, canonicalBaseUrl);
+    html = rewriteProductionUrls(html, canonicalBaseUrl);
     if (!indexable) html = setNoindex(html);
     await writeFile(path, html, 'utf8');
   }

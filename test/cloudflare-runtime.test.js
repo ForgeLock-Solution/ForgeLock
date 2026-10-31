@@ -93,7 +93,7 @@ test('Workers Static Assets sirve las rutas SEO locales con señales coherentes'
   }
   assert.ok(ready, `Wrangler preview no inició.\n${logs}`);
 
-  const seoBase = 'https://forgelock.forge-look19.workers.dev/';
+  const seoBase = 'https://forgelock-solution.github.io/ForgeLock/';
   const routes = [
     '/sitemap.xml', '/robots.txt',
     '/', '/servicios', '/servicios.html',
@@ -149,9 +149,13 @@ test('Workers Static Assets sirve las rutas SEO locales con señales coherentes'
     } else if (route === '/robots.txt') {
       assert.doesNotMatch(body, /^Sitemap:/im);
     } else if (document) {
-      const expectedCanonical = new URL(finalUrl.pathname === '/' ? './' : finalUrl.pathname.slice(1), seoBase).href;
+      const canonicalRoute = finalUrl.pathname === '/' ? './' : `${finalUrl.pathname.slice(1).replace(/\.html$/, '')}.html`;
+      const expectedCanonical = new URL(canonicalRoute, seoBase).href;
       assert.equal(canonical, expectedCanonical, `${route} canonical`);
       assert.match(body, /<meta\s+name=["']robots["'][^>]*\bnoindex/i);
+      if (['/servicios', '/servicios.html'].includes(route)) {
+        assert.match(finalResponse.headers.get('x-robots-tag') ?? '', /noindex/i, `${route} X-Robots-Tag`);
+      }
       assert.equal(sitemapUrls.includes(expectedCanonical), false);
       if (route === '/') {
         homeDocument = document;
@@ -193,7 +197,7 @@ test('Workers Static Assets sirve las rutas SEO locales con señales coherentes'
   assert.equal(previewPage.status, 200);
   const previewDocument = new JSDOM(await previewPage.text(), { url: previewPage.url }).window.document;
   assert.equal(previewDocument.querySelector('meta[name="robots"]').content, 'noindex,follow');
-  assert.equal(previewDocument.querySelector('link[rel="canonical"]').href, `${seoBase}ejemplos/cafe-aurora`);
+  assert.equal(previewDocument.querySelector('link[rel="canonical"]').href, `${seoBase}ejemplos/cafe-aurora.html`);
 
   const missing = await fetch(`${origin}/carpeta/pagina-inexistente`);
   assert.equal(missing.status, 404);
