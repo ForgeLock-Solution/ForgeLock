@@ -53,7 +53,7 @@ export const ServicePageView = {
         const container = document.querySelector('#landing-pricing-container');
         if (!container) return;
         const landing = SERVICE_BY_ID.landing;
-        container.innerHTML = `<div class="max-w-3xl mx-auto text-center"><span class="text-brand-700 text-xs font-bold uppercase tracking-[.2em]">Precios y alcance</span><h2 id="planes-titulo" class="mt-3 text-3xl font-black sm:text-4xl">Elige tu landing page</h2><p class="mt-4 text-slate-600">Estos son los precios, tiempos y elementos incluidos en cada opción.</p></div><div class="mt-10 grid gap-7 lg:grid-cols-2">${landing.pricing.map((plan, index) => `<article class="rounded-2xl border ${index ? 'border-2 border-emerald-500' : 'border-slate-200'} bg-white p-6 sm:p-8"><h3 class="text-2xl font-bold">${escapeHtml(plan.name)}</h3><p class="mt-3 text-4xl font-black">${escapeHtml(formatPrice(plan.price))}</p><p class="mt-2 text-slate-600">Entrega de ${escapeHtml(plan.delivery)}.</p><h4 class="mt-6 font-bold">Incluye</h4><ul class="mt-3 space-y-2 text-sm text-slate-700">${plan.features.map((feature) => `<li>${escapeHtml(feature)}.</li>`).join('')}</ul><a class="mt-7 whatsapp-button" href="https://wa.me/${SERVICE_WHATSAPP_NUMBER}?text=${encodeURIComponent(plan.message)}" target="_blank" rel="noopener noreferrer" aria-label="Consultar por WhatsApp sobre ${escapeHtml(plan.name)}">Consultar por WhatsApp</a></article>`).join('')}</div>`;
+        container.innerHTML = `<div class="max-w-3xl mx-auto text-center"><span class="text-brand-700 text-xs font-bold uppercase tracking-[.2em]">Precios y alcance</span><h2 id="planes-titulo" class="mt-3 text-3xl font-black sm:text-4xl">Elige tu landing page</h2><p class="mt-4 text-slate-600">Estos son los precios, tiempos y elementos incluidos en cada opción.</p></div><div class="mt-10 grid gap-7 lg:grid-cols-2">${landing.pricing.map((plan, index) => `<article class="rounded-2xl border ${index ? 'border-2 border-emerald-500' : 'border-slate-200'} bg-white p-6 sm:p-8"><h3 class="text-2xl font-bold">${escapeHtml(plan.name)}</h3><p class="mt-3 text-4xl font-black">${escapeHtml(formatPrice(plan.price))}</p><p class="mt-2 text-slate-600">Entrega de ${escapeHtml(plan.delivery)}.</p><h4 class="mt-6 font-bold">Incluye</h4><ul class="mt-3 space-y-2 text-sm text-slate-700">${plan.features.map((feature) => `<li>${escapeHtml(feature)}.</li>`).join('')}</ul><a class="mt-7 whatsapp-button" href="https://wa.me/${SERVICE_WHATSAPP_NUMBER}?text=${encodeURIComponent(plan.message)}" target="_blank" rel="noopener noreferrer" aria-label="Consultar por WhatsApp sobre ${escapeHtml(plan.name)}">Consultar por WhatsApp</a></article>`).join('')}</div><p class="mt-5 text-sm text-slate-600">Los plazos se cuentan desde que ForgeLock recibe los materiales esenciales.</p>`;
     },
 
     update(serviceId) {
@@ -62,6 +62,8 @@ export const ServicePageView = {
 
         this.renderCatalog(serviceId);
         this.renderLandingPricing();
+        const heroText = document.querySelector('#servicios-hero-text');
+        if (heroText) heroText.textContent = `${service.heroText} Consulta la información disponible y contacta a ForgeLock.`;
         const panel = document.querySelector('#detalle-servicio');
         panel.setAttribute('aria-labelledby', 'detalle-titulo');
         panel.dataset.service = service.id;

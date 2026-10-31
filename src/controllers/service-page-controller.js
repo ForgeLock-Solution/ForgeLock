@@ -4,10 +4,12 @@ import { ServicePageView } from '../views/service-page-view.js';
 export const ServicePageController = {
     init() {
         const requestedService = new URLSearchParams(window.location.search).get('servicio');
-        const initialService = SERVICE_BY_ID[requestedService] ? requestedService : 'landing';
+        const initialService = SERVICE_BY_ID[requestedService] ? requestedService : null;
         ServicePageView.renderCatalog(initialService);
-        ServicePageView.update(initialService);
+        if (initialService) ServicePageView.update(initialService);
     }
 };
 
-document.addEventListener('DOMContentLoaded', () => ServicePageController.init());
+if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', () => ServicePageController.init());
+}
