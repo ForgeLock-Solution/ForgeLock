@@ -77,14 +77,16 @@ async function checkVariant(target) {
     assert.ok(JSON.stringify(jsonLd).includes(canonicalBase));
     const otherBase = target === 'cloudflare' ? bases['github-pages'] : bases.cloudflare;
     assert.equal(html.includes(otherBase), false);
-    assert.doesNotMatch(html, /<meta\s+name=["']robots["'][^>]*\bnoindex\b/i);
+    if (target === 'cloudflare') assert.match(html, /<meta\s+name=["']robots["'][^>]*\bnoindex\b/i);
+    else assert.doesNotMatch(html, /<meta\s+name=["']robots["'][^>]*\bnoindex\b/i);
   }
 
   const robots = await readFile(join(distDirs[target], 'robots.txt'), 'utf8');
-  assert.ok(robots.includes(`Sitemap: ${canonicalBase}sitemap.xml`));
+  if (target === 'cloudflare') assert.doesNotMatch(robots, /^Sitemap:/im);
+  else assert.ok(robots.includes(`Sitemap: ${canonicalBase}sitemap.xml`));
   const sitemap = new JSDOM(await readFile(join(distDirs[target], 'sitemap.xml'), 'utf8'), { contentType: 'application/xml' }).window.document;
   const urls = [...sitemap.getElementsByTagNameNS('*', 'loc')].map((node) => node.textContent.trim());
-  assert.deepEqual(urls, [canonicalBase, `${canonicalBase}${target === 'cloudflare' ? 'servicios' : 'servicios.html'}`]);
+  assert.deepEqual(urls, target === 'cloudflare' ? [] : [canonicalBase, `${canonicalBase}servicios.html`]);
   assert.equal(new Set(urls).size, urls.length);
   assert.ok(urls.every((url) => url.startsWith(base)));
 
