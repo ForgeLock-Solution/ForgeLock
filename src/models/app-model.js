@@ -2,7 +2,7 @@
  * MODELO: única fuente de datos de la landing.
  * No debe consultar el DOM ni registrar eventos; solo conserva estado y contenido.
  */
-import { SERVICE_CATALOG } from './service-catalog.js';
+import { SERVICE_CATALOG, serviceQueryUrl } from './service-catalog.js';
 
 export const AppModel = {
     // Estado que cambia como resultado de las acciones del usuario.
@@ -29,6 +29,7 @@ export const AppModel = {
         return SERVICE_CATALOG.filter((service) => service.homepageFeature).map((service) => ({
             ...service,
             ...service.homepageFeature,
+            detailsUrl: serviceQueryUrl(service),
             whatsappText: service.message
         }));
     },

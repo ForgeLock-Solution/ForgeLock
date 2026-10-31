@@ -33,7 +33,34 @@ export const AppView = {
     /** Carrusel de soluciones; recibe su elemento activo desde el Modelo. */
     renderSolutions() {
         const active = AppModel.featuredSolutions[AppModel.state.activeBannerIndex];
-        document.querySelector('#solutions-carousel-container').innerHTML = `<div id="soluciones" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="text-center max-w-3xl mx-auto mb-12 space-y-4"><span class="text-brand-700 text-xs uppercase tracking-widest font-bold">Servicios ForgeLock</span><h2 class="text-3xl sm:text-4xl font-bold text-slate-900">Opciones para presentar tu negocio</h2><p class="text-slate-500">Conoce nuestras landing pages, catálogos digitales y servicios de branding o diseño digital.</p></div><div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">${AppModel.featuredSolutions.map((solution, index) => `<button data-banner="${index}" aria-pressed="${index === AppModel.state.activeBannerIndex}" class="solution-card-transition p-4 rounded-2xl text-left border ${index === AppModel.state.activeBannerIndex ? 'bg-white border-brand-500/60' : 'bg-slate-50 border-slate-200 hover:border-slate-700 hover:bg-slate-50'}"><i class="${solution.icon} text-brand-700 text-xl"></i><span class="block mt-3 text-sm font-semibold text-slate-900">${solution.title}</span></button>`).join('')}</div><div class="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-200 rounded-3xl p-6 sm:p-10"><div class="grid lg:grid-cols-12 gap-8 items-center"><div class="lg:col-span-7 space-y-5"><span class="inline-flex px-3 py-1 rounded-full ${badgeClasses[active.tone]} border text-xs font-semibold">${active.tag}</span><h3 class="text-2xl sm:text-3xl font-bold text-slate-900">${active.title}</h3><p class="text-slate-600 text-lg leading-relaxed">${active.description}</p><div class="grid sm:grid-cols-2 gap-3">${active.highlights.map((item) => `<div class="text-sm text-slate-600 bg-white px-3 py-2 rounded-xl border border-slate-200"><i class="fa-solid fa-check text-brand-500 mr-2"></i>${item}</div>`).join('')}</div><a href="${whatsappUrl(active.whatsappText)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-brand-500 text-slate-950 font-bold"><i class="fa-brands fa-whatsapp text-lg"></i>Consultar por WhatsApp</a></div><div class="lg:col-span-5 bg-slate-50 p-6 rounded-2xl border border-slate-200 min-h-[240px] flex flex-col justify-center"><i class="${active.icon} text-brand-700 text-5xl mb-5"></i><h4 class="text-slate-900 font-bold">¿Te interesa esto?</h4><p class="text-sm text-slate-500 mt-2">Conversemos por WhatsApp.</p></div></div></div></div>`;
+        document.querySelector('#solutions-carousel-container').innerHTML = `<div id="soluciones" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="text-center max-w-3xl mx-auto mb-12 space-y-4">
+            <span class="text-brand-700 text-xs uppercase tracking-widest font-bold">Soluciones ForgeLock</span>
+            <h2 class="text-3xl sm:text-4xl font-bold text-slate-900">Soluciones digitales para el día a día de tu negocio</h2>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 mb-8" role="group" aria-label="Soluciones destacadas">
+            ${AppModel.featuredSolutions.map((solution, index) => `<button type="button" data-banner="${index}" aria-pressed="${index === AppModel.state.activeBannerIndex}" aria-controls="solution-panel" class="solution-card-transition p-4 rounded-2xl text-left border ${index === AppModel.state.activeBannerIndex ? 'bg-white border-brand-500/60' : 'bg-slate-50 border-slate-200 hover:border-slate-700 hover:bg-slate-50'} focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-emerald-700"><i class="${solution.icon} text-brand-700 text-xl" aria-hidden="true"></i><span class="block mt-3 text-sm font-semibold text-slate-900">${solution.title}</span></button>`).join('')}
+          </div>
+          <div id="solution-panel" aria-live="polite" aria-atomic="true" class="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-200 rounded-3xl p-6 sm:p-10">
+            <div class="grid lg:grid-cols-12 gap-8 items-center">
+              <div class="lg:col-span-7 space-y-5">
+                <span class="inline-flex px-3 py-1 rounded-full ${badgeClasses[active.tone]} border text-xs font-semibold">${active.tag}</span>
+                <h3 class="text-2xl sm:text-3xl font-bold text-slate-900">${active.title}</h3>
+                <p class="text-slate-600 text-lg leading-relaxed">${active.heroText}</p>
+                ${active.highlights.length ? `<div data-solution-highlights class="grid sm:grid-cols-2 gap-3">${active.highlights.map((item) => `<div class="text-sm text-slate-600 bg-white px-3 py-2 rounded-xl border border-slate-200"><i class="fa-solid fa-check text-brand-500 mr-2" aria-hidden="true"></i>${item}</div>`).join('')}</div>` : ''}
+                <div class="flex flex-col sm:flex-row gap-3">
+                  <a href="${whatsappUrl(active.whatsappText)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-brand-500 text-slate-950 font-bold focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-emerald-700"><i class="fa-brands fa-whatsapp text-lg" aria-hidden="true"></i>Quiero esta solución</a>
+                  <a href="${active.detailsUrl}" class="inline-flex items-center justify-center px-6 py-3.5 rounded-xl border border-slate-300 text-slate-900 font-semibold underline decoration-brand-500 underline-offset-4 focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-emerald-700">Conocer ${active.name}</a>
+                </div>
+              </div>
+              <div class="lg:col-span-5 bg-slate-50 p-6 rounded-2xl border border-slate-200 min-h-[240px] flex flex-col justify-center">
+                <i class="${active.icon} text-brand-700 text-5xl mb-5" aria-hidden="true"></i>
+                <h4 class="text-slate-900 font-bold">¿Te interesa esto?</h4>
+                <p class="text-sm text-slate-500 mt-2">Conversemos por WhatsApp.</p>
+              </div>
+            </div>
+          </div>
+        </div>`;
     },
 
     renderNeedFinder() {
