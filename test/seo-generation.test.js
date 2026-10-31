@@ -53,14 +53,14 @@ function parseSitemap(xml) {
   return document;
 }
 
-test('cada destino genera sus señales SEO con su propia URL canónica', () => {
+test('ambos destinos conservan las señales canónicas de GitHub Pages', () => {
   const pages = getSeoConfig({});
   const worker = getSeoConfig({ SEO_TARGET: 'cloudflare' });
   assert.equal(pages.indexable, true);
   assert.equal(worker.indexable, false);
   assert.equal(worker.baseUrl.href, 'https://forgelock.forge-look19.workers.dev/');
-  assert.equal(worker.canonicalBaseUrl.href, 'https://forgelock.forge-look19.workers.dev/');
-  assert.equal(worker.canonicalTarget, 'cloudflare');
+  assert.equal(worker.canonicalBaseUrl.href, 'https://forgelock-solution.github.io/ForgeLock/');
+  assert.equal(worker.canonicalTarget, 'github-pages');
   assert.throws(() => getSeoConfig({ SEO_TARGET: 'cloudflare', INDEXABLE: 'true' }), /Cloudflare se mantiene noindex/);
   assert.throws(() => getSeoConfig({ SEO_TRANSITION: 'cloudflare' }), /Migración canónica deshabilitada/);
 });
@@ -70,7 +70,7 @@ test('el Worker se mantiene noindex y rechaza una base no configurada', async ()
     const original = await addPage('index.html');
     const result = await generateSeo({ root, dist, env: { SEO_TARGET: 'cloudflare' } });
     assert.equal(result.pageCount, 0);
-    assert.match(await readFile(join(dist, 'index.html'), 'utf8'), /canonical" href="https:\/\/forgelock\.forge-look19\.workers\.dev\//);
+    assert.match(await readFile(join(dist, 'index.html'), 'utf8'), /canonical" href="https:\/\/forgelock-solution\.github\.io\/ForgeLock\//);
     assert.match(await readFile(join(dist, 'index.html'), 'utf8'), /name="robots" content="noindex,follow"/);
     assert.doesNotMatch(result.sitemap, /<loc>/);
     assert.doesNotMatch(result.robots, /Sitemap:/);

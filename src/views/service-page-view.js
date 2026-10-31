@@ -26,8 +26,8 @@ export const ServicePageView = {
                         '@type': 'Service',
                         name: service.name,
                         description: service.description,
-                        image: `https://forgelock.forge-look19.workers.dev/${service.image.slice(2)}`,
-                        provider: { '@id': 'https://forgelock.forge-look19.workers.dev/#organization' }
+                        image: `https://forgelock-solution.github.io/ForgeLock/${service.image.slice(2)}`,
+                        provider: { '@id': 'https://forgelock-solution.github.io/ForgeLock/#organization' }
                     }
                 };
                 if (service.pricing?.length) {
