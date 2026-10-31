@@ -7,7 +7,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
-const forbiddenPublicCopy = [/24\s*\/\s*7/i, /en segundos/i, /garantizado/i];
+const forbiddenPublicCopy = [/24\s*\/\s*7/i, /en segundos/i, /garantizado/i, /\bbots?\s+inteligentes\b/i];
 
 async function listFiles(directory) {
   const files = [];
