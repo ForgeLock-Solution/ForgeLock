@@ -95,7 +95,7 @@ test('las tarjetas de portada y servicios usan el catálogo y enlazan al detalle
         }
     }
     assert.equal(serviceQueryUrl(SERVICE_BY_ID['automatizacion-whatsapp']), './servicio-automatizacion-whatsapp.html');
-    assert.equal(serviceQueryUrl(SERVICE_BY_ID.landing), './servicios.html?servicio=landing#detalle-servicio');
+    assert.equal(serviceQueryUrl(SERVICE_BY_ID.landing), './servicio-landing-pages.html');
     assert.equal(home.window.document.querySelectorAll('#services-container section[aria-labelledby="servicios-principales-titulo"] [data-service-card]').length, 6);
     assert.equal(home.window.document.querySelectorAll('#services-container section[aria-labelledby="servicios-digitales-titulo"] [data-service-card]').length, 3);
     home.window.close();
@@ -152,7 +152,8 @@ test('seleccionar un servicio en servicios conserva su ruta y el punto de lectur
     let restoredPosition = null;
     window.scrollTo = (x, y) => { restoredPosition = [x, y]; };
 
-    const link = document.querySelector('[data-service-card="desarrollo-web"] a[href*="?servicio="]');
+    const link = document.querySelector('[data-service-card="desarrollo-web"] a[href$="servicio-desarrollo-web.html"]');
+    link.setAttribute('href', './servicios.html?servicio=desarrollo-web#detalle-servicio');
     const click = new window.MouseEvent('click', { bubbles: true, cancelable: true, button: 0 });
     link.dispatchEvent(click);
 

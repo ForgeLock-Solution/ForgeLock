@@ -2,7 +2,7 @@
 import { readFile, readdir, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join, resolve, relative, isAbsolute } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { JSDOM } from 'jsdom';
 import {
   comparePublicHtmlFiles,
@@ -29,7 +29,12 @@ try {
 }
 const { target, baseUrl, canonicalBaseUrl, canonicalTarget, indexable } = config;
 const errors = [];
-const expectedPages = ['index.html', 'servicios.html'];
+const serviceCatalogPath = join(root, 'src', 'models', 'service-catalog.js');
+const SERVICE_CATALOG = existsSync(serviceCatalogPath)
+  ? (await import(pathToFileURL(serviceCatalogPath).href)).SERVICE_CATALOG
+  : [];
+const serviceFichePaths = SERVICE_CATALOG.map((service) => service.fichePath);
+const expectedPages = ['index.html', 'servicios.html', ...serviceFichePaths];
 const legalPages = ['aviso-legal.html', 'politica-privacidad.html', 'politica-cookies.html'];
 const sourceVerificationValues = getGoogleVerificationValues(await readFile(join(root, 'index.html'), 'utf8'));
 const verificationToken = sourceVerificationValues[0];
@@ -89,11 +94,12 @@ try {
 } catch (error) {
   fail(error.message);
 }
-const pageInventory = comparePublicHtmlFiles(sourceHtmlFiles, distHtmlFiles);
+const pageInventory = comparePublicHtmlFiles([...sourceHtmlFiles, ...serviceFichePaths], distHtmlFiles);
 for (const file of pageInventory.missing) fail(`Página pública del origen ausente en dist/: ${file}`);
 for (const file of pageInventory.unexpected) fail(`Página HTML en dist/ sin página pública correspondiente en origen: ${file}`);
 for (const file of artifactFiles) {
   if (/(^|\/)\.env(?:\.|$)/i.test(file) || /(^|\/)supabase-config\.js$/i.test(file)) fail(`Archivo de configuración privada incluido en dist/: ${file}`);
+  if (/(^|\/)internal-data(\/|$)/i.test(file) || /(^|\/)pending-offers\.json$/i.test(file)) fail(`Datos internos incluidos en dist/: ${file}`);
 }
 for (const file of requiredFiles) {
   const path = join(dist, file);
@@ -122,23 +128,28 @@ if (manifest) {
 let verificationCount = 0;
 for (const file of artifactFiles.filter((entry) => entry.endsWith('.html'))) {
   const html = await readFile(join(dist, file), 'utf8');
+  if (/Nota de revisión|Antes de publicar|deben verificarse/i.test(html)) fail(`Nota editorial sin retirar en dist/${file}.`);
   const canonical = [...html.matchAll(/<link\b(?=[^>]*\brel=["']canonical["'])[^>]*\bhref=["']([^"']+)["'][^>]*>/gi)];
   if (!indexable && !/<meta\s+name=["']robots["'][^>]*\bnoindex\b/i.test(html)) fail(`dist/${file} debe llevar noindex cuando INDEXABLE=false.`);
   if (expectedPages.includes(file)) {
     const expectedCanonical = getPageUrl(file, canonicalBaseUrl, canonicalTarget);
     if (canonical.length !== 1) fail(`dist/${file} debe tener exactamente un canonical; encontrados: ${canonical.length}.`);
     else if (canonical[0][1] !== expectedCanonical) fail(`Canonical incorrecto en dist/${file}: ${canonical[0][1]}; esperado ${expectedCanonical}.`);
+    const serviceFiche = SERVICE_CATALOG.find((service) => service.fichePath === file);
+    const shareImage = serviceFiche
+      ? new URL(serviceFiche.image.slice(2), canonicalBaseUrl).href
+      : `${canonicalBaseUrl.href}resource/forgelock-social-preview.png`;
     const expectedMeta = [
       ['property', 'og:url', expectedCanonical],
-      ['property', 'og:image', `${canonicalBaseUrl.href}resource/forgelock-social-preview.png`],
-      ['name', 'twitter:image', `${canonicalBaseUrl.href}resource/forgelock-social-preview.png`]
+      ['property', 'og:image', shareImage],
+      ['name', 'twitter:image', shareImage]
     ];
     for (const [attribute, value, expected] of expectedMeta) {
       const tags = metaValues(html, attribute, value);
       if (tags.length !== 1) fail(`dist/${file} debe tener exactamente un meta ${value}.`);
       else if (tags[0][0].match(/\bcontent=["']([^"']+)["']/i)?.[1] !== expected) fail(`El meta ${value} de dist/${file} no coincide con ${target}.`);
     }
-    if (!html.includes(`content="${expectedCanonical}"`) || !html.includes(`content="${canonicalBaseUrl.href}resource/forgelock-social-preview.png"`)) {
+    if (!html.includes(`content="${expectedCanonical}"`) || !html.includes(`content="${shareImage}"`)) {
       fail(`Metadatos Open Graph/Twitter no coinciden con el destino ${target} en dist/${file}.`);
     }
     for (const attribute of ['property', 'name']) {

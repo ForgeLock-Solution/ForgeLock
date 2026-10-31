@@ -101,6 +101,14 @@ test('Workers Static Assets sirve las rutas SEO locales con señales coherentes'
     '/politica-privacidad', '/politica-privacidad.html',
     '/politica-cookies', '/politica-cookies.html',
     '/servicio-automatizacion-whatsapp', '/servicio-automatizacion-whatsapp.html',
+    '/servicio-desarrollo-web', '/servicio-desarrollo-web.html',
+    '/servicio-sistemas-empresariales', '/servicio-sistemas-empresariales.html',
+    '/servicio-automatizacion-procesos', '/servicio-automatizacion-procesos.html',
+    '/servicio-integraciones', '/servicio-integraciones.html',
+    '/servicio-soluciones-personalizadas', '/servicio-soluciones-personalizadas.html',
+    '/servicio-landing-pages', '/servicio-landing-pages.html',
+    '/servicio-catalogos-digitales', '/servicio-catalogos-digitales.html',
+    '/servicio-branding-diseno-digital', '/servicio-branding-diseno-digital.html',
     '/ejemplos/cafe-aurora', '/ejemplos/casa-verde', '/ejemplos/mercado-marea', '/ejemplos/estudio-norte'
   ];
   const records = [];
@@ -117,7 +125,8 @@ test('Workers Static Assets sirve las rutas SEO locales con señales coherentes'
     const finalUrl = new URL(finalResponse.url);
     const body = await finalResponse.text();
     const document = finalUrl.pathname.endsWith('.html') || finalUrl.pathname === '/' ||
-      ['/servicios', '/servicio-automatizacion-whatsapp', '/aviso-legal', '/politica-privacidad', '/politica-cookies'].includes(finalUrl.pathname) ||
+      ['/servicios', '/aviso-legal', '/politica-privacidad', '/politica-cookies'].includes(finalUrl.pathname) ||
+      finalUrl.pathname.startsWith('/servicio-') ||
       finalUrl.pathname.startsWith('/ejemplos/')
       ? new JSDOM(body, { url: finalUrl.href }).window.document
       : null;

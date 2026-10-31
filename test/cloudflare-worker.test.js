@@ -11,7 +11,7 @@ test('Cloudflare redirige por HTTP la ficha piloto desde la URL histórica con q
     }
 });
 
-test('Cloudflare conserva el listado para servicios que aún no tienen ficha estática', async () => {
+test('Cloudflare conserva la selección por query como ruta de compatibilidad', async () => {
     let requestedUrl = '';
     const request = new Request('https://forgelock.forge-look19.workers.dev/servicios?servicio=branding');
     const response = await worker.fetch(request, {
