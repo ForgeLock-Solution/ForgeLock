@@ -14,7 +14,7 @@
   Cache-Control: public, max-age=86400
 
 /src/*
-  Cache-Control: public, max-age=86400
+  Cache-Control: no-cache
 
 /*.png
   Cache-Control: public, max-age=86400
