@@ -26,7 +26,7 @@ export const SERVICE_CATALOG = Object.freeze([
     },
     {
         id: 'automatizacion-procesos', slug: 'automatizacion-procesos', name: 'Automatización de Procesos', group: 'featured',
-        description: 'Reducimos tareas repetitivas conectando tus herramientas.',
+        description: 'Conectamos tus herramientas para apoyar las tareas repetitivas.',
         image: './resource/service/automatizacion-procesos.webp', imageAlt: 'Ilustración para automatización de procesos', icon: 'fa-solid fa-gears',
         detailInfo: 'Cotiza según tu necesidad.', pricing: null, pricingLabel: 'Cotiza según tu necesidad',
         message: 'Hola, quiero información sobre Automatización de Procesos para mi negocio.',

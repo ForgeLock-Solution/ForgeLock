@@ -35,7 +35,7 @@ export const AppModel = {
     get services() { return SERVICE_CATALOG; },
     workflow: [
         ['01', 'Cuéntanos', 'Nos explicas qué necesitas o qué problema te quita tiempo.'],
-        ['02', 'Analizamos', 'Buscamos la solución tecnológica más adecuada para tu caso.'],
+        ['02', 'Analizamos', 'Analizamos qué solución tecnológica puede ajustarse a tu caso.'],
         ['03', 'Proponemos', 'Presentamos alcance, tiempos estimados y costos transparentes.'],
         ['04', 'Desarrollamos', 'Construimos, probamos y entregamos una solución lista.']
     ]

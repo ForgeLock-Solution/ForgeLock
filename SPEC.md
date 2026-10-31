@@ -2,7 +2,7 @@
 **Actualizado:** 2026-10-30 · **Estado:** documento de trabajo, no autorización de despliegue.
 
 ## 1. Propósito
-ForgeLock ayuda a emprendedores, profesionales y pequeños negocios colombianos a transformar su presencia digital en consultas, conversaciones, cotizaciones y ventas mediante páginas web, landing pages, catálogos, branding y diseño digital.
+ForgeLock ayuda a emprendedores, profesionales y pequeños negocios colombianos a presentar su negocio y facilitar el contacto y la consulta de servicios mediante páginas web, landing pages, catálogos, branding y diseño digital.
 **Frase de marca:** «ForgeLock transforma ideas y negocios en experiencias digitales que destacan».
 **KPI comercial principal:** conversaciones y solicitudes de cotización cualificadas desde WhatsApp; seguidores no son un KPI final.
 **Nombre público:** ForgeLock (no ForgeLook ni ForgeLock Solution).
