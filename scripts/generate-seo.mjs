@@ -54,7 +54,10 @@ export async function generateSeo({
 } = {}) {
   const config = getSeoConfig(env);
   const target = config.target;
-  const indexable = requestedIndexable ?? config.indexable;
+  if (target === 'cloudflare' && requestedIndexable === true) {
+    throw new Error('Cloudflare se mantiene noindex con sitemap vacío; no se puede solicitar indexación.');
+  }
+  const indexable = target === 'cloudflare' ? false : (requestedIndexable ?? config.indexable);
   const baseUrl = normalizeBaseUrl(baseUrlValue || config.baseUrl.href || DEFAULT_BASE_URL);
   if (baseUrl.href !== config.baseUrl.href) throw new Error('baseUrl no coincide con el destino SEO configurado.');
   const { canonicalBaseUrl, canonicalTarget } = config;
