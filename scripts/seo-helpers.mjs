@@ -63,13 +63,16 @@ export function getSeoConfig(env = process.env) {
   }
 
   const transition = getSeoTransition(env);
+  if (target === 'cloudflare' && env.INDEXABLE === 'true') {
+    throw new Error('Cloudflare se mantiene noindex con sitemap vacío; INDEXABLE=true no está permitido.');
+  }
   return {
     target,
     transition,
     baseUrl: new URL(expectedBaseUrl),
     canonicalBaseUrl: new URL(expectedBaseUrl),
     canonicalTarget: target,
-    indexable: env.INDEXABLE !== 'false'
+    indexable: target === 'cloudflare' ? false : env.INDEXABLE !== 'false'
   };
 }
 
