@@ -14,7 +14,7 @@ function readConfigValue(config, key) {
   return matches[0]?.[1];
 }
 
-export function createDeploymentConfig(sourceConfig) {
+export function createDeploymentConfig(sourceConfig, root = projectRoot) {
   const topLevel = sourceConfig.split(/^\s*\[/m)[0];
   const accountId = readConfigValue(topLevel, 'account_id');
   if (!accountId || !/^[a-f0-9]{32}$/i.test(accountId)) {
@@ -23,6 +23,9 @@ export function createDeploymentConfig(sourceConfig) {
   if (readConfigValue(topLevel, 'name') !== 'forgelock') {
     throw new Error('Destino rechazado: wrangler.toml debe declarar el Worker forgelock.');
   }
+  if (readConfigValue(topLevel, 'main') !== 'src/platform/cloudflare-worker.js') {
+    throw new Error('Destino rechazado: wrangler.toml debe usar src/platform/cloudflare-worker.js.');
+  }
   if (!readConfigValue(topLevel, 'compatibility_date')) throw new Error('wrangler.toml debe fijar compatibility_date.');
   const assets = [...sourceConfig.matchAll(/(^\[assets\][^\S\r\n]*(?:#.*)?\r?\n)([\s\S]*?)(?=^\s*\[|(?![\s\S]))/gm)];
   if (assets.length !== 1 ||
@@ -30,14 +33,19 @@ export function createDeploymentConfig(sourceConfig) {
       readConfigValue(assets[0][2], 'html_handling') !== 'auto-trailing-slash') {
     throw new Error('Destino rechazado: [assets] debe fijar directory=./dist-cloudflare y html_handling=auto-trailing-slash.');
   }
-  // Preserve the existing configuration; only the temporary asset path changes.
+  // The temporary config lives outside the project, so keep the Worker entrypoint anchored to the project.
   const isolatedAssets = assets[0][0].replace(/^(\s*directory\s*=\s*)["'][^"'\r\n]+["']/m, '$1"./assets"');
-  return sourceConfig.replace(assets[0][0], isolatedAssets);
+  const isolatedConfig = sourceConfig.replace(assets[0][0], isolatedAssets);
+  const entrypoint = resolve(root, 'src/platform/cloudflare-worker.js').replaceAll('\\', '/');
+  return isolatedConfig.replace(/^(\s*main\s*=\s*)["'][^"'\r\n]+["']/m, `$1"${entrypoint}"`);
 }
 
 export async function deployCloudflare({ root = projectRoot, env = process.env, run = spawnSync } = {}) {
   const sourceConfig = await readFile(join(root, 'wrangler.toml'), 'utf8');
-  const isolatedConfig = createDeploymentConfig(sourceConfig);
+  const isolatedConfig = createDeploymentConfig(sourceConfig, root);
+  if (!existsSync(join(root, 'src', 'platform', 'cloudflare-worker.js'))) {
+    throw new Error('No existe el entrypoint del Worker src/platform/cloudflare-worker.js.');
+  }
   if (Number(process.versions.node.split('.')[0]) < 22) throw new Error('Cloudflare requiere Node.js 22 o superior.');
   const wranglerCli = join(root, 'node_modules', 'wrangler', 'bin', 'wrangler.js');
   if (!existsSync(wranglerCli)) throw new Error('Wrangler local no está instalado. Ejecuta npm ci antes del preflight.');
