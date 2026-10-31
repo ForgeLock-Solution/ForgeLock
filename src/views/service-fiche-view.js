@@ -4,7 +4,7 @@ import { escapeHtml } from './html-helpers.js';
 const PAGES_BASE = 'https://forgelock-solution.github.io/ForgeLock/';
 
 export function renderServiceFiche(service) {
-    if (!service?.fichePath || !service.ficheTitle || !service.ficheMetaDescription) {
+    if (!service?.fichePath || !service.ficheTitle || !service.ficheMetaDescription || !service.pricingLabel) {
         throw new Error('El servicio requiere una ruta, título y meta descripción aprobados para generar su ficha.');
     }
     const title = escapeHtml(service.ficheTitle);
@@ -13,6 +13,7 @@ export function renderServiceFiche(service) {
     const body = escapeHtml(service.ficheLongDescription || service.description);
     const image = escapeHtml(service.image);
     const imageAlt = escapeHtml(service.imageAlt);
+    const price = escapeHtml(service.pricingLabel);
     const canonical = escapeHtml(new URL(service.fichePath, PAGES_BASE).href);
     const related = service.relatedIds.map((id) => {
         const relatedService = getRelatedService(id);
@@ -79,20 +80,24 @@ export function renderServiceFiche(service) {
     </div>
   </header>
   <main id="contenido" class="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-2 lg:items-center lg:px-8">
-    <article aria-labelledby="ficha-titulo">
+    <figure class="overflow-hidden rounded-3xl border border-slate-200 bg-white p-4 shadow-lg sm:p-7 lg:col-start-2 lg:row-start-1">
+      <img class="aspect-[3/2] w-full rounded-2xl object-cover" src="${image}" alt="${imageAlt}" width="1200" height="800" fetchpriority="high">
+      <figcaption class="mt-4 text-center text-sm text-slate-600">${name}</figcaption>
+    </figure>
+    <article aria-labelledby="ficha-titulo" class="lg:col-start-1 lg:row-start-1">
       <p class="font-bold uppercase tracking-widest text-emerald-800">Servicio ForgeLock</p>
       <h1 id="ficha-titulo" class="mt-3 text-4xl font-black leading-tight sm:text-5xl">${name}</h1>
       <p class="mt-5 max-w-2xl text-lg leading-relaxed text-slate-700">${body}</p>
-      <a class="whatsapp-button mt-7" href="https://wa.me/${SERVICE_WHATSAPP_NUMBER}?text=${whatsappText}" target="_blank" rel="noopener noreferrer" aria-label="Consultar por WhatsApp sobre ${name}">Consultar por WhatsApp</a>
+      <section class="mt-8" aria-labelledby="ficha-precio-titulo">
+        <h2 id="ficha-precio-titulo" class="text-lg font-bold">Precio</h2>
+        <p class="mt-2 text-slate-700">${price}</p>
+      </section>
+      <a class="whatsapp-button mt-5" href="https://wa.me/${SERVICE_WHATSAPP_NUMBER}?text=${whatsappText}" target="_blank" rel="noopener noreferrer" aria-label="Consultar por WhatsApp sobre ${name}">Consultar por WhatsApp</a>
       <section class="mt-10" aria-labelledby="servicios-relacionados-titulo">
         <h2 id="servicios-relacionados-titulo" class="text-lg font-bold">Servicios relacionados</h2>
         <ul class="mt-3 flex flex-wrap gap-2">${related}</ul>
       </section>
     </article>
-    <figure class="overflow-hidden rounded-3xl border border-slate-200 bg-white p-4 shadow-lg sm:p-7">
-      <img class="aspect-[3/2] w-full rounded-2xl object-cover" src="${image}" alt="${imageAlt}" width="1200" height="800" fetchpriority="high">
-      <figcaption class="mt-4 text-center text-sm text-slate-600">${name}</figcaption>
-    </figure>
   </main>
   <footer class="border-t border-slate-200 bg-white">
     <div class="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-6 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">

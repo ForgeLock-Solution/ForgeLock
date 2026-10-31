@@ -8,7 +8,7 @@ export const SERVICE_CATALOG = Object.freeze([
         ficheTitle: 'Automatización de WhatsApp para negocios | ForgeLock',
         ficheMetaDescription: 'Bots para atención automática y registro de información.',
         ficheLongDescription: 'Una solución para atender conversaciones por WhatsApp de forma automática y registrar la información que comparten las personas. El alcance se define según las necesidades de atención de cada negocio.',
-        image: './resource/service/automatizacion-whatsapp.webp', imageAlt: 'Ilustración de un teléfono con burbujas de conversación junto a un robot asistente y un símbolo de verificación.', icon: 'fa-brands fa-whatsapp',
+        image: './resource/service/automatizacion-whatsapp.webp', imageAlt: 'Dos personas conversan en un taller con un teléfono sobre la mesa.', icon: 'fa-brands fa-whatsapp',
         detailInfo: 'Cotiza según tu necesidad.', pricing: null, pricingLabel: 'Cotiza según tu necesidad',
         message: 'Hola, quiero información sobre Automatización de WhatsApp para mi negocio.',
         relatedIds: ['automatizacion-procesos', 'integraciones'],

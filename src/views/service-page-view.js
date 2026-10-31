@@ -60,8 +60,14 @@ export const ServicePageView = {
         const service = SERVICE_BY_ID[serviceId];
         if (!service) return false;
 
-        this.renderCatalog(serviceId);
+        if (!document.querySelector('#services-catalogue-container [data-service-card]')) this.renderCatalog(service.id);
         this.renderLandingPricing();
+        document.querySelectorAll('#services-catalogue-container a[aria-current="page"]').forEach((link) => link.removeAttribute('aria-current'));
+        const selectedCard = [...document.querySelectorAll('#services-catalogue-container [data-service-card]')]
+            .find((card) => card.dataset.serviceCard === service.id);
+        [...(selectedCard?.querySelectorAll('a') || [])]
+            .find((link) => link.textContent.trim().startsWith('Conocer '))
+            ?.setAttribute('aria-current', 'page');
         const heroText = document.querySelector('#servicios-hero-text');
         if (heroText) heroText.textContent = `${service.heroText} Consulta la información disponible y contacta a ForgeLock.`;
         const panel = document.querySelector('#detalle-servicio');

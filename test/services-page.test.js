@@ -145,6 +145,28 @@ test('servicios.html conserva la selección directa por query sin redirigir', ()
     dom.window.close();
 });
 
+test('seleccionar un servicio en servicios conserva su ruta y el punto de lectura', () => {
+    const dom = createServiceDom('https://example.test/servicios.html');
+    ServicePageController.init();
+    Object.defineProperty(window, 'scrollY', { configurable: true, value: 480 });
+    let restoredPosition = null;
+    window.scrollTo = (x, y) => { restoredPosition = [x, y]; };
+
+    const link = document.querySelector('[data-service-card="desarrollo-web"] a[href*="?servicio="]');
+    const click = new window.MouseEvent('click', { bubbles: true, cancelable: true, button: 0 });
+    link.dispatchEvent(click);
+
+    assert.equal(click.defaultPrevented, true);
+    assert.equal(window.location.pathname, '/servicios.html');
+    assert.equal(window.location.search, '?servicio=desarrollo-web');
+    assert.equal(window.location.hash, '#detalle-servicio');
+    assert.equal(window.scrollY, 480);
+    assert.deepEqual(restoredPosition, [0, 480]);
+    assert.equal(document.querySelector('#detalle-servicio').dataset.service, 'desarrollo-web');
+    assert.equal(document.querySelector('[data-service-card="desarrollo-web"] a[aria-current="page"]')?.textContent.trim(), 'Conocer Desarrollo Web');
+    dom.window.close();
+});
+
 test('el detalle seleccionado comunica contenido propio, CTA y estado accesible', () => {
     const dom = createServiceDom('https://example.test/servicios.html?servicio=integraciones');
     for (const service of SERVICE_CATALOG) {
