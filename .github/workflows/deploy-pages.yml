@@ -28,10 +28,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: npm
+      - name: Configurar Bun
+        uses: oven-sh/setup-bun@v2
 
       - name: Instalar dependencias
-        run: npm ci
+        run: bun install --frozen-lockfile
 
       - name: Ejecutar tests
         run: npm test
