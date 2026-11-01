@@ -1,12 +1,12 @@
 # ForgeLock
 
-Plataforma digital interactiva de ForgeLock para emprendedores y pequeños negocios en Colombia.
+Sitio web de ForgeLock para emprendedores y pequeños negocios en Colombia.
 
 ## Descripción
 
 ForgeLock presenta soluciones de landing pages, catálogos digitales, branding y diseño digital, automatización de WhatsApp, desarrollo web y sistemas empresariales. 
 
-Esta versión ha sido reescrita como una aplicación React moderna con TypeScript, Vite y Tailwind CSS, preservando toda la lógica de negocio, catálogo de servicios, cotizaciones contextuales para WhatsApp, brief digital con generador heurístico de ideas, fichas públicas de servicios y gestión de cookies y políticas legales.
+El sitio está construido con React 19, TypeScript, Vite y Tailwind CSS. Incluye un catálogo de servicios, cotizaciones contextuales por WhatsApp, un brief digital con generador heurístico de ideas, modales de fichas y páginas independientes para servicios y políticas legales.
 
 ## Tecnologías
 
@@ -28,9 +28,10 @@ Esta versión ha sido reescrita como una aplicación React moderna con TypeScrip
    - Clasificación en *Servicios principales* y *Presencia digital*.
    - Detalle interactivo de alcance y precios.
    - Planes publicados para Landing Pages: **Landing Básica** ($249.000 COP) y **Landing Profesional** ($449.000 COP).
-5. **Fichas Públicas de Servicios**: Modal detallado con información oficial, precio, imagen y enlaces a servicios relacionados.
+5. **Fichas de Servicios**: Modales con información oficial, precio, imagen y enlaces a servicios relacionados.
 6. **Flujo de Trabajo**: Los 4 pasos de desarrollo (Cuéntanos, Analizamos, Proponemos, Desarrollamos).
-7. **Políticas y Cumplimiento**: Modales para Aviso Legal, Política de Privacidad y Política de Cookies con banner de consentimiento persistente en almacenamiento local.
+7. **Políticas y Cumplimiento**: Páginas independientes para aviso legal, privacidad y cookies, además de un banner de consentimiento persistente en `forgelock_cookie_consent`.
+8. **SEO por destino**: GitHub Pages usa `/ForgeLock/`; el build secundario de Cloudflare se sirve desde `/` y mantiene `noindex`.
 
 ## Desarrollo
 
@@ -44,5 +45,9 @@ La aplicación se ejecuta en `http://localhost:3000/`.
 ## Compilación de producción
 
 ```bash
-npm run build
+npm run build:dist       # GitHub Pages: salida dist/
+npm run build:cloudflare # Cloudflare: salida dist-cloudflare/
+npm test                 # TypeScript y pruebas de catálogo, WhatsApp, SEO, consentimiento y Worker
 ```
+
+Ambos builds generan y validan los metadatos SEO, el sitemap y `robots.txt`. El build de Cloudflare incorpora `_headers` y conserva la política `noindex`. No se realizan despliegues con estos comandos.
