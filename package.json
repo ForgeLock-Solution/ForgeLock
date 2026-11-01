@@ -15,7 +15,7 @@
     "build:dist": "vite build",
     "build:cloudflare": "vite build --outDir dist-cloudflare",
     "build:dist:cloudflare": "npm run build:cloudflare",
-    "test": "tsc --noEmit"
+    "test": "tsc --noEmit && node --test"
   },
   "devDependencies": {
     "@fontsource/inter": "^5.1.1",
