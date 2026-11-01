@@ -16,13 +16,22 @@ import {
   isValidLastmod,
   normalizeBaseUrl,
   setNoindex,
-  SITEMAP_NAMESPACE
+  SITEMAP_NAMESPACE,
+  SITE_URL,
+  SEO_TARGETS
 } from './seo-helpers.mjs';
 
 const scriptPath = fileURLToPath(import.meta.url);
 const projectRoot = join(dirname(scriptPath), '..');
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 function rewriteProductionUrls(html, baseUrl) {
-  return html.replace(/https:\/\/(?:forgelock-solution\.github\.io\/ForgeLock\/|forgelock\.forge-look19\.workers\.dev\/)([^"'\s<>#]*)/g, (_match, rawPath) => {
+  const canonicalPrefix = escapeRegExp(SITE_URL);
+  const workerPrefix = escapeRegExp(SEO_TARGETS.cloudflare);
+  const productionUrl = new RegExp(`(?:${canonicalPrefix}|${workerPrefix})([^"'\\s<>#]*)`, 'g');
+  return html.replace(productionUrl, (_match, rawPath) => {
     let route = rawPath;
     if (route === 'index.html') route = '';
     if (route && !/\.[a-z0-9]+$/i.test(route)) route = `${route}.html`;
@@ -60,7 +69,7 @@ export async function generateSeo({
   const baseUrl = normalizeBaseUrl(baseUrlValue || config.baseUrl.href || DEFAULT_BASE_URL);
   if (baseUrl.href !== config.baseUrl.href) throw new Error('baseUrl no coincide con el destino SEO configurado.');
   const { canonicalBaseUrl, canonicalTarget } = config;
-  if (!existsSync(dist)) throw new Error('No existe dist/. Ejecuta scripts/create-dist.mjs primero.');
+  if (!existsSync(dist)) throw new Error(`No existe la salida ${dist}. Ejecuta el build del destino SEO primero.`);
 
   const htmlFiles = (await discoverPublicHtmlFiles(dist))
     .sort((left, right) => left === right ? 0 : left === 'index.html' ? -1 : right === 'index.html' ? 1 : left.localeCompare(right));

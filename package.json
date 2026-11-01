@@ -1,21 +1,21 @@
 {
-  "name": "forgelock-mvc",
+  "name": "forgelock-site",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Landing page de ForgeLock con arquitectura MVC en JavaScript vanilla.",
+  "description": "Sitio web de ForgeLock construido con React 19, TypeScript, Vite y Tailwind CSS.",
   "engines": {
     "node": ">=20 <25"
   },
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 3000",
-    "build": "vite build",
+    "build": "npm run build:dist",
     "preview": "vite preview --host 0.0.0.0 --port 3000",
     "lint": "tsc --noEmit",
-    "build:dist": "vite build",
-    "build:cloudflare": "vite build --outDir dist-cloudflare",
+    "build:dist": "node scripts/build-vite.mjs github-pages",
+    "build:cloudflare": "node scripts/build-vite.mjs cloudflare",
     "build:dist:cloudflare": "npm run build:cloudflare",
-    "test": "tsc --noEmit"
+    "test": "tsc --noEmit && node --test"
   },
   "devDependencies": {
     "@fontsource/inter": "^5.1.1",

@@ -3,12 +3,14 @@ import { readdir } from 'node:fs/promises';
 import { isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { tmpdir } from 'node:os';
 
+export const SITE_URL = 'https://forgelock-solution.github.io/ForgeLock/';
+
 export const SEO_TARGETS = Object.freeze({
-  'github-pages': 'https://forgelock-solution.github.io/ForgeLock/',
+  'github-pages': SITE_URL,
   cloudflare: 'https://forgelock.forge-look19.workers.dev/'
 });
 
-export const DEFAULT_BASE_URL = SEO_TARGETS['github-pages'];
+export const DEFAULT_BASE_URL = SITE_URL;
 export const SITEMAP_NAMESPACE = 'http://www.sitemaps.org/schemas/sitemap/0.9';
 export const LEGACY_GITHUB_PAGES_BASE = SEO_TARGETS['github-pages'];
 

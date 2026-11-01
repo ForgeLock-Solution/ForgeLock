@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-
-const STORAGE_KEY = 'forgelock_cookie_consent';
+import { CONSENT_CHANGE_EVENT, CONSENT_STORAGE_KEY } from '../services/analyticsConsent';
 
 interface CookieConsentProps {
   forceOpen: boolean;
@@ -17,7 +16,8 @@ export const CookieConsent: React.FC<CookieConsentProps> = ({
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
+    let saved: string | null = null;
+    try { saved = localStorage.getItem(CONSENT_STORAGE_KEY); } catch { /* Sin almacenamiento persistente, no se considera consentimiento. */ }
     if (saved === 'accepted' || saved === 'rejected') {
       setConsent(saved);
       setIsVisible(false);
@@ -33,14 +33,21 @@ export const CookieConsent: React.FC<CookieConsentProps> = ({
   }, [forceOpen]);
 
   const handleAccept = () => {
-    localStorage.setItem(STORAGE_KEY, 'accepted');
+    let persisted = false;
+    try {
+      localStorage.setItem(CONSENT_STORAGE_KEY, 'accepted');
+      persisted = localStorage.getItem(CONSENT_STORAGE_KEY) === 'accepted';
+    } catch { /* La analítica se mantiene desactivada si no se puede guardar la preferencia. */ }
+    if (!persisted) return;
+    window.dispatchEvent(new CustomEvent(CONSENT_CHANGE_EVENT, { detail: { accepted: true } }));
     setConsent('accepted');
     setIsVisible(false);
     onCloseSettings();
   };
 
   const handleReject = () => {
-    localStorage.setItem(STORAGE_KEY, 'rejected');
+    try { localStorage.setItem(CONSENT_STORAGE_KEY, 'rejected'); } catch { /* La analítica no se activa cuando no se puede guardar la preferencia. */ }
+    window.dispatchEvent(new CustomEvent(CONSENT_CHANGE_EVENT, { detail: { accepted: false } }));
     setConsent('rejected');
     setIsVisible(false);
     onCloseSettings();
