@@ -104,6 +104,16 @@ try {
   for (const item of [...urlset.children]) {
     const loc = [...item.children].find((child) => child.localName === 'loc')?.textContent?.trim();
     if (!loc) { fail('Cada URL del sitemap debe tener loc.'); continue; }
+    // Rechaza URLs fuera del proyecto, rutas relativas y entradas distintas de la canonical.
+    let parsed;
+    try { parsed = new URL(loc); }
+    catch { fail(`URL absoluta inválida en sitemap: ${loc}`); continue; }
+    if (parsed.href !== loc || parsed.origin !== canonicalBaseUrl.origin ||
+        !parsed.pathname.startsWith(canonicalBaseUrl.pathname) ||
+        parsed.search || parsed.hash || parsed.username || parsed.password) {
+      fail(`URL del sitemap fuera de la propiedad oficial de GitHub Pages: ${loc}`);
+      continue;
+    }
     if (sitemapUrls.has(loc)) fail(`URL duplicada en sitemap: ${loc}`);
     sitemapUrls.add(loc);
     const file = canonicalByUrl.get(loc);
