@@ -3,7 +3,6 @@ import { NAV_LINKS, WHATSAPP_NUMBER, getWhatsAppUrl } from '../data/services';
 
 interface NavbarProps {
   onSelectService?: (id: string | null) => void;
-  onOpenLegal?: (page: 'aviso-legal' | 'politica-privacidad' | 'politica-cookies') => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ onSelectService }) => {

@@ -51,7 +51,6 @@ export const App: React.FC = () => {
             setSelectedService(null);
           }
         }}
-        onOpenLegal={(doc) => setActiveLegal(doc)}
       />
 
       {/* Main Content Sections */}
@@ -81,7 +80,6 @@ export const App: React.FC = () => {
 
       {/* Footer */}
       <Footer
-        onOpenLegal={(doc) => setActiveLegal(doc)}
         onOpenCookieSettings={() => setCookieSettingsOpen(true)}
       />
 

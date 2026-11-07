@@ -2,11 +2,10 @@ import React from 'react';
 import { NAV_LINKS, SOCIAL_LINKS, WHATSAPP_NUMBER, getWhatsAppUrl } from '../data/services';
 
 interface FooterProps {
-  onOpenLegal: (page: 'aviso-legal' | 'politica-privacidad' | 'politica-cookies') => void;
   onOpenCookieSettings: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onOpenLegal, onOpenCookieSettings }) => {
+export const Footer: React.FC<FooterProps> = ({ onOpenCookieSettings }) => {
   const whatsappFooterText = 'Hola, quiero información sobre landing pages, catálogos digitales o branding de ForgeLock.';
 
   const handleLinkClick = (href: string) => {
@@ -108,27 +107,24 @@ export const Footer: React.FC<FooterProps> = ({ onOpenLegal, onOpenCookieSetting
         {/* Legal & Cookie links */}
         <div className="mt-8 flex flex-wrap items-center justify-between gap-4 text-xs">
           <div className="flex flex-wrap gap-x-6 gap-y-2">
-            <button
-              type="button"
-              onClick={() => onOpenLegal('aviso-legal')}
+            <a
+              href="./aviso-legal.html"
               className="hover:text-brand-700 underline text-slate-600 cursor-pointer"
             >
               Aviso legal
-            </button>
-            <button
-              type="button"
-              onClick={() => onOpenLegal('politica-privacidad')}
+            </a>
+            <a
+              href="./politica-privacidad.html"
               className="hover:text-brand-700 underline text-slate-600 cursor-pointer"
             >
               Privacidad
-            </button>
-            <button
-              type="button"
-              onClick={() => onOpenLegal('politica-cookies')}
+            </a>
+            <a
+              href="./politica-cookies.html"
               className="hover:text-brand-700 underline text-slate-600 cursor-pointer"
             >
               Cookies
-            </button>
+            </a>
             <button
               type="button"
               onClick={onOpenCookieSettings}

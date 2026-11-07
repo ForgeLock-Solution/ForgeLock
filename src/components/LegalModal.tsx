@@ -1,5 +1,6 @@
 import React from 'react';
 import { WHATSAPP_NUMBER, getWhatsAppUrl } from '../data/services';
+import { useDialogFocus } from '../hooks/useDialogFocus';
 
 export type LegalDocType = 'aviso-legal' | 'politica-privacidad' | 'politica-cookies';
 
@@ -9,14 +10,17 @@ interface LegalModalProps {
 }
 
 export const LegalModal: React.FC<LegalModalProps> = ({ page, onClose }) => {
+  const dialogRef = useDialogFocus<HTMLDivElement>(Boolean(page), onClose);
   if (!page) return null;
 
   return (
     <div
+      ref={dialogRef}
       className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6"
       role="dialog"
       aria-modal="true"
       aria-labelledby="legal-title"
+      tabIndex={-1}
     >
       <div className="relative w-full max-w-3xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-8">
         {/* Header */}

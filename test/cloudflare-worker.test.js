@@ -23,3 +23,19 @@ test('Cloudflare conserva la selección por query como ruta de compatibilidad', 
     assert.equal(await response.text(), 'servicios');
     assert.equal(requestedUrl, request.url);
 });
+
+test('Cloudflare agrega noindex a cualquier respuesta del binding de activos', async () => {
+    const cases = [
+        ['https://forgelock.forge-look19.workers.dev/', 200],
+        ['https://forgelock.forge-look19.workers.dev/assets/main.js', 200],
+        ['https://forgelock.forge-look19.workers.dev/politica-privacidad.html', 200],
+        ['https://forgelock.forge-look19.workers.dev/no-existe', 404]
+    ];
+    for (const [url, status] of cases) {
+        const response = await worker.fetch(new Request(url), {
+            ASSETS: { fetch: () => new Response('asset', { status }) }
+        });
+        assert.equal(response.status, status);
+        assert.match(response.headers.get('x-robots-tag') ?? '', /^noindex,\s*follow$/i);
+    }
+});

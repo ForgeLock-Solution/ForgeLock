@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Service } from '../types.ts';
 import { SERVICE_BY_ID, WHATSAPP_NUMBER, getWhatsAppUrl } from '../data/services';
+import { useDialogFocus } from '../hooks/useDialogFocus';
 
 interface ServiceFicheModalProps {
   service: Service | null;
@@ -13,6 +14,7 @@ export const ServiceFicheModal: React.FC<ServiceFicheModalProps> = ({
   onClose,
   onSelectService
 }) => {
+  const dialogRef = useDialogFocus<HTMLDivElement>(Boolean(service), onClose);
   if (!service) return null;
 
   const whatsappText = `Hola, quiero información sobre ${service.name} para mi negocio.`;
@@ -24,10 +26,12 @@ export const ServiceFicheModal: React.FC<ServiceFicheModalProps> = ({
 
   return (
     <div
+      ref={dialogRef}
       className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6"
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-fiche-title"
+      tabIndex={-1}
     >
       <div className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-8">
         {/* Header bar */}
