@@ -3,15 +3,17 @@ import { escapeHtml } from './html-helpers.js';
 
 const whatsappUrl = (service) => `https://wa.me/${SERVICE_WHATSAPP_NUMBER}?text=${encodeURIComponent(service.message)}`;
 
-export function renderServiceCard(service, selectedId = null) {
+export function renderServiceCard(service, selectedId = null, context = 'root') {
     const name = escapeHtml(service.name);
-    const image = escapeHtml(service.image);
+    const image = escapeHtml(context === 'services'
+        ? `../${service.image.replace(/^\.\//, '')}`
+        : service.image);
     const imageAlt = escapeHtml(service.imageAlt);
     const icon = escapeHtml(service.icon);
     const description = escapeHtml(service.description);
     const cardNote = service.cardNote ? `<p class="mt-3 rounded-lg bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700">${escapeHtml(service.cardNote)}</p>` : '';
     const whatsappHref = escapeHtml(whatsappUrl(service));
-    const detailsHref = escapeHtml(serviceQueryUrl(service));
+    const detailsHref = escapeHtml(serviceQueryUrl(service, context));
     const selected = selectedId === service.id;
 
     return `<article class="service-card flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-lg" data-service-card="${escapeHtml(service.id)}">
@@ -29,17 +31,17 @@ export function renderServiceCard(service, selectedId = null) {
     </article>`;
 }
 
-export function renderServiceCatalogSections(selectedId = null) {
+export function renderServiceCatalogSections(selectedId = null, context = 'root') {
     const featured = SERVICE_CATALOG.filter((service) => service.group === 'featured');
     const digital = SERVICE_CATALOG.filter((service) => service.group === 'digital');
     return `<div class="space-y-14" aria-label="Catálogo de servicios ForgeLock">
       <section aria-labelledby="servicios-principales-titulo">
         <h3 id="servicios-principales-titulo" class="mb-6 text-2xl font-bold text-slate-900">Servicios principales</h3>
-        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">${featured.map((service) => renderServiceCard(service, selectedId)).join('')}</div>
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">${featured.map((service) => renderServiceCard(service, selectedId, context)).join('')}</div>
       </section>
       <section id="presencia-digital" aria-labelledby="servicios-digitales-titulo" class="scroll-mt-24">
         <h3 id="servicios-digitales-titulo" class="mb-6 text-2xl font-bold text-slate-900">Presencia digital</h3>
-        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">${digital.map((service) => renderServiceCard(service, selectedId)).join('')}</div>
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">${digital.map((service) => renderServiceCard(service, selectedId, context)).join('')}</div>
       </section>
     </div>`;
 }

@@ -9,7 +9,7 @@ import { ServicePageModel } from '../src/models/service-page-model.js';
 import { ServicePageView } from '../src/views/service-page-view.js';
 import { ServicePageController } from '../src/controllers/service-page-controller.js';
 
-function createServiceDom(url = 'https://example.test/servicios.html') {
+function createServiceDom(url = 'https://example.test/servicios/') {
     const dom = new JSDOM(`<body>
       <div id="services-catalogue-container"></div>
       <p id="servicios-hero-text" aria-live="polite">Elige un servicio para conocer la información disponible y contactar a ForgeLock.</p>
@@ -78,24 +78,25 @@ test('las tarjetas de portada y servicios usan el catálogo y enlazan al detalle
     assert.ok(document.querySelector('#presencia-digital #servicios-digitales-titulo'));
     for (const service of SERVICE_CATALOG) {
         for (const cardSet of [homeCards, pageCards]) {
+            const isHome = cardSet === homeCards;
             const card = cardSet.find((node) => node.dataset.serviceCard === service.id);
             assert.ok(card, `falta tarjeta ${service.id}`);
             assert.equal(card.querySelector('h3').textContent, service.name);
-            assert.equal(card.querySelector('img').getAttribute('src'), service.image);
+            assert.equal(card.querySelector('img').getAttribute('src'), isHome ? service.image : `../${service.image.slice(2)}`);
             assert.equal(card.querySelector('a[aria-label^="Consultar por WhatsApp"]').target, '_blank');
             assert.equal(card.querySelector('a[aria-label^="Consultar por WhatsApp"]').rel, 'noopener noreferrer');
-            const detailLink = service.fichePath
-                ? card.querySelector(`a[href$="${service.fichePath}"]`)
-                : card.querySelector('a[href*="?servicio="]');
+            const detailLink = [...card.querySelectorAll('a')].find((link) => link.textContent.trim().startsWith('Conocer '));
+            const expectedHref = service.fichePath
+                ? isHome ? `./servicios/${service.slug}/` : `./${service.slug}/`
+                : isHome ? `./servicios/?servicio=${service.id}#detalle-servicio` : `./?servicio=${service.id}#detalle-servicio`;
             assert.equal(detailLink.tabIndex, 0);
             assert.match(detailLink.className, /focus-visible:outline/);
             assert.match(detailLink.textContent, new RegExp(`Conocer ${service.name}`));
-            if (service.fichePath) assert.ok(detailLink.href.endsWith(service.fichePath));
-            else assert.equal(new URL(detailLink.href, 'https://example.test/').searchParams.get('servicio'), service.id);
+            assert.equal(detailLink.getAttribute('href'), expectedHref);
         }
     }
-    assert.equal(serviceQueryUrl(SERVICE_BY_ID['automatizacion-whatsapp']), './servicio-automatizacion-whatsapp.html');
-    assert.equal(serviceQueryUrl(SERVICE_BY_ID.landing), './servicio-landing-pages.html');
+    assert.equal(serviceQueryUrl(SERVICE_BY_ID['automatizacion-whatsapp']), './servicios/automatizacion-whatsapp/');
+    assert.equal(serviceQueryUrl(SERVICE_BY_ID.landing), './servicios/landing-pages/');
     assert.equal(home.window.document.querySelectorAll('#services-container section[aria-labelledby="servicios-principales-titulo"] [data-service-card]').length, 6);
     assert.equal(home.window.document.querySelectorAll('#services-container section[aria-labelledby="servicios-digitales-titulo"] [data-service-card]').length, 3);
     home.window.close();
@@ -135,10 +136,10 @@ test('la portada muestra cuatro soluciones, selecciona WhatsApp y enlaza cada un
     dom.window.close();
 });
 
-test('servicios.html conserva la selección directa por query sin redirigir', () => {
-    const dom = createServiceDom('https://example.test/servicios.html?servicio=automatizacion-procesos#detalle-servicio');
+test('la ruta limpia de servicios conserva la selección directa por query sin redirigir', () => {
+    const dom = createServiceDom('https://example.test/servicios/?servicio=automatizacion-procesos#detalle-servicio');
     ServicePageController.init();
-    assert.equal(window.location.pathname, '/servicios.html');
+    assert.equal(window.location.pathname, '/servicios/');
     assert.equal(window.location.search, '?servicio=automatizacion-procesos');
     assert.equal(document.querySelector('#detalle-servicio').dataset.service, 'automatizacion-procesos');
     assert.equal(document.querySelector('#detalle-titulo').textContent, 'Automatización de Procesos');
@@ -146,19 +147,18 @@ test('servicios.html conserva la selección directa por query sin redirigir', ()
 });
 
 test('seleccionar un servicio en servicios conserva su ruta y el punto de lectura', () => {
-    const dom = createServiceDom('https://example.test/servicios.html');
+    const dom = createServiceDom('https://example.test/servicios/');
     ServicePageController.init();
     Object.defineProperty(window, 'scrollY', { configurable: true, value: 480 });
     let restoredPosition = null;
     window.scrollTo = (x, y) => { restoredPosition = [x, y]; };
 
-    const link = document.querySelector('[data-service-card="desarrollo-web"] a[href$="servicio-desarrollo-web.html"]');
-    link.setAttribute('href', './servicios.html?servicio=desarrollo-web#detalle-servicio');
+    const link = document.querySelector('[data-service-card="desarrollo-web"] a[href*="?servicio=desarrollo-web"]');
     const click = new window.MouseEvent('click', { bubbles: true, cancelable: true, button: 0 });
     link.dispatchEvent(click);
 
     assert.equal(click.defaultPrevented, true);
-    assert.equal(window.location.pathname, '/servicios.html');
+    assert.equal(window.location.pathname, '/servicios/');
     assert.equal(window.location.search, '?servicio=desarrollo-web');
     assert.equal(window.location.hash, '#detalle-servicio');
     assert.equal(window.scrollY, 480);
@@ -169,7 +169,7 @@ test('seleccionar un servicio en servicios conserva su ruta y el punto de lectur
 });
 
 test('el detalle seleccionado comunica contenido propio, CTA y estado accesible', () => {
-    const dom = createServiceDom('https://example.test/servicios.html?servicio=integraciones');
+    const dom = createServiceDom('https://example.test/servicios/?servicio=integraciones');
     for (const service of SERVICE_CATALOG) {
         assert.equal(ServicePageView.update(service.id), true);
         const selected = document.querySelector(`[data-service-card="${service.id}"] a[aria-current="page"]`);
@@ -222,11 +222,13 @@ test('el encabezado de portada y servicios usa el isotipo aprobado', async () =>
     dom.window.close();
 });
 
-test('el encabezado de la ficha piloto usa isotipo y referencias locales de iconos', async () => {
+test('la URL histórica de la ficha piloto es una página puente noindex hacia la ruta limpia', async () => {
     const html = await readFile(new URL('../servicio-automatizacion-whatsapp.html', import.meta.url), 'utf8');
-    assert.match(html, /src="\.\/resource\/isotipo\.png"/);
-    assert.match(html, /href="\.\/favicon\.ico"/);
-    assert.match(html, /href="\.\/site\.webmanifest"/);
+    const document = new JSDOM(html).window.document;
+    assert.match(document.querySelector('meta[name="robots"]').content, /noindex/);
+    assert.equal(document.querySelector('link[rel="canonical"]').href, 'https://forgelock-solution.github.io/ForgeLock/servicios/automatizacion-whatsapp/');
+    assert.equal(document.querySelector('meta[http-equiv="refresh"]').content, '0; url=./servicios/automatizacion-whatsapp/');
+    assert.equal(document.querySelector('main a').getAttribute('href'), './servicios/automatizacion-whatsapp/');
 });
 
 test('las páginas legales incluyen el isotipo de marca en el encabezado', async () => {
@@ -237,7 +239,7 @@ test('las páginas legales incluyen el isotipo de marca en el encabezado', async
 });
 
 test('las páginas públicas declaran iconos locales y el manifiesto referencia tamaños reales', async () => {
-    const pages = ['index.html', 'servicios.html', 'servicio-automatizacion-whatsapp.html', '404.html', 'aviso-legal.html', 'politica-cookies.html', 'politica-privacidad.html'];
+    const pages = ['index.html', 'servicios.html', '404.html', 'aviso-legal.html', 'politica-cookies.html', 'politica-privacidad.html'];
     for (const page of pages) {
         const html = await readFile(new URL(`../${page}`, import.meta.url), 'utf8');
         assert.match(html, /href="\.\/favicon\.ico"/i, page);

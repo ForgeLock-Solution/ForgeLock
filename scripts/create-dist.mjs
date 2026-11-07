@@ -8,6 +8,7 @@ import { getDistDirectory, discoverPublicHtmlFiles } from './seo-helpers.mjs';
 import { renderHome } from './render-home.mjs';
 import { renderServices } from './render-services.mjs';
 import { renderServiceFiches } from './render-service-fiches.mjs';
+import { prepareServicesRoute, renderLegacyBridges } from './render-clean-routes.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
@@ -65,6 +66,9 @@ for (const file of ['app.css', 'tailwind.css', 'legal.css']) {
 
 await renderServiceFiches(output);
 await renderHome(join(output, 'index.html'));
-await renderServices(join(output, 'servicios.html'));
+const cleanServicesPath = join(output, 'servicios', 'index.html');
+await prepareServicesRoute(join(root, 'servicios.html'), cleanServicesPath);
+await renderServices(cleanServicesPath);
+await renderLegacyBridges(output);
 
 console.log('dist/ generado correctamente.');

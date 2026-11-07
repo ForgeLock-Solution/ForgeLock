@@ -1,15 +1,26 @@
 # Fichas de servicios
 
-Las fichas públicas se generan desde `SERVICE_CATALOG` mediante `src/views/service-fiche-view.js` y `scripts/render-service-fiches.mjs`. La ficha piloto es `servicio-automatizacion-whatsapp.html`; su cuerpo y meta descripción usan el texto corto autorizado del catálogo. Una descripción larga no se publica hasta recibir aprobación.
+Las fichas públicas se generan desde `SERVICE_CATALOG` mediante `src/views/service-fiche-view.js` y `scripts/render-service-fiches.mjs`. GitHub Pages publica ocho fichas individuales en `servicios/<slug>/index.html`, además de la portada y el catálogo general `servicios/index.html`.
 
-GitHub Pages publica HTML estático y no ejecuta reglas HTTP de redirección por query string. La página `servicios.html?servicio=…` continúa seleccionando el servicio mediante el controlador MVC; Pages no puede emitir una respuesta HTTP 301/302 distinta según el valor de `servicio` sin un servicio/proxy externo. El cliente mantiene el listado funcional.
+El catálogo contiene un noveno servicio, **Desarrollo Web**. Se conserva en tarjetas y en la selección del catálogo, pero no se genera ni se incluye automáticamente como ficha individual porque no forma parte de las diez URLs auditadas. Su enlace abre `servicios/?servicio=desarrollo-web#detalle-servicio`.
 
-El Worker de Cloudflare puede procesar la ruta antes de entregar assets. Para la ficha piloto, `src/platform/cloudflare-worker.js` emite una redirección HTTP 302 desde `/servicios?servicio=automatizacion-whatsapp` y `/servicios.html?servicio=automatizacion-whatsapp`. `_redirects` no admite condiciones por parámetros de query, por eso este caso se implementa en el Worker, con `run_worker_first` limitado a las dos rutas.
+## Compatibilidad histórica
 
-SEO por destino:
+GitHub Pages no permite configurar redirecciones HTTP 301 por ruta. `scripts/render-clean-routes.mjs` genera páginas puente para `servicios.html` y las ocho rutas históricas `servicio-*.html`. Cada puente incluye:
 
-- Pages genera canonical propia para cada ficha pública y la añade al sitemap.
-- Cloudflare conserva su canonical de destino, añade `noindex,follow` a todas las páginas y genera un sitemap vacío.
-- La redirección del Worker solo corresponde al servicio que tenga ficha estática; los demás valores de `servicio` se sirven desde `servicios` mientras no se creen sus fichas.
+- `noindex,follow`;
+- canonical absoluta hacia la ruta limpia equivalente;
+- `meta refresh` directo al destino;
+- un enlace visible que funciona sin JavaScript.
 
-El título propuesto para la segunda sección del catálogo es **“Presencia digital”**. Está pendiente de aprobación.
+Las páginas puente quedan fuera del sitemap y los enlaces internos apuntan directamente a las rutas finales. No se debe presentar este mecanismo como una redirección HTTP 301.
+
+El Worker de Cloudflare conserva su redirección HTTP 302 para la consulta histórica de la ficha piloto y ahora apunta a `/servicios/automatizacion-whatsapp/`. Cloudflare sigue siendo secundario: mantiene canonicals de GitHub Pages, `noindex,follow`, sitemap vacío y `X-Robots-Tag: noindex, follow`.
+
+## Inventario indexable
+
+- `/ForgeLock/`
+- `/ForgeLock/servicios/`
+- ocho fichas bajo `/ForgeLock/servicios/<slug>/`
+
+Las tres páginas legales, los ejemplos, la 404, las páginas puente y Cloudflare no entran al sitemap oficial.

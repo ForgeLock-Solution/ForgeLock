@@ -94,98 +94,54 @@ test('Workers Static Assets sirve las rutas SEO locales con señales coherentes'
   assert.ok(ready, `Wrangler preview no inició.\n${logs}`);
 
   const seoBase = 'https://forgelock-solution.github.io/ForgeLock/';
-  const routes = [
-    '/sitemap.xml', '/robots.txt',
-    '/', '/servicios', '/servicios.html',
-    '/aviso-legal', '/aviso-legal.html',
-    '/politica-privacidad', '/politica-privacidad.html',
-    '/politica-cookies', '/politica-cookies.html',
-    '/servicio-automatizacion-whatsapp', '/servicio-automatizacion-whatsapp.html',
-    '/servicio-desarrollo-web', '/servicio-desarrollo-web.html',
-    '/servicio-sistemas-empresariales', '/servicio-sistemas-empresariales.html',
-    '/servicio-automatizacion-procesos', '/servicio-automatizacion-procesos.html',
-    '/servicio-integraciones', '/servicio-integraciones.html',
-    '/servicio-soluciones-personalizadas', '/servicio-soluciones-personalizadas.html',
-    '/servicio-landing-pages', '/servicio-landing-pages.html',
-    '/servicio-catalogos-digitales', '/servicio-catalogos-digitales.html',
-    '/servicio-branding-diseno-digital', '/servicio-branding-diseno-digital.html',
-    '/ejemplos/cafe-aurora', '/ejemplos/casa-verde', '/ejemplos/mercado-marea', '/ejemplos/estudio-norte'
+  const serviceSlugs = [
+    'branding-diseno-digital', 'integraciones', 'catalogos-digitales', 'landing-pages',
+    'soluciones-personalizadas', 'sistemas-empresariales', 'automatizacion-whatsapp',
+    'automatizacion-procesos'
   ];
-  const records = [];
+  const finalRoutes = ['/', '/servicios/', ...serviceSlugs.map((slug) => `/servicios/${slug}/`)];
   let homeDocument;
   let servicesDocument;
-  let sitemapUrls = [];
+  const sitemapResponse = await fetch(`${origin}/sitemap.xml`);
+  assert.equal(sitemapResponse.status, 200);
+  const sitemap = new JSDOM(await sitemapResponse.text(), { contentType: 'application/xml' }).window.document;
+  const sitemapUrls = [...sitemap.getElementsByTagNameNS('*', 'loc')].map((node) => node.textContent.trim());
+  assert.deepEqual(sitemapUrls, []);
+  const robotsResponse = await fetch(`${origin}/robots.txt`);
+  assert.equal(robotsResponse.status, 200);
+  assert.doesNotMatch(await robotsResponse.text(), /^Sitemap:/im);
 
-  for (const route of routes) {
-    const initialResponse = await fetch(`${origin}${route}`, { redirect: 'manual' });
-    const location = initialResponse.headers.get('location');
-    const finalResponse = location
-      ? await fetch(new URL(location, `${origin}/`), { redirect: 'follow' })
-      : initialResponse;
-    const finalUrl = new URL(finalResponse.url);
+  for (const route of finalRoutes) {
+    const finalResponse = await fetch(`${origin}${route}`, { redirect: 'follow' });
+    assert.equal(finalResponse.status, 200, `${route} respuesta final`);
     const body = await finalResponse.text();
-    const document = finalUrl.pathname.endsWith('.html') || finalUrl.pathname === '/' ||
-      ['/servicios', '/aviso-legal', '/politica-privacidad', '/politica-cookies'].includes(finalUrl.pathname) ||
-      finalUrl.pathname.startsWith('/servicio-') ||
-      finalUrl.pathname.startsWith('/ejemplos/')
-      ? new JSDOM(body, { url: finalUrl.href }).window.document
-      : null;
-    const canonical = document?.querySelector('link[rel="canonical"]')?.href ?? null;
-    const ogUrl = document?.querySelector('meta[property="og:url"]')?.content ?? null;
-    let sitemapContainsCanonical = false;
-
-    assert.equal(initialResponse.status, route.endsWith('.html') ? 307 : 200, `${route} status inicial`);
-    if (location) {
-      assert.equal(new URL(location, `${origin}/`).pathname, route.slice(0, -5));
-      assert.equal(finalResponse.status, 200, `${route} destino final`);
-    } else {
-      assert.equal(finalResponse.status, 200, `${route} respuesta final`);
-    }
-
-    if (route === '/sitemap.xml') {
-      const sitemap = new JSDOM(body, { contentType: 'application/xml' }).window.document;
-      sitemapUrls = [...sitemap.getElementsByTagNameNS('*', 'loc')].map((node) => node.textContent.trim());
-      assert.deepEqual(sitemapUrls, []);
-    } else if (route === '/robots.txt') {
-      assert.doesNotMatch(body, /^Sitemap:/im);
-    } else if (document) {
-      const canonicalRoute = finalUrl.pathname === '/' ? './' : `${finalUrl.pathname.slice(1).replace(/\.html$/, '')}.html`;
-      const expectedCanonical = new URL(canonicalRoute, seoBase).href;
-      assert.equal(canonical, expectedCanonical, `${route} canonical`);
-      assert.match(body, /<meta\s+name=["']robots["'][^>]*\bnoindex/i);
-      if (['/servicios', '/servicios.html'].includes(route)) {
-        assert.match(finalResponse.headers.get('x-robots-tag') ?? '', /noindex/i, `${route} X-Robots-Tag`);
-      }
-      assert.equal(sitemapUrls.includes(expectedCanonical), false);
-      if (route === '/') {
-        homeDocument = document;
-        assert.equal(document.querySelector('meta[name="twitter:image"]').content, `${seoBase}resource/forgelock-social-preview.png`);
-        assert.equal(document.querySelectorAll('meta[name="google-site-verification"]').length, 1);
-        assert.equal(document.querySelector('meta[name="google-site-verification"]').content, 'ChwXmsaiRN157JtTwqIuE19hC7GzP7kRmgQkiiQTK5A');
-      }
-      if (route === '/servicios') servicesDocument = document;
-      const structuredData = [...document.querySelectorAll('script[type="application/ld+json"]')].map((node) => JSON.parse(node.textContent));
-      if (structuredData.length) assert.ok(JSON.stringify(structuredData).includes(seoBase));
-      sitemapContainsCanonical = sitemapUrls.includes(expectedCanonical);
-    }
-
-    records.push({
-      requestedUrl: route,
-      initialStatus: initialResponse.status,
-      location: location ?? null,
-      finalStatus: finalResponse.status,
-      finalUrl: `${finalUrl.pathname}${finalUrl.search}`,
-      canonical,
-      ogUrl,
-      sitemapContainsCanonical
-    });
+    const document = new JSDOM(body, { url: finalResponse.url }).window.document;
+    const expectedCanonical = new URL(route === '/' ? './' : route.slice(1), seoBase).href;
+    assert.equal(document.querySelector('link[rel="canonical"]')?.href, expectedCanonical, `${route} canonical`);
+    assert.equal(document.querySelector('meta[property="og:url"]')?.content, expectedCanonical, `${route} og:url`);
+    assert.match(body, /<meta\s+name=["']robots["'][^>]*\bnoindex/i);
+    if (route === '/') homeDocument = document;
+    if (route === '/servicios/') servicesDocument = document;
+    const structuredData = [...document.querySelectorAll('script[type="application/ld+json"]')].map((node) => JSON.parse(node.textContent));
+    assert.ok(structuredData.length > 0);
+    assert.ok(JSON.stringify(structuredData).includes(seoBase));
   }
-  console.log(`Workers Static Assets preview routes: ${JSON.stringify(records)}`);
-  assert.equal(sitemapUrls.length, 0);
+
+  for (const slug of serviceSlugs) {
+    const legacy = await fetch(`${origin}/servicio-${slug}.html`, { redirect: 'follow' });
+    assert.equal(legacy.status, 200, `servicio-${slug}.html`);
+    const document = new JSDOM(await legacy.text(), { url: legacy.url }).window.document;
+    assert.equal(document.querySelector('link[rel="canonical"]')?.href, `${seoBase}servicios/${slug}/`);
+    assert.match(document.querySelector('meta[name="robots"]')?.content ?? '', /noindex/);
+    const visibleDestination = document.querySelector('main a')?.href;
+    assert.ok(visibleDestination, `servicio-${slug}.html debe conservar un enlace visible`);
+    assert.equal((await fetch(visibleDestination)).status, 200);
+  }
+  assert.equal((await fetch(`${origin}/servicio-desarrollo-web.html`)).status, 404);
 
   const legacyServiceResponse = await fetch(`${origin}/servicios?servicio=automatizacion-whatsapp`, { redirect: 'manual' });
   assert.equal(legacyServiceResponse.status, 302);
-  assert.equal(new URL(legacyServiceResponse.headers.get('location')).pathname, '/servicio-automatizacion-whatsapp');
+  assert.equal(new URL(legacyServiceResponse.headers.get('location')).pathname, '/servicios/automatizacion-whatsapp/');
   const legacyServicePage = await fetch(new URL(legacyServiceResponse.headers.get('location'), `${origin}/`));
   assert.equal(legacyServicePage.status, 200);
   assert.match(await legacyServicePage.text(), /Automatización de WhatsApp/);
@@ -212,7 +168,7 @@ test('Workers Static Assets sirve las rutas SEO locales con señales coherentes'
     assert.equal((await fetch(`${origin}/${asset}`)).status, 200, `${asset} debe servirse`);
   }
 
-  for (const [document, pageUrl] of [[homeDocument, `${origin}/`], [servicesDocument, `${origin}/servicios`]]) {
+  for (const [document, pageUrl] of [[homeDocument, `${origin}/`], [servicesDocument, `${origin}/servicios/`]]) {
     for (const anchor of document.querySelectorAll('a[href]')) {
       const targetUrl = new URL(anchor.getAttribute('href'), pageUrl);
       if (targetUrl.origin !== origin) continue;

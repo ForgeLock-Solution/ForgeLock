@@ -1,5 +1,5 @@
 const legacyServicePages = Object.freeze({
-    'automatizacion-whatsapp': '/servicio-automatizacion-whatsapp'
+    'automatizacion-whatsapp': '/servicios/automatizacion-whatsapp/'
 });
 
 export default {

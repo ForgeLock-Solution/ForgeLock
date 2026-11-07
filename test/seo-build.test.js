@@ -62,13 +62,13 @@ function run(command, args, env = {}) {
 async function checkVariant(target) {
   const base = bases[target];
   const canonicalBase = bases['github-pages'];
-  const ficheFiles = SERVICE_CATALOG.map((service) => service.fichePath);
-  const indexedPages = ['index.html', 'servicios.html', ...ficheFiles];
+  const ficheFiles = SERVICE_CATALOG.map((service) => service.fichePath).filter(Boolean);
+  const indexedPages = ['index.html', 'servicios/index.html', ...ficheFiles];
   for (const file of indexedPages) {
     const html = await readFile(join(distDirs[target], file), 'utf8');
     const dom = new JSDOM(html);
     const document = dom.window.document;
-    const pageRoute = file === 'index.html' ? './' : file;
+    const pageRoute = file === 'index.html' ? './' : file.replace(/index\.html$/, '');
     const pageUrl = new URL(pageRoute, canonicalBase).href;
     assert.equal(document.querySelectorAll('link[rel="canonical"]').length, 1);
     assert.equal(document.querySelector('link[rel="canonical"]').href, pageUrl);
@@ -92,27 +92,35 @@ async function checkVariant(target) {
   else assert.ok(robots.includes(`Sitemap: ${canonicalBase}sitemap.xml`));
   const sitemap = new JSDOM(await readFile(join(distDirs[target], 'sitemap.xml'), 'utf8'), { contentType: 'application/xml' }).window.document;
   const urls = [...sitemap.getElementsByTagNameNS('*', 'loc')].map((node) => node.textContent.trim());
-  const expectedUrls = target === 'cloudflare' ? [] : [canonicalBase, `${canonicalBase}servicios.html`, ...SERVICE_CATALOG.map((service) => `${canonicalBase}${service.fichePath}`)].sort();
+  const expectedUrls = target === 'cloudflare' ? [] : [canonicalBase, `${canonicalBase}servicios/`, ...SERVICE_CATALOG.filter((service) => service.fichePath).map((service) => `${canonicalBase}servicios/${service.slug}/`)].sort();
   assert.deepEqual([...urls].sort(), expectedUrls);
   assert.equal(new Set(urls).size, urls.length);
   assert.ok(urls.every((url) => url.startsWith(base)));
 
-  const fiche = new JSDOM(await readFile(join(distDirs[target], 'servicio-automatizacion-whatsapp.html'), 'utf8')).window.document;
+  const fiche = new JSDOM(await readFile(join(distDirs[target], 'servicios/automatizacion-whatsapp/index.html'), 'utf8')).window.document;
   assert.equal(fiche.querySelector('title').textContent, 'Automatización de WhatsApp para negocios | ForgeLock');
   assert.match(fiche.querySelector('meta[name="description"]').content, /Bots para atención automática y registro de información/);
   assert.equal(fiche.querySelector('h1').textContent, 'Automatización de WhatsApp');
   assert.equal(fiche.querySelectorAll('a[data-related-service]').length, 2);
-  assert.ok([...fiche.querySelectorAll('a[data-related-service]')].every((link) => link.href.includes('/servicio-')));
+  assert.ok([...fiche.querySelectorAll('a[data-related-service]')].every((link) => /^\.\.\/[a-z0-9-]+\/$/.test(link.getAttribute('href'))));
   assert.ok(fiche.querySelector('a[href^="https://wa.me/"]'));
-  assert.equal(fiche.querySelector('link[rel="canonical"]').href, `${canonicalBase}servicio-automatizacion-whatsapp.html`);
+  assert.equal(fiche.querySelector('link[rel="canonical"]').href, `${canonicalBase}servicios/automatizacion-whatsapp/`);
 
-  for (const service of SERVICE_CATALOG) {
-    assert.ok(service.fichePath, `falta ficha para ${service.id}`);
+  for (const service of SERVICE_CATALOG.filter((item) => item.fichePath)) {
     const serviceFiche = new JSDOM(await readFile(join(distDirs[target], service.fichePath), 'utf8')).window.document;
     assert.equal(serviceFiche.querySelector('h1').textContent, service.name);
     assert.equal(serviceFiche.querySelector('meta[name="description"]').content, service.ficheMetaDescription);
-    assert.equal(serviceFiche.querySelector('link[rel="canonical"]').href, `${canonicalBase}${service.fichePath}`);
+    assert.equal(serviceFiche.querySelector('link[rel="canonical"]').href, `${canonicalBase}servicios/${service.slug}/`);
     assert.ok(serviceFiche.querySelector('a[href^="https://wa.me/"]'));
+  }
+  assert.equal(existsSync(join(distDirs[target], 'servicios/desarrollo-web/index.html')), false);
+  assert.equal(existsSync(join(distDirs[target], 'servicio-desarrollo-web.html')), false);
+
+  for (const service of SERVICE_CATALOG.filter((item) => item.legacyFichePath)) {
+    const legacy = new JSDOM(await readFile(join(distDirs[target], service.legacyFichePath), 'utf8')).window.document;
+    assert.match(legacy.querySelector('meta[name="robots"]').content, /noindex/);
+    assert.equal(legacy.querySelector('link[rel="canonical"]').href, `${canonicalBase}servicios/${service.slug}/`);
+    assert.equal(legacy.querySelector('main a').getAttribute('href'), `./servicios/${service.slug}/`);
   }
 
   for (const file of ['aviso-legal.html', 'politica-privacidad.html', 'politica-cookies.html']) {
@@ -122,7 +130,7 @@ async function checkVariant(target) {
     const legalCanonical = `${canonicalBase}${file}`;
     assert.equal(new JSDOM(html).window.document.querySelector('link[rel="canonical"]').href, legalCanonical);
   }
-  const allHtml = await Promise.all(['index.html', 'servicios.html', ...['aviso-legal.html', 'politica-privacidad.html', 'politica-cookies.html']].map((file) => readFile(join(distDirs[target], file), 'utf8')));
+  const allHtml = await Promise.all(['index.html', 'servicios/index.html', ...['aviso-legal.html', 'politica-privacidad.html', 'politica-cookies.html']].map((file) => readFile(join(distDirs[target], file), 'utf8')));
   const verificationTags = allHtml.join('\n').match(/<meta\s+name=["']google-site-verification["'][^>]*>/gi) ?? [];
   assert.equal(verificationTags.length, 1);
   assert.match(verificationTags[0], /content=["']ChwXmsaiRN157JtTwqIuE19hC7GzP7kRmgQkiiQTK5A["']/);
@@ -147,10 +155,11 @@ test('builds SEO variants independently for GitHub Pages and Cloudflare Worker',
     assert.ok(home.querySelector('#services-container #servicios'));
     assert.ok(home.querySelector('#idea-textarea'));
     assert.equal(home.querySelectorAll('h1').length, 1);
-    const servicePage = new JSDOM(await readFile(join(distDirs[target], 'servicios.html'), 'utf8')).window.document;
+    const servicePage = new JSDOM(await readFile(join(distDirs[target], 'servicios/index.html'), 'utf8')).window.document;
     assert.equal(servicePage.querySelectorAll('#services-catalogue-container [data-service-card]').length, 9);
     assert.equal(servicePage.querySelectorAll('#services-catalogue-container [data-service-card] a[aria-label^="Consultar por WhatsApp"]').length, 9);
-    assert.equal(servicePage.querySelectorAll('#services-catalogue-container [data-service-card] a[href*="servicio-"]').length, 9);
+    assert.equal(servicePage.querySelectorAll('#services-catalogue-container [data-service-card] a[href^="./"][href$="/"]').length, 8);
+    assert.equal(servicePage.querySelectorAll('#services-catalogue-container [data-service-card] a[href*="?servicio=desarrollo-web"]').length, 1);
     assert.equal(servicePage.querySelectorAll('#services-catalogue-container section[aria-labelledby="servicios-principales-titulo"] [data-service-card]').length, 6);
     assert.equal(servicePage.querySelectorAll('#services-catalogue-container section[aria-labelledby="servicios-digitales-titulo"] [data-service-card]').length, 3);
     assert.ok(servicePage.querySelector('#detalle-servicio[aria-live="polite"]'));
@@ -163,7 +172,7 @@ test('builds SEO variants independently for GitHub Pages and Cloudflare Worker',
     assert.equal(serviceAssets.length, 9);
     assert.ok(serviceAssets.every((file) => file.endsWith('.webp')));
     assert.equal(existsSync(join(distDirs[target], 'internal-data')), false, 'los datos pendientes deben quedar fuera del artefacto');
-    const builtServiceHtml = await readFile(join(distDirs[target], 'servicios.html'), 'utf8');
+    const builtServiceHtml = await readFile(join(distDirs[target], 'servicios/index.html'), 'utf8');
     assert.doesNotMatch(builtServiceHtml, /Página Web Corporativa|E-commerce|Integración de pago Básica|Integración de pago Avanzada|Identidad Esencial|Identidad Profesional|Identidad Completa/);
     assert.match(builtServiceHtml, /Cotiza según tu necesidad/);
     const errorPage = new JSDOM(await readFile(join(distDirs[target], '404.html'), 'utf8'), {
@@ -184,9 +193,9 @@ test('builds SEO variants independently for GitHub Pages and Cloudflare Worker',
   const distAfterBuild = await Promise.all(preservedDistPaths.map(async (path) => existsSync(path) ? readFile(path) : null));
   assert.deepEqual(distAfterBuild, distSnapshots, 'los builds SEO de prueba no deben reemplazar un dist/ preexistente');
   const workerCatalog = await readFile(join(distDirs.cloudflare, 'src/models/service-catalog.js'), 'utf8');
-  assert.match(workerCatalog, /return `\.\/servicios\?servicio=/);
-  assert.doesNotMatch(workerCatalog, /return `\.\/servicios\.html\?servicio=/);
-  const workerService = await readFile(join(distDirs.cloudflare, 'servicios.html'), 'utf8');
+  assert.match(workerCatalog, /\.\/servicios\/\$\{service\.slug\}\//);
+  assert.doesNotMatch(workerCatalog, /servicios\.html\?servicio=/);
+  const workerService = await readFile(join(distDirs.cloudflare, 'servicios/index.html'), 'utf8');
   assert.match(workerService, /href="#servicios"/);
   assert.doesNotMatch(workerService, /href="\.\/index\.html/);
 

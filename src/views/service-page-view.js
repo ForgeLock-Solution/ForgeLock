@@ -45,7 +45,7 @@ export const ServicePageView = {
 
     renderCatalog(selectedId = null) {
         const container = document.querySelector('#services-catalogue-container');
-        if (container) container.innerHTML = renderServiceCatalogSections(selectedId);
+        if (container) container.innerHTML = renderServiceCatalogSections(selectedId, 'services');
         this.renderStructuredData();
     },
 
