@@ -1,21 +1,21 @@
 # Política SEO: GitHub Pages oficial y Cloudflare secundario
 
-Actualizada el 7 de noviembre de 2026. Esta política local no publica ni despliega cambios. La URL oficial y canónica de ForgeLock es `https://forgelock-solution.github.io/ForgeLock/`. GitHub Pages es la única versión indexable y la única que publica un sitemap con páginas. Cloudflare se conserva como entorno secundario de pruebas en `https://forgelock.forge-look19.workers.dev/`.
+Actualizada el 9 de noviembre de 2026. Esta política local no publica ni despliega cambios. La URL oficial y canónica de ForgeLock es `https://forgelock-solution.github.io/ForgeLock/`. GitHub Pages es la única versión indexable y la única que publica un sitemap con páginas. Cloudflare se conserva como entorno secundario de pruebas en `https://forgelock.forge-look19.workers.dev/`.
 
 | Variante | Salida | Señales canónicas y sociales | Rastreo e indexación |
 |---|---|---|---|
-| GitHub Pages oficial | `dist/` | Diez URLs limpias con barra final; páginas puente para las rutas `.html` antiguas | Rastreo permitido; páginas finales indexables en sitemap; puentes, páginas legales, ejemplos y 404 con `noindex` |
+| GitHub Pages oficial | `dist/` | Diez URLs limpias con barra final; páginas puente para las rutas `.html` antiguas | Rastreo permitido; páginas finales indexables en sitemap; puentes y páginas legales con `noindex` |
 | Cloudflare secundario | `dist-cloudflare/` | Conserva las URLs canónicas, Open Graph, Twitter y JSON-LD de GitHub Pages | Rastreo permitido para leer `noindex`; todas las páginas `noindex,follow`; sitemap vacío; sin directiva Sitemap en robots.txt; cabecera HTTP `X-Robots-Tag: noindex, follow` |
 
 `SEO_TARGET` selecciona el alojamiento de salida. `BASE_URL`, si se proporciona, debe coincidir con ese destino. La URL canónica permanece fijada a GitHub Pages en los dos builds. Ambos artefactos generan las mismas rutas limpias; Cloudflare añade sus señales `noindex` sin sustituir las canonicals oficiales.
 
-La portada, servicios y ocho fichas individuales son indexables en Pages y entran al sitemap si sus canonicals son propios. Desarrollo Web permanece en el catálogo sin ficha individual. Las páginas puente, las tres páginas legales, los cuatro ejemplos conceptuales y la página 404 son `noindex` y no entran al sitemap. `lastmod` solo se emite si Git aporta una fecha real válida y el archivo no tiene cambios locales. Robots permite rastrear ambos destinos; no se debe bloquear Cloudflare en `robots.txt`, ya que los motores necesitan leer su directiva `noindex`.
+La portada, servicios y ocho fichas individuales son indexables en Pages y entran al sitemap si sus canonicals son propios. Desarrollo Web permanece en el catálogo sin ficha individual. Las páginas puente y las tres páginas legales son `noindex` y no entran al sitemap. `lastmod` solo se emite si Git aporta una fecha real válida y el archivo no tiene cambios locales. Robots permite rastrear ambos destinos; no se debe bloquear Cloudflare en `robots.txt`, ya que los motores necesitan leer su directiva `noindex`.
 
 ## Validación local
 
-- `npm test` prueba ambos builds en directorios temporales aislados.
-- `npm run build:dist` y `npm run validate:dist` validan GitHub Pages.
-- `npm run build:cloudflare` y `npm run validate:dist:cloudflare` validan Cloudflare.
+- `npm test` ejecuta TypeScript y las pruebas automatizadas de la aplicación, SEO y Worker.
+- `npm run build:dist` compila y valida GitHub Pages.
+- `npm run build:cloudflare` compila y valida Cloudflare.
 - Los builds no publican cambios ni confirman el estado remoto.
 
 ## Cloudflare pendiente

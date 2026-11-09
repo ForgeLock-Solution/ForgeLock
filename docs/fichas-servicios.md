@@ -1,8 +1,8 @@
 # Fichas de servicios
 
-Las fichas públicas se generan desde `SERVICE_CATALOG` mediante `src/views/service-fiche-view.js` y `scripts/render-service-fiches.mjs`. GitHub Pages publica ocho fichas individuales en `servicios/<slug>/index.html`, además de la portada y el catálogo general `servicios/index.html`.
+Las fichas públicas usan el catálogo tipado de `src/data/services.ts`. Después de compilar React/Vite, `scripts/render-clean-routes.mjs` genera ocho fichas individuales en `servicios/<slug>/index.html`, además del catálogo general `servicios/index.html`.
 
-El catálogo contiene un noveno servicio, **Desarrollo Web**. Se conserva en tarjetas y en la selección del catálogo, pero no se genera ni se incluye automáticamente como ficha individual porque no forma parte de las diez URLs auditadas. Su enlace abre `servicios/?servicio=desarrollo-web#detalle-servicio`.
+El catálogo contiene un noveno servicio, **Desarrollo Web**. Se conserva en las tarjetas y en el detalle interactivo de la aplicación, pero no genera una ficha individual porque no forma parte de las diez URLs auditadas.
 
 ## Compatibilidad histórica
 
@@ -23,4 +23,4 @@ El Worker de Cloudflare conserva su redirección HTTP 302 para la consulta hist�
 - `/ForgeLock/servicios/`
 - ocho fichas bajo `/ForgeLock/servicios/<slug>/`
 
-Las tres páginas legales, los ejemplos, la 404, las páginas puente y Cloudflare no entran al sitemap oficial.
+Las tres páginas legales, las páginas puente y Cloudflare no entran al sitemap oficial.
