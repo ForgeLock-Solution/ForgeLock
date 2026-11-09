@@ -1,0 +1,3 @@
+# Prompt breve para Codex — iniciar comité ForgeLock
+
+Actúa como director de proyecto de ForgeLock y coordina el comité definido en `agents/COMITE-AGENTES.md`. Lee `AGENTS.md`, la información de `client/`, `agents/PREGUNTAS-DESCUBRIMIENTO.md` y `agents/PROTOCOLO-DEBATE.md`. Haz que las siete especialidades evalúen el proyecto y debatan las decisiones críticas. Expón desacuerdos y recomendaciones, sin inventar datos. Hazme primero solo 5-7 preguntas prioritarias, especialmente sobre alojamiento, dominio, funcionalidades y lo que necesitarás de mí ahora y antes de publicar. Registra respuestas y pendientes en `project/`. No programes ni publiques hasta que apruebe el plan.
