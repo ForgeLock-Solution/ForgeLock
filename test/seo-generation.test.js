@@ -53,25 +53,28 @@ function parseSitemap(xml) {
   return document;
 }
 
-test('cada destino genera sus señales SEO con su propia URL canónica', () => {
+test('ambos destinos conservan las señales canónicas de GitHub Pages', () => {
   const pages = getSeoConfig({});
   const worker = getSeoConfig({ SEO_TARGET: 'cloudflare' });
   assert.equal(pages.indexable, true);
-  assert.equal(worker.indexable, true);
+  assert.equal(worker.indexable, false);
   assert.equal(worker.baseUrl.href, 'https://forgelock.forge-look19.workers.dev/');
-  assert.equal(worker.canonicalBaseUrl.href, 'https://forgelock.forge-look19.workers.dev/');
-  assert.equal(worker.canonicalTarget, 'cloudflare');
-  assert.equal(getSeoConfig({ SEO_TARGET: 'cloudflare', INDEXABLE: 'true' }).indexable, true);
+  assert.equal(worker.canonicalBaseUrl.href, 'https://forgelock-solution.github.io/ForgeLock/');
+  assert.equal(worker.canonicalTarget, 'github-pages');
+  assert.throws(() => getSeoConfig({ SEO_TARGET: 'cloudflare', INDEXABLE: 'true' }), /Cloudflare se mantiene noindex/);
   assert.throws(() => getSeoConfig({ SEO_TRANSITION: 'cloudflare' }), /Migración canónica deshabilitada/);
 });
 
-test('la API del generador permite indexar el Worker y rechaza una base no configurada', async () => {
+test('el Worker se mantiene noindex y rechaza una base no configurada', async () => {
   await withFixture(async ({ root, dist, addPage }) => {
     const original = await addPage('index.html');
     const result = await generateSeo({ root, dist, env: { SEO_TARGET: 'cloudflare' } });
-    assert.equal(result.pageCount, 1);
-    assert.match(await readFile(join(dist, 'index.html'), 'utf8'), /canonical" href="https:\/\/forgelock\.forge-look19\.workers\.dev\//);
-    assert.match(result.sitemap, /https:\/\/forgelock\.forge-look19\.workers\.dev\//);
+    assert.equal(result.pageCount, 0);
+    assert.match(await readFile(join(dist, 'index.html'), 'utf8'), /canonical" href="https:\/\/forgelock-solution\.github\.io\/ForgeLock\//);
+    assert.match(await readFile(join(dist, 'index.html'), 'utf8'), /name="robots" content="noindex,follow"/);
+    assert.doesNotMatch(result.sitemap, /<loc>/);
+    assert.doesNotMatch(result.robots, /Sitemap:/);
+    await assert.rejects(generateSeo({ root, dist, indexable: true, env: { SEO_TARGET: 'cloudflare' } }), /Cloudflare se mantiene noindex/);
     await assert.rejects(generateSeo({ root, dist, baseUrl: 'https://example.test/' }), /baseUrl no coincide/);
     assert.notEqual(await readFile(join(dist, 'index.html'), 'utf8'), original);
   });
@@ -191,13 +194,13 @@ test('detecta una página pública nueva del origen que falta en dist', async ()
   });
 });
 
-test('rechaza explícitamente HTML anidado y mantiene fuera HTML en carpetas de pruebas', async () => {
+test('admite HTML anidado para rutas limpias y mantiene fuera HTML en carpetas de pruebas', async () => {
   await withFixture(async ({ root }) => {
     await mkdir(join(root, 'test'), { recursive: true });
     await writeFile(join(root, 'test', 'fixture.html'), '<html></html>');
     await mkdir(join(root, 'pages'), { recursive: true });
     await writeFile(join(root, 'pages', 'anidada.html'), '<html></html>');
-    await assert.rejects(discoverPublicHtmlFiles(root), /páginas HTML anidadas/);
+    assert.deepEqual(await discoverPublicHtmlFiles(root), ['pages/anidada.html']);
   });
 });
 
@@ -242,16 +245,19 @@ test('validate-dist rechaza y acepta reglas robots según todos los agentes decl
     await symlink(join(repository, 'node_modules'), join(root, 'node_modules'), 'junction');
 
     const index = html(baseUrl.href, '<meta name="google-site-verification" content="peYxRjV0Snt4fmiTcjCgkCfvDrTBws3qGUMy8vJVwjQ">');
-    const services = html(new URL('servicios.html', baseUrl).href);
+    const services = html(new URL('servicios/', baseUrl).href);
+    const servicesBridge = '<!doctype html><html><head><meta name="robots" content="noindex,follow"><link rel="canonical" href="https://forgelock-solution.github.io/ForgeLock/servicios/"><meta http-equiv="refresh" content="0; url=./servicios/"></head><body><main><a href="./servicios/">Continuar</a></main></body></html>';
     await writeFile(join(root, 'index.html'), index);
     await writeFile(join(root, 'servicios.html'), services);
     await writeFile(join(dist, 'index.html'), index);
-    await writeFile(join(dist, 'servicios.html'), services);
+    await mkdir(join(dist, 'servicios'), { recursive: true });
+    await writeFile(join(dist, 'servicios', 'index.html'), services);
+    await writeFile(join(dist, 'servicios.html'), servicesBridge);
     for (const file of ['site.webmanifest', '_headers', '_redirects', 'favicon.ico', 'Apple-touch-icon.png', 'Icon-192.png']) {
       await cp(join(repository, file), join(dist, file));
     }
     await cp(join(repository, 'resource'), join(dist, 'resource'), { recursive: true });
-    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="${SITEMAP_NAMESPACE}"><url><loc>${baseUrl.href}</loc></url><url><loc>${new URL('servicios.html', baseUrl).href}</loc></url></urlset>`;
+    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="${SITEMAP_NAMESPACE}"><url><loc>${baseUrl.href}</loc></url><url><loc>${new URL('servicios/', baseUrl).href}</loc></url></urlset>`;
     await writeFile(join(dist, 'sitemap.xml'), sitemap);
     const robotsFile = join(dist, 'robots.txt');
     const validator = join(scripts, 'validate-dist.mjs');

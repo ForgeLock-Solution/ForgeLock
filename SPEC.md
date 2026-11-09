@@ -2,7 +2,7 @@
 **Actualizado:** 2026-10-30 · **Estado:** documento de trabajo, no autorización de despliegue.
 
 ## 1. Propósito
-ForgeLock ayuda a emprendedores, profesionales y pequeños negocios colombianos a transformar su presencia digital en consultas, conversaciones, cotizaciones y ventas mediante páginas web, landing pages, catálogos, branding y diseño digital.
+ForgeLock ayuda a emprendedores, profesionales y pequeños negocios colombianos a presentar su negocio y facilitar el contacto y la consulta de servicios mediante páginas web, landing pages, catálogos, branding y diseño digital.
 **Frase de marca:** «ForgeLock transforma ideas y negocios en experiencias digitales que destacan».
 **KPI comercial principal:** conversaciones y solicitudes de cotización cualificadas desde WhatsApp; seguidores no son un KPI final.
 **Nombre público:** ForgeLock (no ForgeLook ni ForgeLock Solution).
@@ -10,7 +10,8 @@ ForgeLock ayuda a emprendedores, profesionales y pequeños negocios colombianos 
 ## 2. Sitio y secciones
 - `index.html`: presentación de marca, propuesta de valor, soluciones, proceso, preguntas frecuentes y CTA a WhatsApp.
 - `servicios.html`: descripción/comparación de servicios y CTA; verificar en cada actualización los textos comerciales y precios antes de publicar.
-- `politica-privacidad.html`, `politica-cookies.html`, `aviso-legal.html`: páginas legales.
+- `servicio-<slug>.html`: fichas públicas estáticas; la ficha piloto de Automatización de WhatsApp usa la plantilla MVC y mantiene contenido, título y metadatos en HTML.
+- `política-privacidad.html`, `política-cookies.html`, `aviso-legal.html`: páginas legales.
 - `404.html`: página de error.
 **Oferta comercial de referencia aportada por el responsable (validar sincronización con el sitio):**
 - Landing Básica: 249.000 COP; 3–5 días hábiles. Una página responsive, presentación, servicios/productos, WhatsApp, redes, formulario, integración con dominio del cliente, publicación y una ronda de cambios.
@@ -18,7 +19,7 @@ ForgeLock ayuda a emprendedores, profesionales y pequeños negocios colombianos 
 - Premium/Empresarial: precio y alcance **no confirmados**. Nunca inventarlos.
 
 ## 3. Identidad visual
-- Mantener el logotipo original en `resource/Logo.png` y `resource/Logo.svg`, sin rediseñarlo.
+- Mantener el logotipo original en `resource/Logo.png` y `resource/Logo.svg`, sin rediseñarlo. El encabezado del sitio usa el isotipo aprobado `resource/isotipo.png`; no sustituirlo por el logotipo de los datos estructurados ni por el favicon.
 - Fondo oscuro identificado en metadatos: `#0b1120`.
 - Verde de marca en Tailwind: `#4ade80` (400), `#22c55e` (500), `#16a34a` (600).
 - Familia tipográfica declarada: Inter, fallback sans-serif; incluye fuentes vendorizadas.
@@ -38,11 +39,11 @@ ForgeLock ayuda a emprendedores, profesionales y pequeños negocios colombianos 
 - `supabase/migrations/`: esquema y políticas de leads; su presencia NO prueba aplicación remota.
 
 ## 5. Estado verificado y límites
-- URL oficial temporal: `https://forgelock.forge-look19.workers.dev/` hasta conseguir la primera venta; esta decisión no publica ni actualiza remotamente el Worker. GitHub Pages no se toca.
-- Sitemap accesible con dos URLs: home y servicios. La respuesta pública no confirma la aceptación del sitemap por Search Console.
+- URL oficial y canonica: `https://forgelock-solution.github.io/ForgeLock/`. Cloudflare permanece como entorno secundario no indexable; no se publica ni actualiza remotamente el Worker.
+- GitHub Pages incluye home, servicios y las fichas estáticas aprobadas en su sitemap. Cloudflare mantiene todas las páginas `noindex` y un sitemap vacío.
 - Canonical, OG, Twitter Card y favicon están presentes en home; revisar cada página y funcionamiento real por separado.
 - GitHub Pages: `npm run build:dist` -> `dist/`; su destino y flujo remoto permanecen independientes.
-- Cloudflare Worker: `npm run build:dist:cloudflare` -> `dist-cloudflare/`, canonical y señales sociales/JSON-LD en la URL oficial; portada y servicios en sitemap; páginas legales, 404 y ejemplos conceptuales con `noindex`.
+- Cloudflare Worker: `npm run build:dist:cloudflare` -> `dist-cloudflare/`, señales canonicas de Pages, `noindex` y sitemap vacío.
 - No publicar Cloudflare ni modificar Workers Builds sin autorización expresa. Revisar `docs/configuracion-cloudflare-pendiente.md`.
 - Supabase: migraciones versionadas; el README señala que la landing todavía dirige a WhatsApp sin guardar leads en base de datos.
 - El HTML de home define GA4 y GTM; comprobar consentimiento y duplicados en navegador antes de afirmar que la medición funciona.
@@ -70,7 +71,7 @@ Los builds rechazan directorios de salida no vacíos; usar directorios temporale
 ### Tanda 2 — SEO y Search Console [P0]
 - [ ] Comprobar robots/sitemap/canonical/metadatos, códigos HTTP y enlaces de ambas URLs indexables.
 - [ ] Contrastar el estado real de sitemap/indexación dentro de GSC; corregir solo defectos reproducidos.
-- [ ] Mantener canonicals por destino: GitHub Pages con su ruta propia y Cloudflare con la URL oficial temporal.
+- [x] Mantener canonical de GitHub Pages en ambos builds; Cloudflare lleva `noindex`, sitemap vacío y `X-Robots-Tag`.
 **Terminado:** validaciones automáticas y evidencias de GSC, sin duplicar indexación.
 
 ### Tanda 3 — UX, responsive y accesibilidad [P1]

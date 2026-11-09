@@ -1,5 +1,8 @@
-# Cloudflare Pages HTTP response headers.
+# Cloudflare Workers Static Assets response headers.
 # Keep CSP unset until inline scripts, analytics consent, fonts and Supabase flows are audited.
+
+https://forgelock.forge-look19.workers.dev/*
+  X-Robots-Tag: noindex, follow
 
 /*
   X-Content-Type-Options: nosniff
@@ -14,7 +17,7 @@
   Cache-Control: public, max-age=86400
 
 /src/*
-  Cache-Control: public, max-age=86400
+  Cache-Control: no-cache
 
 /*.png
   Cache-Control: public, max-age=86400

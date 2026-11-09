@@ -3,12 +3,14 @@ import { readdir } from 'node:fs/promises';
 import { isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { tmpdir } from 'node:os';
 
+export const SITE_URL = 'https://forgelock-solution.github.io/ForgeLock/';
+
 export const SEO_TARGETS = Object.freeze({
-  'github-pages': 'https://forgelock-solution.github.io/ForgeLock/',
+  'github-pages': SITE_URL,
   cloudflare: 'https://forgelock.forge-look19.workers.dev/'
 });
 
-export const DEFAULT_BASE_URL = SEO_TARGETS['github-pages'];
+export const DEFAULT_BASE_URL = SITE_URL;
 export const SITEMAP_NAMESPACE = 'http://www.sitemaps.org/schemas/sitemap/0.9';
 export const LEGACY_GITHUB_PAGES_BASE = SEO_TARGETS['github-pages'];
 
@@ -31,6 +33,7 @@ export function getDistDirectory(root, env = process.env) {
 
 export function getPageUrl(file, baseUrl, target) {
   if (file === 'index.html') return new URL('./', baseUrl).href;
+  if (file.endsWith('/index.html')) return new URL(file.slice(0, -'index.html'.length), baseUrl).href;
   const route = target === 'cloudflare' && file.endsWith('.html') ? file.slice(0, -5) : file;
   return new URL(route, baseUrl).href;
 }
@@ -38,7 +41,7 @@ export function getPageUrl(file, baseUrl, target) {
 export function getSeoTransition(env = process.env) {
   const transition = env.SEO_TRANSITION || '';
   if (transition) {
-    throw new Error('Migración canónica deshabilitada: GitHub Pages sigue siendo producción. SEO_TRANSITION requiere una nueva autorización y revisión del flujo.');
+    throw new Error('Migración canónica deshabilitada. SEO_TRANSITION requiere autorización y revisión explícitas del flujo antes de activar una transición entre alojamientos.');
   }
   return transition;
 }
@@ -63,19 +66,22 @@ export function getSeoConfig(env = process.env) {
   }
 
   const transition = getSeoTransition(env);
+  if (target === 'cloudflare' && env.INDEXABLE === 'true') {
+    throw new Error('Cloudflare se mantiene noindex con sitemap vacío; INDEXABLE=true no está permitido.');
+  }
   return {
     target,
     transition,
     baseUrl: new URL(expectedBaseUrl),
-    canonicalBaseUrl: new URL(expectedBaseUrl),
-    canonicalTarget: target,
-    indexable: env.INDEXABLE !== 'false'
+    canonicalBaseUrl: new URL(SEO_TARGETS['github-pages']),
+    canonicalTarget: 'github-pages',
+    indexable: target === 'cloudflare' ? false : env.INDEXABLE !== 'false'
   };
 }
 
-// Public pages live in the root. Concept previews under ejemplos/ are copied
-// as noindex assets, but are intentionally not discovered as sitemap routes.
-// Other nested HTML remains an error so accidental public routes are caught.
+// Las páginas públicas pueden vivir en carpetas con index.html para que
+// GitHub Pages entregue URLs limpias con barra final. Los directorios de
+// herramientas y dependencias no forman parte del inventario público.
 export async function discoverPublicHtmlFiles(root) {
   const files = await readdir(root, { withFileTypes: true });
   const nestedHtml = [];
@@ -88,10 +94,6 @@ export async function discoverPublicHtmlFiles(root) {
   }
   for (const entry of files) {
       if (entry.isDirectory() && !['.git', 'dist', 'dist-cloudflare', 'node_modules', 'scripts', 'src', 'test', 'tests'].includes(entry.name.toLowerCase())) await scan(join(root, entry.name), entry.name);
-  }
-  const unexpectedNestedHtml = nestedHtml.filter((file) => !file.startsWith('ejemplos/'));
-  if (unexpectedNestedHtml.length) {
-    throw new Error(`No se admiten páginas HTML anidadas fuera de ejemplos/: ${unexpectedNestedHtml.sort().join(', ')}`);
   }
   return [
     ...files.filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith('.html')).map((entry) => entry.name),

@@ -1,6 +1,7 @@
 node_modules/
 dist/
 /dist-cloudflare/
+.wrangler/
 .env
 .env.*
 !.env.example

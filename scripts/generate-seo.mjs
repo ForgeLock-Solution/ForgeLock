@@ -16,23 +16,33 @@ import {
   isValidLastmod,
   normalizeBaseUrl,
   setNoindex,
-  SITEMAP_NAMESPACE
+  SITEMAP_NAMESPACE,
+  SITE_URL,
+  SEO_TARGETS
 } from './seo-helpers.mjs';
 
 const scriptPath = fileURLToPath(import.meta.url);
 const projectRoot = join(dirname(scriptPath), '..');
-function rewriteProductionUrls(html, target, baseUrl) {
-  return html.replace(/https:\/\/(?:forgelock-solution\.github\.io\/ForgeLock\/|forgelock\.forge-look19\.workers\.dev\/)([^"'\s<>#]*)/g, (_match, rawPath) => {
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function rewriteProductionUrls(html, baseUrl) {
+  const canonicalPrefix = escapeRegExp(SITE_URL);
+  const workerPrefix = escapeRegExp(SEO_TARGETS.cloudflare);
+  const productionUrl = new RegExp(`(?:${canonicalPrefix}|${workerPrefix})([^"'\\s<>#]*)`, 'g');
+  return html.replace(productionUrl, (_match, rawPath) => {
     let route = rawPath;
     if (route === 'index.html') route = '';
-    if (target === 'cloudflare' && route.endsWith('.html')) route = route.slice(0, -5);
-    if (target === 'github-pages' && route && !/\.[a-z0-9]+$/i.test(route)) route = `${route}.html`;
+    else if (route.endsWith('/index.html')) route = route.slice(0, -'index.html'.length);
     return new URL(route, baseUrl).href;
   });
 }
 
 function lastModifiedFromGit(root, pagePath) {
   try {
+    execFileSync('git', ['diff', '--quiet', '--', pagePath], { cwd: root, stdio: 'ignore' });
+    execFileSync('git', ['diff', '--cached', '--quiet', '--', pagePath], { cwd: root, stdio: 'ignore' });
     const value = execFileSync('git', ['log', '-1', '--format=%cs', '--', pagePath], {
       cwd: root,
       encoding: 'utf8',
@@ -54,11 +64,14 @@ export async function generateSeo({
 } = {}) {
   const config = getSeoConfig(env);
   const target = config.target;
-  const indexable = requestedIndexable ?? config.indexable;
+  if (target === 'cloudflare' && requestedIndexable === true) {
+    throw new Error('Cloudflare se mantiene noindex con sitemap vacío; no se puede solicitar indexación.');
+  }
+  const indexable = target === 'cloudflare' ? false : (requestedIndexable ?? config.indexable);
   const baseUrl = normalizeBaseUrl(baseUrlValue || config.baseUrl.href || DEFAULT_BASE_URL);
   if (baseUrl.href !== config.baseUrl.href) throw new Error('baseUrl no coincide con el destino SEO configurado.');
   const { canonicalBaseUrl, canonicalTarget } = config;
-  if (!existsSync(dist)) throw new Error('No existe dist/. Ejecuta scripts/create-dist.mjs primero.');
+  if (!existsSync(dist)) throw new Error(`No existe la salida ${dist}. Ejecuta el build del destino SEO primero.`);
 
   const htmlFiles = (await discoverPublicHtmlFiles(dist))
     .sort((left, right) => left === right ? 0 : left === 'index.html' ? -1 : right === 'index.html' ? 1 : left.localeCompare(right));
@@ -75,11 +88,11 @@ export async function generateSeo({
       html = html.replace(/<head>/i, `<head>\n    <base href="${baseUrl.pathname}">`);
     }
     if (target === 'cloudflare') {
-      // Adapt local navigation; preserve canonical, social metadata and JSON-LD.
+      // Adapt local navigation while keeping SEO signals on official Pages.
       html = html.replace(/href="\.\/index\.html(?=[#"?])/g, 'href="./');
       html = html.replace(/href="\.\/([a-z0-9-]+)\.html(?=[#"?])/gi, 'href="./$1');
     }
-    html = rewriteProductionUrls(html, target, canonicalBaseUrl);
+    html = rewriteProductionUrls(html, canonicalBaseUrl);
     if (!indexable) html = setNoindex(html);
     await writeFile(path, html, 'utf8');
   }
@@ -89,6 +102,11 @@ export async function generateSeo({
     if (existsSync(appViewPath)) {
       const appView = await readFile(appViewPath, 'utf8');
       await writeFile(appViewPath, appView.replace(/href="\.\/([a-z0-9-]+)\.html(?=[#"?])/gi, 'href="./$1'));
+    }
+    const serviceCatalogPath = join(dist, 'src', 'models', 'service-catalog.js');
+    if (existsSync(serviceCatalogPath)) {
+      const serviceCatalog = await readFile(serviceCatalogPath, 'utf8');
+      await writeFile(serviceCatalogPath, serviceCatalog.replace(/\.\/servicios\.html(?=[#?])/gi, './servicios'));
     }
   }
 

@@ -2,7 +2,7 @@
 import { readFile, readdir, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join, resolve, relative, isAbsolute } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { JSDOM } from 'jsdom';
 import {
   comparePublicHtmlFiles,
@@ -29,12 +29,19 @@ try {
 }
 const { target, baseUrl, canonicalBaseUrl, canonicalTarget, indexable } = config;
 const errors = [];
-const expectedPages = ['index.html', 'servicios.html'];
+const serviceCatalogPath = join(root, 'src', 'models', 'service-catalog.js');
+const SERVICE_CATALOG = existsSync(serviceCatalogPath)
+  ? (await import(pathToFileURL(serviceCatalogPath).href)).SERVICE_CATALOG
+  : [];
+const serviceFichePaths = SERVICE_CATALOG.map((service) => service.fichePath).filter(Boolean);
+const legacyServicePaths = SERVICE_CATALOG.map((service) => service.legacyFichePath).filter(Boolean);
+const expectedPages = ['index.html', 'servicios/index.html', ...serviceFichePaths];
+const legacyPages = ['servicios.html', ...legacyServicePaths];
 const legalPages = ['aviso-legal.html', 'politica-privacidad.html', 'politica-cookies.html'];
 const sourceVerificationValues = getGoogleVerificationValues(await readFile(join(root, 'index.html'), 'utf8'));
 const verificationToken = sourceVerificationValues[0];
 const requiredFiles = [
-  ...expectedPages, 'robots.txt', 'sitemap.xml', 'site.webmanifest',
+  ...expectedPages, ...legacyPages, 'robots.txt', 'sitemap.xml', 'site.webmanifest',
   '_headers', '_redirects', 'favicon.ico', 'Apple-touch-icon.png', 'Icon-192.png'
 ];
 
@@ -89,17 +96,27 @@ try {
 } catch (error) {
   fail(error.message);
 }
-const pageInventory = comparePublicHtmlFiles(sourceHtmlFiles, distHtmlFiles);
+const pageInventory = comparePublicHtmlFiles([...sourceHtmlFiles, 'servicios/index.html', ...serviceFichePaths, ...legacyPages], distHtmlFiles);
 for (const file of pageInventory.missing) fail(`Página pública del origen ausente en dist/: ${file}`);
 for (const file of pageInventory.unexpected) fail(`Página HTML en dist/ sin página pública correspondiente en origen: ${file}`);
 for (const file of artifactFiles) {
   if (/(^|\/)\.env(?:\.|$)/i.test(file) || /(^|\/)supabase-config\.js$/i.test(file)) fail(`Archivo de configuración privada incluido en dist/: ${file}`);
+  if (/(^|\/)internal-data(\/|$)/i.test(file) || /(^|\/)pending-offers\.json$/i.test(file)) fail(`Datos internos incluidos en dist/: ${file}`);
 }
 for (const file of requiredFiles) {
   const path = join(dist, file);
   if (!existsSync(path)) { fail(`Falta dist/${file}`); continue; }
   const info = await stat(path);
   if (!info.isFile() || info.size === 0) fail(`dist/${file} está vacío o no es un archivo`);
+}
+
+if (target === 'cloudflare') {
+  try {
+    const headers = await readFile(join(dist, '_headers'), 'utf8');
+    if (!/^https:\/\/forgelock\.forge-look19\.workers\.dev\/\*\s*\r?\n\s*X-Robots-Tag:\s*noindex,\s*follow\s*$/im.test(headers)) {
+      fail('dist/_headers debe preparar X-Robots-Tag: noindex, follow para el hostname Workers.');
+    }
+  } catch (error) { fail(`No se pudo validar dist/_headers para Cloudflare: ${error.message}`); }
 }
 
 let manifest;
@@ -122,23 +139,28 @@ if (manifest) {
 let verificationCount = 0;
 for (const file of artifactFiles.filter((entry) => entry.endsWith('.html'))) {
   const html = await readFile(join(dist, file), 'utf8');
+  if (/Nota de revisión|Antes de publicar|deben verificarse/i.test(html)) fail(`Nota editorial sin retirar en dist/${file}.`);
   const canonical = [...html.matchAll(/<link\b(?=[^>]*\brel=["']canonical["'])[^>]*\bhref=["']([^"']+)["'][^>]*>/gi)];
   if (!indexable && !/<meta\s+name=["']robots["'][^>]*\bnoindex\b/i.test(html)) fail(`dist/${file} debe llevar noindex cuando INDEXABLE=false.`);
   if (expectedPages.includes(file)) {
     const expectedCanonical = getPageUrl(file, canonicalBaseUrl, canonicalTarget);
     if (canonical.length !== 1) fail(`dist/${file} debe tener exactamente un canonical; encontrados: ${canonical.length}.`);
     else if (canonical[0][1] !== expectedCanonical) fail(`Canonical incorrecto en dist/${file}: ${canonical[0][1]}; esperado ${expectedCanonical}.`);
+    const serviceFiche = SERVICE_CATALOG.find((service) => service.fichePath === file);
+    const shareImage = serviceFiche
+      ? new URL(serviceFiche.image.slice(2), canonicalBaseUrl).href
+      : `${canonicalBaseUrl.href}resource/forgelock-social-preview.png`;
     const expectedMeta = [
       ['property', 'og:url', expectedCanonical],
-      ['property', 'og:image', `${canonicalBaseUrl.href}resource/forgelock-social-preview.png`],
-      ['name', 'twitter:image', `${canonicalBaseUrl.href}resource/forgelock-social-preview.png`]
+      ['property', 'og:image', shareImage],
+      ['name', 'twitter:image', shareImage]
     ];
     for (const [attribute, value, expected] of expectedMeta) {
       const tags = metaValues(html, attribute, value);
       if (tags.length !== 1) fail(`dist/${file} debe tener exactamente un meta ${value}.`);
       else if (tags[0][0].match(/\bcontent=["']([^"']+)["']/i)?.[1] !== expected) fail(`El meta ${value} de dist/${file} no coincide con ${target}.`);
     }
-    if (!html.includes(`content="${expectedCanonical}"`) || !html.includes(`content="${canonicalBaseUrl.href}resource/forgelock-social-preview.png"`)) {
+    if (!html.includes(`content="${expectedCanonical}"`) || !html.includes(`content="${shareImage}"`)) {
       fail(`Metadatos Open Graph/Twitter no coinciden con el destino ${target} en dist/${file}.`);
     }
     for (const attribute of ['property', 'name']) {
@@ -148,6 +170,21 @@ for (const file of artifactFiles.filter((entry) => entry.endsWith('.html'))) {
       }
     }
     checkLocalAsset(`${canonicalBaseUrl.href}resource/Logo.png`, file);
+  }
+  if (legacyPages.includes(file)) {
+    const service = SERVICE_CATALOG.find((item) => item.legacyFichePath === file);
+    const destination = service ? `./servicios/${service.slug}/` : './servicios/';
+    const expectedCanonical = new URL(destination.replace(/^\.\//, ''), canonicalBaseUrl).href;
+    if (!isNoindex(html)) fail(`dist/${file} debe ser noindex por ser una página puente.`);
+    if (canonical.length !== 1 || canonical[0][1] !== expectedCanonical) {
+      fail(`Canonical de la página puente dist/${file} incorrecta; esperado ${expectedCanonical}.`);
+    }
+    const document = new JSDOM(html).window.document;
+    const refresh = document.querySelector('meta[http-equiv="refresh" i]')?.content;
+    const visibleLink = document.querySelector('main a[href]')?.getAttribute('href');
+    if (refresh !== `0; url=${destination}` || visibleLink !== destination) {
+      fail(`dist/${file} debe dirigir sin JavaScript a ${destination} mediante meta refresh y enlace visible.`);
+    }
   }
   if (legalPages.includes(file)) {
     if (!/<meta\s+name=["']robots["']\s+content=["'][^"']*noindex/i.test(html)) fail(`dist/${file} debe conservar la política noindex.`);
@@ -168,10 +205,8 @@ for (const file of artifactFiles.filter((entry) => entry.endsWith('.html'))) {
       if (!JSON.stringify(json).includes(canonicalBaseUrl.href)) fail(`JSON-LD de dist/${file} no incluye la URL canónica de ${target}.`);
     } catch (error) { fail(`JSON-LD inválido en dist/${file}: ${error.message}`); }
   }
-  const otherProductionBase = target === 'cloudflare'
-    ? 'https://forgelock-solution.github.io/ForgeLock/'
-    : 'https://forgelock.forge-look19.workers.dev/';
-  if (html.includes(otherProductionBase)) fail(`dist/${file} contiene señales SEO del destino distinto de ${target}.`);
+  const secondaryBase = 'https://forgelock.forge-look19.workers.dev/';
+  if (html.includes(secondaryBase)) fail(`dist/${file} contiene una señal SEO del entorno secundario Cloudflare.`);
 
   for (const match of html.matchAll(/\b(?:href|src)\s*=\s*["']([^"']+)["']/gi)) {
     const value = match[1].trim();
@@ -284,6 +319,9 @@ try {
   }
 
   if (indexable && sitemapUrls.size === 0) fail('sitemap.xml debe contener al menos una URL indexable.');
+  if (indexable && sitemapUrls.size !== expectedPages.length) {
+    fail(`sitemap.xml debe contener exactamente ${expectedPages.length} URLs finales; contiene ${sitemapUrls.size}.`);
+  }
   if (!indexable && sitemapUrls.size) fail('sitemap.xml no debe contener URLs cuando INDEXABLE=false.');
   if (!indexable) {
     for (const file of artifactFiles.filter((entry) => entry.endsWith('.html'))) {

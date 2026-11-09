@@ -16,15 +16,19 @@ const runtimeOptions = { skip: Number(process.versions.node.split('.')[0]) < 22
 
 test('la configuración temporal conserva previews y solo cambia la ruta de activos', () => {
   const config = `${confirmedConfig}\n[observability]\nenabled = true\n`;
-  assert.equal(createDeploymentConfig(config), config.replace('"./dist-cloudflare"', '"./assets"'));
-  assert.equal(createDeploymentConfig(config.replaceAll('\r\n', '\n').replaceAll('\n', '\r\n')),
-    config.replaceAll('\r\n', '\n').replaceAll('\n', '\r\n').replace('"./dist-cloudflare"', '"./assets"'));
+  const expected = (input, root = process.cwd()) => input
+    .replace('"./dist-cloudflare"', '"./assets"')
+    .replace(/^main\s*=.*$/m, `main = "${resolve(root, 'src/platform/cloudflare-worker.js').replaceAll('\\', '/')}"`);
+  assert.equal(createDeploymentConfig(config), expected(config));
+  const windowsLines = config.replaceAll('\r\n', '\n').replaceAll('\n', '\r\n');
+  assert.equal(createDeploymentConfig(windowsLines), expected(windowsLines));
 });
 
 test('rechaza cuentas, Worker y activos incorrectos o ambiguos antes de construir', () => {
   assert.throws(() => createDeploymentConfig(missingAccountConfig), /account_id.*confirmado/);
   assert.throws(() => createDeploymentConfig(confirmedConfig.replace(/^account_id\s*=.*$/m, 'account_id = "not-a-valid-id"')), /account_id.*confirmado/);
   assert.throws(() => createDeploymentConfig(confirmedConfig.replace('"forgelock"', '"otro-worker"')), /Worker forgelock/);
+  assert.throws(() => createDeploymentConfig(confirmedConfig.replace('src/platform/cloudflare-worker.js', 'src/platform/other.js')), /src\/platform\/cloudflare-worker\.js/);
   assert.throws(() => createDeploymentConfig(confirmedConfig.replace('"./dist-cloudflare"', '"./dist"')), /Destino rechazado/);
   assert.throws(() => createDeploymentConfig(`account_id = "${'b'.repeat(32)}"\n${confirmedConfig}`), /duplicado/);
   assert.throws(() => createDeploymentConfig(`${confirmedConfig}\n[assets]\ndirectory = "./dist-cloudflare"\n`), /Destino rechazado/);
@@ -34,6 +38,8 @@ async function withFixture(run) {
   const root = await mkdtemp(join(tmpdir(), 'forgelock-deploy-test-'));
   try {
     await writeFile(join(root, 'wrangler.toml'), confirmedConfig);
+    await mkdir(join(root, 'src', 'platform'), { recursive: true });
+    await writeFile(join(root, 'src', 'platform', 'cloudflare-worker.js'), 'export default {};');
     const cli = join(root, 'node_modules', 'wrangler', 'bin', 'wrangler.js');
     await mkdir(join(root, 'node_modules', 'wrangler', 'bin'), { recursive: true });
     await writeFile(cli, '// Test placeholder; no real Wrangler process is executed.');
@@ -80,7 +86,7 @@ test('la ruta autorizada entrega el mismo artefacto al CLI local y limpia tempor
         tempConfig = args[3];
         assert.equal(resolve(tempConfig, '..', 'assets'), output);
         assert.equal(readFileSync(join(output, 'validated-marker'), 'utf8'), 'original-artifact');
-        assert.equal(readFileSync(tempConfig, 'utf8'), createDeploymentConfig(confirmedConfig));
+        assert.equal(readFileSync(tempConfig, 'utf8'), createDeploymentConfig(confirmedConfig, root));
       }
       return { status: 0 };
     } });
