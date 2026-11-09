@@ -15,6 +15,7 @@
     "build:dist": "node scripts/build-dist.mjs",
     "build:cloudflare": "node scripts/build-vite.mjs cloudflare",
     "build:dist:cloudflare": "npm run build:cloudflare",
+    "audit:seo:public": "node scripts/check-public-seo.mjs",
     "test": "tsc --noEmit && node --test test/*.js"
   },
   "devDependencies": {

@@ -101,6 +101,19 @@ export async function discoverPublicHtmlFiles(root) {
   ].sort();
 }
 
+export async function discoverArtifactFiles(root) {
+  const files = [];
+  async function scan(directory, prefix = '') {
+    for (const entry of await readdir(directory, { withFileTypes: true })) {
+      const relativePath = prefix ? `${prefix}/${entry.name}` : entry.name;
+      if (entry.isDirectory()) await scan(join(directory, entry.name), relativePath);
+      else if (entry.isFile()) files.push(relativePath);
+    }
+  }
+  await scan(root);
+  return files.sort();
+}
+
 export function comparePublicHtmlFiles(sourceFiles, artifactFiles) {
   const source = new Set(sourceFiles);
   const artifact = new Set(artifactFiles);
@@ -167,6 +180,47 @@ export function validateSitemapUrlChildren(children) {
     return false;
   }
   return [...children].every((element) => element.namespaceURI === SITEMAP_NAMESPACE);
+}
+
+export function parseSitemapLocations(xml, baseUrl) {
+  if (!/^\uFEFF?<\?xml\b[^?]*\bencoding=["']UTF-8["'][^?]*\?>/i.test(xml)) {
+    throw new Error('sitemap.xml debe declarar codificación UTF-8.');
+  }
+  const document = parseXmlDocument(xml);
+  const urlset = document.documentElement;
+  if (urlset.localName !== 'urlset' || urlset.namespaceURI !== SITEMAP_NAMESPACE) {
+    throw new Error('sitemap.xml no usa el urlset oficial.');
+  }
+
+  const locations = [];
+  const seen = new Set();
+  for (const item of [...urlset.children]) {
+    const children = [...item.children];
+    if (item.localName !== 'url' || item.namespaceURI !== SITEMAP_NAMESPACE || !validateSitemapUrlChildren(children)) {
+      throw new Error('Cada elemento url debe contener loc y, opcionalmente, lastmod en orden y namespace oficiales.');
+    }
+
+    const location = children[0].textContent.trim();
+    let parsed;
+    try {
+      parsed = new URL(location);
+    } catch {
+      throw new Error(`URL absoluta inválida en sitemap: ${location}`);
+    }
+    if (parsed.href !== location || parsed.search || parsed.hash || parsed.username || parsed.password) {
+      throw new Error(`URL del sitemap no canónica: ${location}`);
+    }
+    if (baseUrl && (parsed.origin !== baseUrl.origin || !parsed.pathname.startsWith(baseUrl.pathname))) {
+      throw new Error(`URL del sitemap fuera de la base configurada: ${location}`);
+    }
+    if (seen.has(location)) throw new Error(`URL duplicada en sitemap: ${location}`);
+    seen.add(location);
+
+    const lastmod = children[1]?.textContent.trim();
+    if (children.length === 2 && !isValidLastmod(lastmod)) throw new Error(`lastmod inválido en sitemap: ${lastmod}`);
+    locations.push(location);
+  }
+  return { document, locations };
 }
 
 export function parseXmlDocument(xml) {

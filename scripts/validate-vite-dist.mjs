@@ -2,7 +2,15 @@ import { existsSync } from 'node:fs';
 import { readFile, readdir, stat } from 'node:fs/promises';
 import { isAbsolute, relative, resolve } from 'node:path';
 import { SERVICE_CATALOG } from '../src/data/services.ts';
-import { getCanonicalUrls, getSeoConfig, getPageUrl, isNoindex, parseXmlDocument, SITEMAP_NAMESPACE } from './seo-helpers.mjs';
+import {
+  discoverArtifactFiles,
+  getCanonicalUrls,
+  getSitemapRobotsBlockers,
+  getSeoConfig,
+  getPageUrl,
+  isNoindex,
+  parseSitemapLocations
+} from './seo-helpers.mjs';
 
 const root = resolve(import.meta.dirname, '..');
 const { target, baseUrl, canonicalBaseUrl, indexable } = getSeoConfig();
@@ -108,45 +116,42 @@ try {
   fail(`site.webmanifest o sus iconos no son válidos: ${error.message}`);
 }
 
-const robots = await readFile(resolve(output, 'robots.txt'), 'utf8');
+const robotsPath = resolve(output, 'robots.txt');
+if (!existsSync(robotsPath)) fail('Falta robots.txt.');
+const robots = existsSync(robotsPath) ? await readFile(robotsPath, 'utf8') : '';
 const sitemapPath = resolve(output, 'sitemap.xml');
 if (!existsSync(sitemapPath)) fail('Falta sitemap.xml.');
-const sitemapText = await readFile(sitemapPath, 'utf8');
+const sitemapText = existsSync(sitemapPath) ? await readFile(sitemapPath, 'utf8') : '';
 const sitemapDirectives = robots.split(/\r?\n/).map((line) => line.trim()).filter((line) => /^Sitemap:/i.test(line));
 if (indexable) {
   const expected = new URL('sitemap.xml', canonicalBaseUrl).href;
   if (sitemapDirectives.length !== 1 || sitemapDirectives[0] !== `Sitemap: ${expected}`) fail(`robots.txt debe apuntar una vez a ${expected}.`);
 } else if (sitemapDirectives.length) fail('robots.txt de Cloudflare no debe anunciar un sitemap indexable.');
 
-try {
-  const xml = parseXmlDocument(sitemapText);
-  const urlset = xml.documentElement;
-  if (urlset.localName !== 'urlset' || urlset.namespaceURI !== SITEMAP_NAMESPACE) fail('sitemap.xml no usa el urlset oficial.');
-  const sitemapUrls = new Set();
-  for (const item of [...urlset.children]) {
-    const loc = [...item.children].find((child) => child.localName === 'loc')?.textContent?.trim();
-    if (!loc) { fail('Cada URL del sitemap debe tener loc.'); continue; }
-    // Rechaza URLs fuera del proyecto, rutas relativas y entradas distintas de la canonical.
-    let parsed;
-    try { parsed = new URL(loc); }
-    catch { fail(`URL absoluta inválida en sitemap: ${loc}`); continue; }
-    if (parsed.href !== loc || parsed.origin !== canonicalBaseUrl.origin ||
-        !parsed.pathname.startsWith(canonicalBaseUrl.pathname) ||
-        parsed.search || parsed.hash || parsed.username || parsed.password) {
-      fail(`URL del sitemap fuera de la propiedad oficial de GitHub Pages: ${loc}`);
-      continue;
+for (const file of await discoverArtifactFiles(output)) {
+  const path = new URL(file, baseUrl).pathname;
+  const blockers = getSitemapRobotsBlockers(robots, path);
+  if (blockers.length) fail(`robots.txt bloquea un archivo publicado (${file}) para: ${blockers.join(', ')}.`);
+}
+
+if (existsSync(sitemapPath)) {
+  try {
+    const { locations } = parseSitemapLocations(sitemapText, canonicalBaseUrl);
+    const sitemapUrls = new Set();
+    for (const loc of locations) {
+      sitemapUrls.add(loc);
+      const blockers = getSitemapRobotsBlockers(robots, new URL(loc).pathname);
+      if (blockers.length) fail(`robots.txt bloquea ${loc} para: ${blockers.join(', ')}.`);
+      const file = canonicalByUrl.get(loc);
+      if (!file) { fail(`URL de sitemap sin página 200 indexable: ${loc}`); continue; }
+      const path = resolve(output, file);
+      if (!existsSync(path) || !(await stat(path)).isFile()) fail(`La ruta del sitemap no responde 200 en el artefacto: ${loc}`);
     }
-    if (sitemapUrls.has(loc)) fail(`URL duplicada en sitemap: ${loc}`);
-    sitemapUrls.add(loc);
-    const file = canonicalByUrl.get(loc);
-    if (!file) { fail(`URL de sitemap sin página 200 indexable: ${loc}`); continue; }
-    const path = resolve(output, file);
-    if (!existsSync(path) || !(await stat(path)).isFile()) fail(`La ruta del sitemap no responde 200 en el artefacto: ${loc}`);
+    if (indexable && sitemapUrls.size !== canonicalByUrl.size) fail('El sitemap no incluye exactamente las páginas indexables que existen en el build.');
+    if (!indexable && sitemapUrls.size) fail('El sitemap de Cloudflare debe estar vacío.');
+  } catch (error) {
+    fail(`sitemap.xml inválido: ${error.message}`);
   }
-  if (indexable && sitemapUrls.size !== canonicalByUrl.size) fail('El sitemap no incluye exactamente las páginas indexables que existen en el build.');
-  if (!indexable && sitemapUrls.size) fail('El sitemap de Cloudflare debe estar vacío.');
-} catch (error) {
-  fail(`sitemap.xml inválido: ${error.message}`);
 }
 
 if (target === 'cloudflare') {
