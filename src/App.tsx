@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { SolutionsCarousel } from './components/SolutionsCarousel';
@@ -11,7 +11,7 @@ import { ServiceFicheModal } from './components/ServiceFicheModal';
 import { LegalModal, LegalDocType } from './components/LegalModal';
 import { CookieConsent } from './components/CookieConsent';
 import type { Service } from './types.ts';
-import { SERVICE_BY_ID } from './data/services';
+import { SERVICE_BY_ID, SERVICE_CATALOG } from './data/services';
 
 export const App: React.FC = () => {
   const [selectedService, setSelectedService] = useState<Service | null>(null);
@@ -19,8 +19,39 @@ export const App: React.FC = () => {
   const [activeLegal, setActiveLegal] = useState<LegalDocType | null>(null);
   const [cookieSettingsOpen, setCookieSettingsOpen] = useState(false);
 
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const serviceSlug = url.searchParams.get('servicio');
+    const match = serviceSlug ? SERVICE_CATALOG.find((service) => service.slug === serviceSlug || service.id === serviceSlug) : null;
+
+    if (match) {
+      setSelectedService(match);
+      if (url.hash === '#detalle-servicio' || url.hash === '#servicios') {
+        requestAnimationFrame(() => {
+          const target = document.querySelector('#detalle-servicio') || document.querySelector('#servicios');
+          target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      }
+    }
+  }, []);
+
+  const syncServiceUrl = (service: Service | null) => {
+    const url = new URL(window.location.href);
+
+    if (service) {
+      url.searchParams.set('servicio', service.slug);
+      url.hash = 'detalle-servicio';
+    } else {
+      url.searchParams.delete('servicio');
+      url.hash = '';
+    }
+
+    window.history.replaceState({}, '', url);
+  };
+
   const handleExploreServices = () => {
     setSelectedService(SERVICE_BY_ID.landing || null);
+    syncServiceUrl(SERVICE_BY_ID.landing || null);
     const el = document.querySelector('#servicios');
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
@@ -47,8 +78,10 @@ export const App: React.FC = () => {
         onSelectService={(id) => {
           if (id && SERVICE_BY_ID[id]) {
             setSelectedService(SERVICE_BY_ID[id]);
+            syncServiceUrl(SERVICE_BY_ID[id]);
           } else {
             setSelectedService(null);
+            syncServiceUrl(null);
           }
         }}
       />
@@ -60,6 +93,7 @@ export const App: React.FC = () => {
         <SolutionsCarousel
           onSelectService={(service) => {
             setSelectedService(service);
+            syncServiceUrl(service);
             const el = document.querySelector('#servicios');
             el?.scrollIntoView({ behavior: 'smooth' });
           }}
@@ -69,7 +103,10 @@ export const App: React.FC = () => {
 
         <ServicesCatalog
           selectedService={selectedService}
-          onSelectService={(service) => setSelectedService(service)}
+          onSelectService={(service) => {
+            setSelectedService(service);
+            syncServiceUrl(service);
+          }}
           onOpenFiche={handleOpenFiche}
         />
 

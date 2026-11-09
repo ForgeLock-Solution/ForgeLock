@@ -73,17 +73,20 @@ export const ServicesCatalog: React.FC<ServicesCatalogProps> = ({
             </a>
 
             <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => handleSelect(service)}
-                className={`flex-1 min-h-11 items-center justify-center rounded-xl border px-3 py-2.5 text-center text-sm font-semibold transition-colors ${
+              <a
+                href={`?servicio=${encodeURIComponent(service.slug)}#detalle-servicio`}
+                onClick={(event) => {
+                  event.preventDefault();
+                  handleSelect(service);
+                }}
+                className={`inline-flex flex-1 min-h-11 items-center justify-center rounded-xl border px-4 py-3 text-center text-sm font-semibold underline decoration-brand-500 underline-offset-4 transition-colors ${
                   isSelected
                     ? 'border-brand-600 bg-brand-50 text-brand-800'
                     : 'border-slate-300 text-slate-800 hover:border-brand-600 hover:text-brand-700'
                 }`}
               >
                 Conocer {service.name}
-              </button>
+              </a>
 
               {service.fichePath ? (
                 <a

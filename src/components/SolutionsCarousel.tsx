@@ -107,13 +107,16 @@ export const SolutionsCarousel: React.FC<SolutionsCarouselProps> = ({ onSelectSe
                   <i className="fa-brands fa-whatsapp text-lg" aria-hidden="true" />
                   <span>Quiero esta solución</span>
                 </a>
-                <button
-                  type="button"
-                  onClick={() => onSelectService(active)}
+                <a
+                  href={`?servicio=${encodeURIComponent(active.slug)}#detalle-servicio`}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    onSelectService(active);
+                  }}
                   className="inline-flex items-center justify-center px-6 py-3.5 rounded-xl border border-slate-300 text-slate-900 font-semibold hover:border-slate-400 hover:bg-slate-50 transition-colors underline decoration-brand-500 underline-offset-4"
                 >
                   Conocer {active.name}
-                </button>
+                </a>
               </div>
             </div>
 

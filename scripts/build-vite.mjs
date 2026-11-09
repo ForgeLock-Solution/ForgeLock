@@ -28,4 +28,8 @@ if (target === 'cloudflare') {
 }
 
 run(['./scripts/generate-seo.mjs'], 'Generación SEO');
+
+await copyFile(resolve(output, 'robots.txt'), resolve(root, 'robots.txt'));
+await copyFile(resolve(output, 'sitemap.xml'), resolve(root, 'sitemap.xml'));
+
 run(['./scripts/validate-vite-dist.mjs'], 'Validación SEO');
