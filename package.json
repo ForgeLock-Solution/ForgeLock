@@ -15,7 +15,7 @@
     "build:dist": "node scripts/build-dist.mjs",
     "build:cloudflare": "node scripts/build-vite.mjs cloudflare",
     "build:dist:cloudflare": "npm run build:cloudflare",
-    "test": "tsc --noEmit && node --test"
+    "test": "tsc --noEmit && node --test test/*.js"
   },
   "devDependencies": {
     "@fontsource/inter": "^5.1.1",

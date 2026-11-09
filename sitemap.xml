@@ -1,15 +1,8 @@
-<<<<<<< HEAD
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://forgelock-solution.github.io/ForgeLock/</loc>
     <lastmod>2026-11-09</lastmod>
-=======
-<<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://forgelock-solution.github.io/ForgeLock/</loc>
->>>>>>> 5cf4cbba3f185e7679ceb4ef8cd54e6c16cd447f
   </url>
   <url>
     <loc>https://forgelock-solution.github.io/ForgeLock/servicios/automatizacion-procesos/</loc>
