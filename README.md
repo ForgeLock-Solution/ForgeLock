@@ -53,3 +53,5 @@ npm test                 # TypeScript y pruebas de catálogo, WhatsApp, SEO, con
 Ambos builds generan y validan los metadatos SEO, el sitemap y `robots.txt`. El build de Cloudflare incorpora `_headers` y conserva la política `noindex`. No se realizan despliegues con estos comandos.
 
 GitHub Pages publica diez URLs indexables: la portada, `/servicios/` y ocho fichas bajo `/servicios/<slug>/`. Las antiguas rutas `servicios.html` y `servicio-<slug>.html` se conservan como páginas puente `noindex,follow` con canonical, actualización inmediata y enlace visible hacia la ruta limpia. GitHub Pages no permite emitir redirecciones HTTP 301 desde archivos estáticos.
+
+`npm run build:dist` genera Pages de forma local y en GitHub Actions. Workers Builds inyecta `WORKERS_CI=1`; el mismo comando selecciona entonces la variante Cloudflare y crea `dist-cloudflare/`, que coincide con `wrangler.toml`.
