@@ -85,14 +85,26 @@ export const ServicesCatalog: React.FC<ServicesCatalogProps> = ({
                 Conocer {service.name}
               </button>
 
-              <button
-                type="button"
-                onClick={() => onOpenFiche(service)}
-                title="Ver ficha completa"
-                className="px-3 min-h-11 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 transition-colors flex items-center justify-center text-sm"
-              >
-                <i className="fa-solid fa-file-lines" aria-hidden="true" />
-              </button>
+              {service.fichePath ? (
+                <a
+                  href={`./${service.fichePath}`}
+                  title={`Ver ficha pública de ${service.name}`}
+                  aria-label={`Ver ficha pública de ${service.name}`}
+                  className="px-3 min-h-11 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 transition-colors flex items-center justify-center text-sm"
+                >
+                  <i className="fa-solid fa-file-lines" aria-hidden="true" />
+                </a>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => onOpenFiche(service)}
+                  title="Ver ficha completa"
+                  aria-label={`Ver ficha de ${service.name}`}
+                  className="px-3 min-h-11 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 transition-colors flex items-center justify-center text-sm"
+                >
+                  <i className="fa-solid fa-file-lines" aria-hidden="true" />
+                </button>
+              )}
             </div>
           </div>
         </div>

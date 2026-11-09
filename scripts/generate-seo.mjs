@@ -34,13 +34,15 @@ function rewriteProductionUrls(html, baseUrl) {
   return html.replace(productionUrl, (_match, rawPath) => {
     let route = rawPath;
     if (route === 'index.html') route = '';
-    if (route && !/\.[a-z0-9]+$/i.test(route)) route = `${route}.html`;
+    else if (route.endsWith('/index.html')) route = route.slice(0, -'index.html'.length);
     return new URL(route, baseUrl).href;
   });
 }
 
 function lastModifiedFromGit(root, pagePath) {
   try {
+    execFileSync('git', ['diff', '--quiet', '--', pagePath], { cwd: root, stdio: 'ignore' });
+    execFileSync('git', ['diff', '--cached', '--quiet', '--', pagePath], { cwd: root, stdio: 'ignore' });
     const value = execFileSync('git', ['log', '-1', '--format=%cs', '--', pagePath], {
       cwd: root,
       encoding: 'utf8',

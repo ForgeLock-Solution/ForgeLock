@@ -21,6 +21,8 @@ function run(args, label) {
 console.log(`Build Vite destino=${target}; BASE_URL=${baseUrl.href}; salida=${output}`);
 run(['./node_modules/vite/bin/vite.js', 'build', '--outDir', env.DIST_DIR, '--emptyOutDir'], 'Vite');
 
+run(['./scripts/render-clean-routes.mjs'], 'Generación de rutas limpias');
+
 if (target === 'cloudflare') {
   await copyFile(resolve(root, '_headers'), resolve(output, '_headers'));
 }

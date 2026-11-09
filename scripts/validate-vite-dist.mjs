@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs';
 import { readFile, readdir, stat } from 'node:fs/promises';
 import { isAbsolute, relative, resolve } from 'node:path';
+import { SERVICE_CATALOG } from '../src/data/services.ts';
 import { getCanonicalUrls, getSeoConfig, getPageUrl, isNoindex, parseXmlDocument, SITEMAP_NAMESPACE } from './seo-helpers.mjs';
 
 const root = resolve(import.meta.dirname, '..');
@@ -8,6 +9,12 @@ const { target, baseUrl, canonicalBaseUrl, indexable } = getSeoConfig();
 const output = resolve(root, process.env.DIST_DIR || (target === 'cloudflare' ? 'dist-cloudflare' : 'dist'));
 const errors = [];
 const fail = (message) => errors.push(message);
+const publicServices = SERVICE_CATALOG.filter((service) => service.fichePath && service.legacyFichePath);
+const finalFiles = ['index.html', 'servicios/index.html', ...publicServices.map((service) => `${service.fichePath}index.html`)];
+const legacyCanonicals = new Map([
+  ['servicios.html', `${canonicalBaseUrl.href}servicios/`],
+  ...publicServices.map((service) => [service.legacyFichePath, `${canonicalBaseUrl.href}${service.fichePath}`])
+]);
 
 async function htmlFilesIn(directory, prefix = '') {
   const files = [];
@@ -40,8 +47,11 @@ function localAssetExists(value, htmlFile) {
 
 if (!existsSync(output)) throw new Error(`No existe ${output}.`);
 const files = await htmlFilesIn(output);
-for (const file of ['index.html', 'servicios.html', 'aviso-legal.html', 'politica-privacidad.html', 'politica-cookies.html']) {
+for (const file of [...finalFiles, ...legacyCanonicals.keys(), 'aviso-legal.html', 'politica-privacidad.html', 'politica-cookies.html']) {
   if (!files.includes(file)) fail(`Falta ${file} en ${output}.`);
+}
+if (files.includes('servicios/desarrollo-web/index.html') || files.includes('servicio-desarrollo-web.html')) {
+  fail('Desarrollo Web no debe generar una undécima URL pública ni un puente heredado.');
 }
 
 const canonicalByUrl = new Map();
@@ -50,8 +60,9 @@ for (const file of files) {
   const title = [...html.matchAll(/<title>([^<]+)<\/title>/gi)];
   const description = metaContent(html, 'name', 'description');
   const ogUrl = metaContent(html, 'property', 'og:url');
-  const expectedCanonical = getPageUrl(file, canonicalBaseUrl, 'github-pages');
+  const expectedCanonical = legacyCanonicals.get(file) || getPageUrl(file, canonicalBaseUrl, 'github-pages');
   const canonicals = getCanonicalUrls(html);
+  const legacyBridge = legacyCanonicals.has(file);
   if (title.length !== 1 || !title[0][1].trim()) fail(`${file} debe tener un title propio.`);
   if (!description?.trim()) fail(`${file} debe tener una meta description.`);
   if (canonicals.length !== 1 || canonicals[0] !== expectedCanonical) fail(`Canonical incorrecta en ${file}; esperada ${expectedCanonical}.`);
@@ -62,6 +73,9 @@ for (const file of files) {
     if (image) localAssetExists(image, file);
   }
   if (!indexable && !isNoindex(html)) fail(`${file} debe ser noindex en Cloudflare.`);
+  if (legacyBridge && !isNoindex(html)) fail(`${file} debe ser un puente noindex,follow.`);
+  if (legacyBridge && !/<meta\b[^>]*http-equiv=["']refresh["'][^>]*>/i.test(html)) fail(`${file} debe incluir actualización inmediata hacia la ruta limpia.`);
+  if (legacyBridge && !/<main[\s>][\s\S]*<a\b[^>]*href=/i.test(html)) fail(`${file} debe incluir un enlace visible hacia la ruta limpia.`);
   for (const match of html.matchAll(/<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)) {
     try {
       const jsonLd = JSON.parse(match[1]);
@@ -76,6 +90,14 @@ for (const file of files) {
     localAssetExists(value, file);
   }
   if (indexable && !isNoindex(html)) canonicalByUrl.set(expectedCanonical, file);
+}
+
+if (indexable) {
+  const expectedIndexable = new Set(finalFiles.map((file) => getPageUrl(file, canonicalBaseUrl, 'github-pages')));
+  const actualIndexable = new Set(canonicalByUrl.keys());
+  if (actualIndexable.size !== expectedIndexable.size || [...expectedIndexable].some((url) => !actualIndexable.has(url))) {
+    fail(`El build debe exponer exactamente las diez URLs finales indexables; encontradas: ${[...actualIndexable].join(', ')}`);
+  }
 }
 
 try {

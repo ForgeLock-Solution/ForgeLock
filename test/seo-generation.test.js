@@ -194,13 +194,13 @@ test('detecta una página pública nueva del origen que falta en dist', async ()
   });
 });
 
-test('rechaza explícitamente HTML anidado y mantiene fuera HTML en carpetas de pruebas', async () => {
+test('admite HTML anidado para rutas limpias y mantiene fuera HTML en carpetas de pruebas', async () => {
   await withFixture(async ({ root }) => {
     await mkdir(join(root, 'test'), { recursive: true });
     await writeFile(join(root, 'test', 'fixture.html'), '<html></html>');
     await mkdir(join(root, 'pages'), { recursive: true });
     await writeFile(join(root, 'pages', 'anidada.html'), '<html></html>');
-    await assert.rejects(discoverPublicHtmlFiles(root), /páginas HTML anidadas/);
+    assert.deepEqual(await discoverPublicHtmlFiles(root), ['pages/anidada.html']);
   });
 });
 
@@ -245,16 +245,19 @@ test('validate-dist rechaza y acepta reglas robots según todos los agentes decl
     await symlink(join(repository, 'node_modules'), join(root, 'node_modules'), 'junction');
 
     const index = html(baseUrl.href, '<meta name="google-site-verification" content="peYxRjV0Snt4fmiTcjCgkCfvDrTBws3qGUMy8vJVwjQ">');
-    const services = html(new URL('servicios.html', baseUrl).href);
+    const services = html(new URL('servicios/', baseUrl).href);
+    const servicesBridge = '<!doctype html><html><head><meta name="robots" content="noindex,follow"><link rel="canonical" href="https://forgelock-solution.github.io/ForgeLock/servicios/"><meta http-equiv="refresh" content="0; url=./servicios/"></head><body><main><a href="./servicios/">Continuar</a></main></body></html>';
     await writeFile(join(root, 'index.html'), index);
     await writeFile(join(root, 'servicios.html'), services);
     await writeFile(join(dist, 'index.html'), index);
-    await writeFile(join(dist, 'servicios.html'), services);
+    await mkdir(join(dist, 'servicios'), { recursive: true });
+    await writeFile(join(dist, 'servicios', 'index.html'), services);
+    await writeFile(join(dist, 'servicios.html'), servicesBridge);
     for (const file of ['site.webmanifest', '_headers', '_redirects', 'favicon.ico', 'Apple-touch-icon.png', 'Icon-192.png']) {
       await cp(join(repository, file), join(dist, file));
     }
     await cp(join(repository, 'resource'), join(dist, 'resource'), { recursive: true });
-    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="${SITEMAP_NAMESPACE}"><url><loc>${baseUrl.href}</loc></url><url><loc>${new URL('servicios.html', baseUrl).href}</loc></url></urlset>`;
+    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="${SITEMAP_NAMESPACE}"><url><loc>${baseUrl.href}</loc></url><url><loc>${new URL('servicios/', baseUrl).href}</loc></url></urlset>`;
     await writeFile(join(dist, 'sitemap.xml'), sitemap);
     const robotsFile = join(dist, 'robots.txt');
     const validator = join(scripts, 'validate-dist.mjs');

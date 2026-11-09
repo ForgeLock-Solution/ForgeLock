@@ -12,6 +12,9 @@ test('El catálogo de servicios de ForgeLock tiene los 9 servicios oficiales', (
   assert.equal(landing.pricing[0].price, 249000);
   assert.equal(landing.pricing[1].name, 'Landing Profesional');
   assert.equal(landing.pricing[1].price, 449000);
+  assert.equal(SERVICE_CATALOG.filter((service) => service.fichePath).length, 8);
+  assert.ok(SERVICE_CATALOG.filter((service) => service.fichePath).every((service) => service.fichePath === `servicios/${service.slug}/`));
+  assert.equal(SERVICE_CATALOG.find((service) => service.id === 'desarrollo-web')?.fichePath, null);
 });
 
 test('Formato de precio en pesos colombianos COP', () => {
@@ -32,7 +35,7 @@ test('Análisis heurístico de idea genera propuesta estructurada', () => {
   assert.match(proposal.sector, /Barbería/i);
   assert.ok(proposal.pageStructure.length > 0);
   assert.ok(proposal.functionalities.length > 0);
-  
+
   const link = AIService.getWhatsAppLink(input, proposal, WHATSAPP_NUMBER);
   assert.match(link, /573043402589/);
   assert.match(decodeURIComponent(link), /Barber King/);

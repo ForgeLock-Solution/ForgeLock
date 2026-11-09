@@ -12,7 +12,7 @@
     "build": "npm run build:dist",
     "preview": "vite preview --host 0.0.0.0 --port 3000",
     "lint": "tsc --noEmit",
-    "build:dist": "node scripts/build-vite.mjs github-pages",
+    "build:dist": "node scripts/build-dist.mjs",
     "build:cloudflare": "node scripts/build-vite.mjs cloudflare",
     "build:dist:cloudflare": "npm run build:cloudflare",
     "test": "tsc --noEmit && node --test"

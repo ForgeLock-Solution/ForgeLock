@@ -104,7 +104,7 @@ export const HelpAndCta: React.FC<HelpAndCtaProps> = ({ onTellIdea }) => {
             {/* FAQ Accordion / List */}
             <div className="pt-6 border-t border-slate-200 space-y-4">
               <h3 className="text-xl font-bold text-slate-900">Preguntas frecuentes</h3>
-              
+
               <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
                 <p className="font-bold text-slate-900 text-sm">¿Qué solución necesita mi negocio?</p>
                 <p className="text-sm text-slate-600 mt-1">

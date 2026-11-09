@@ -22,7 +22,8 @@ export interface Service {
   group: 'featured' | 'digital';
   description: string;
   heroText: string;
-  fichePath: string;
+  fichePath: string | null;
+  legacyFichePath?: string;
   ficheTitle: string;
   ficheMetaDescription: string;
   ficheLongDescription?: string;

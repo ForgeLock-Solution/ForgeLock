@@ -33,6 +33,7 @@ export function getDistDirectory(root, env = process.env) {
 
 export function getPageUrl(file, baseUrl, target) {
   if (file === 'index.html') return new URL('./', baseUrl).href;
+  if (file.endsWith('/index.html')) return new URL(file.slice(0, -'index.html'.length), baseUrl).href;
   const route = target === 'cloudflare' && file.endsWith('.html') ? file.slice(0, -5) : file;
   return new URL(route, baseUrl).href;
 }
@@ -78,9 +79,9 @@ export function getSeoConfig(env = process.env) {
   };
 }
 
-// Public pages live in the root. Concept previews under ejemplos/ are copied
-// as noindex assets, but are intentionally not discovered as sitemap routes.
-// Other nested HTML remains an error so accidental public routes are caught.
+// Las páginas públicas pueden vivir en carpetas con index.html para que
+// GitHub Pages entregue URLs limpias con barra final. Los directorios de
+// herramientas y dependencias no forman parte del inventario público.
 export async function discoverPublicHtmlFiles(root) {
   const files = await readdir(root, { withFileTypes: true });
   const nestedHtml = [];
@@ -93,10 +94,6 @@ export async function discoverPublicHtmlFiles(root) {
   }
   for (const entry of files) {
       if (entry.isDirectory() && !['.git', 'dist', 'dist-cloudflare', 'node_modules', 'scripts', 'src', 'test', 'tests'].includes(entry.name.toLowerCase())) await scan(join(root, entry.name), entry.name);
-  }
-  const unexpectedNestedHtml = nestedHtml.filter((file) => !file.startsWith('ejemplos/'));
-  if (unexpectedNestedHtml.length) {
-    throw new Error(`No se admiten páginas HTML anidadas fuera de ejemplos/: ${unexpectedNestedHtml.sort().join(', ')}`);
   }
   return [
     ...files.filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith('.html')).map((entry) => entry.name),

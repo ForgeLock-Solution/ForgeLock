@@ -49,18 +49,18 @@ export const LegalModal: React.FC<LegalModalProps> = ({ page, onClose }) => {
                 Aviso legal
               </h1>
               <p className="text-xs text-slate-500 mb-6">Última actualización: 9 de octubre de 2026</p>
-              
+
               <p>Este sitio web presenta los servicios y soluciones digitales ofrecidos bajo la marca <strong>ForgeLock</strong>.</p>
-              
+
               <h2 className="text-lg font-bold text-slate-900 mt-6 mb-2">Identificación del titular</h2>
               <p>Titular persona natural: Diego Alexander Gaviria Jimenez. ForgeLock es la marca bajo la que ofrece servicios digitales en línea desde Colombia. El titular no declara un establecimiento físico de atención al público; las comunicaciones se reciben por medios electrónicos.</p>
-              
+
               <h2 className="text-lg font-bold text-slate-900 mt-6 mb-2">Uso del sitio</h2>
               <p>El contenido de este sitio tiene finalidad informativa y comercial. Las características, precios, tiempos y alcances de un proyecto se confirman antes de iniciar cada servicio.</p>
-              
+
               <h2 className="text-lg font-bold text-slate-900 mt-6 mb-2">Propiedad intelectual</h2>
               <p>Los textos, elementos gráficos, código, identidad visual y demás contenidos propios de ForgeLock están protegidos por la normativa aplicable. No se autoriza su reproducción o reutilización comercial sin permiso.</p>
-              
+
               <h2 className="text-lg font-bold text-slate-900 mt-6 mb-2">Contacto</h2>
               <p>
                 Para solicitudes relacionadas con este aviso legal, puedes contactar al titular por{' '}
@@ -76,9 +76,9 @@ export const LegalModal: React.FC<LegalModalProps> = ({ page, onClose }) => {
                 Política de privacidad
               </h1>
               <p className="text-xs text-slate-500 mb-6">Última actualización: 9 de octubre de 2026</p>
-              
+
               <p>El responsable del tratamiento es Diego Alexander Gaviria Jimenez, persona natural que opera bajo la marca ForgeLock en Colombia. ForgeLock presta servicios digitales en línea y no declara un establecimiento físico de atención al público. Esta política cubre los datos personales de clientes y de personas que contactan para solicitar o gestionar servicios.</p>
-              
+
               <h2 className="text-lg font-bold text-slate-900 mt-6 mb-2">Datos que pueden tratarse</h2>
               <ul className="list-disc pl-5 space-y-1">
                 <li>Datos de identificación y contacto que el cliente facilita, como nombre, correo, teléfono y datos necesarios para gestionar el proyecto.</li>

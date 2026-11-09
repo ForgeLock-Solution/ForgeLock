@@ -33,13 +33,15 @@ const serviceCatalogPath = join(root, 'src', 'models', 'service-catalog.js');
 const SERVICE_CATALOG = existsSync(serviceCatalogPath)
   ? (await import(pathToFileURL(serviceCatalogPath).href)).SERVICE_CATALOG
   : [];
-const serviceFichePaths = SERVICE_CATALOG.map((service) => service.fichePath);
-const expectedPages = ['index.html', 'servicios.html', ...serviceFichePaths];
+const serviceFichePaths = SERVICE_CATALOG.map((service) => service.fichePath).filter(Boolean);
+const legacyServicePaths = SERVICE_CATALOG.map((service) => service.legacyFichePath).filter(Boolean);
+const expectedPages = ['index.html', 'servicios/index.html', ...serviceFichePaths];
+const legacyPages = ['servicios.html', ...legacyServicePaths];
 const legalPages = ['aviso-legal.html', 'politica-privacidad.html', 'politica-cookies.html'];
 const sourceVerificationValues = getGoogleVerificationValues(await readFile(join(root, 'index.html'), 'utf8'));
 const verificationToken = sourceVerificationValues[0];
 const requiredFiles = [
-  ...expectedPages, 'robots.txt', 'sitemap.xml', 'site.webmanifest',
+  ...expectedPages, ...legacyPages, 'robots.txt', 'sitemap.xml', 'site.webmanifest',
   '_headers', '_redirects', 'favicon.ico', 'Apple-touch-icon.png', 'Icon-192.png'
 ];
 
@@ -94,7 +96,7 @@ try {
 } catch (error) {
   fail(error.message);
 }
-const pageInventory = comparePublicHtmlFiles([...sourceHtmlFiles, ...serviceFichePaths], distHtmlFiles);
+const pageInventory = comparePublicHtmlFiles([...sourceHtmlFiles, 'servicios/index.html', ...serviceFichePaths, ...legacyPages], distHtmlFiles);
 for (const file of pageInventory.missing) fail(`Página pública del origen ausente en dist/: ${file}`);
 for (const file of pageInventory.unexpected) fail(`Página HTML en dist/ sin página pública correspondiente en origen: ${file}`);
 for (const file of artifactFiles) {
@@ -168,6 +170,21 @@ for (const file of artifactFiles.filter((entry) => entry.endsWith('.html'))) {
       }
     }
     checkLocalAsset(`${canonicalBaseUrl.href}resource/Logo.png`, file);
+  }
+  if (legacyPages.includes(file)) {
+    const service = SERVICE_CATALOG.find((item) => item.legacyFichePath === file);
+    const destination = service ? `./servicios/${service.slug}/` : './servicios/';
+    const expectedCanonical = new URL(destination.replace(/^\.\//, ''), canonicalBaseUrl).href;
+    if (!isNoindex(html)) fail(`dist/${file} debe ser noindex por ser una página puente.`);
+    if (canonical.length !== 1 || canonical[0][1] !== expectedCanonical) {
+      fail(`Canonical de la página puente dist/${file} incorrecta; esperado ${expectedCanonical}.`);
+    }
+    const document = new JSDOM(html).window.document;
+    const refresh = document.querySelector('meta[http-equiv="refresh" i]')?.content;
+    const visibleLink = document.querySelector('main a[href]')?.getAttribute('href');
+    if (refresh !== `0; url=${destination}` || visibleLink !== destination) {
+      fail(`dist/${file} debe dirigir sin JavaScript a ${destination} mediante meta refresh y enlace visible.`);
+    }
   }
   if (legalPages.includes(file)) {
     if (!/<meta\s+name=["']robots["']\s+content=["'][^"']*noindex/i.test(html)) fail(`dist/${file} debe conservar la política noindex.`);
@@ -302,6 +319,9 @@ try {
   }
 
   if (indexable && sitemapUrls.size === 0) fail('sitemap.xml debe contener al menos una URL indexable.');
+  if (indexable && sitemapUrls.size !== expectedPages.length) {
+    fail(`sitemap.xml debe contener exactamente ${expectedPages.length} URLs finales; contiene ${sitemapUrls.size}.`);
+  }
   if (!indexable && sitemapUrls.size) fail('sitemap.xml no debe contener URLs cuando INDEXABLE=false.');
   if (!indexable) {
     for (const file of artifactFiles.filter((entry) => entry.endsWith('.html'))) {

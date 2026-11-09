@@ -56,7 +56,7 @@ export const App: React.FC = () => {
       {/* Main Content Sections */}
       <main className="flex-grow">
         <Hero onExploreServices={handleExploreServices} />
-        
+
         <SolutionsCarousel
           onSelectService={(service) => {
             setSelectedService(service);

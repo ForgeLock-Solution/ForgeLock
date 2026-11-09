@@ -1,15 +1,19 @@
+const legacyServicePages = Object.freeze({
+  'automatizacion-whatsapp': '/servicios/automatizacion-whatsapp/'
+});
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    if (
-      (url.pathname === '/servicios' || url.pathname === '/servicios.html') &&
-      url.searchParams.get('servicio') === 'automatizacion-whatsapp'
-    ) {
+    const selectedService = url.searchParams.get('servicio');
+    const destinationPath = legacyServicePages[selectedService];
+    if ((url.pathname === '/servicios' || url.pathname === '/servicios.html') &&
+        destinationPath && ['GET', 'HEAD'].includes(request.method)) {
       return new Response(null, {
         status: 302,
         headers: {
-          'location': `${url.origin}/servicio-automatizacion-whatsapp`,
-          'x-robots-tag': 'noindex'
+          'location': new URL(destinationPath, url.origin).href,
+          'x-robots-tag': 'noindex, follow'
         }
       });
     }

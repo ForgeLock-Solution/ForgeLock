@@ -8,7 +8,7 @@ test('Cloudflare redirige por HTTP la ficha piloto desde la URL histórica con q
         const response = await worker.fetch(request, { ASSETS: { fetch: () => new Response('asset') } });
         assert.equal(response.status, 302);
         assert.match(response.headers.get('x-robots-tag') ?? '', /noindex/i);
-        assert.equal(response.headers.get('location'), 'https://forgelock.forge-look19.workers.dev/servicio-automatizacion-whatsapp');
+        assert.equal(response.headers.get('location'), 'https://forgelock.forge-look19.workers.dev/servicios/automatizacion-whatsapp/');
     }
 });
 
