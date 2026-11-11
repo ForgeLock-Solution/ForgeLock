@@ -9,6 +9,7 @@ import {
   getSeoConfig,
   getPageUrl,
   isNoindex,
+  parseHtml,
   parseSitemapLocations
 } from './seo-helpers.mjs';
 
@@ -84,6 +85,10 @@ for (const file of files) {
   if (legacyBridge && !isNoindex(html)) fail(`${file} debe ser un puente noindex,follow.`);
   if (legacyBridge && !/<meta\b[^>]*http-equiv=["']refresh["'][^>]*>/i.test(html)) fail(`${file} debe incluir actualización inmediata hacia la ruta limpia.`);
   if (legacyBridge && !/<main[\s>][\s\S]*<a\b[^>]*href=/i.test(html)) fail(`${file} debe incluir un enlace visible hacia la ruta limpia.`);
+  if (indexable && !isNoindex(html)) {
+    const h1Count = parseHtml(html).querySelectorAll('main h1').length;
+    if (h1Count !== 1) fail(`${file} debe incluir exactamente un H1 dentro de main en el HTML inicial.`);
+  }
   for (const match of html.matchAll(/<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)) {
     try {
       const jsonLd = JSON.parse(match[1]);
