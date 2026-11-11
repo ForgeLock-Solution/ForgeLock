@@ -4,6 +4,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { getSeoConfig } from './seo-helpers.mjs';
+import { copyGeneratedSeoToRoot } from './copy-generated-seo.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const target = process.argv[2] || process.env.SEO_TARGET || 'github-pages';
@@ -29,7 +30,6 @@ if (target === 'cloudflare') {
 
 run(['./scripts/generate-seo.mjs'], 'Generación SEO');
 
-await copyFile(resolve(output, 'robots.txt'), resolve(root, 'robots.txt'));
-await copyFile(resolve(output, 'sitemap.xml'), resolve(root, 'sitemap.xml'));
+await copyGeneratedSeoToRoot({ target, output, root });
 
 run(['./scripts/validate-vite-dist.mjs'], 'Validación SEO');
