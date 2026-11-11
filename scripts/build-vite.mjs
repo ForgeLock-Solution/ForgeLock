@@ -4,6 +4,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { getSeoConfig } from './seo-helpers.mjs';
+import { copyGeneratedSeoToRoot } from './copy-generated-seo.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const target = process.argv[2] || process.env.SEO_TARGET || 'github-pages';
@@ -21,6 +22,7 @@ function run(args, label) {
 console.log(`Build Vite destino=${target}; BASE_URL=${baseUrl.href}; salida=${output}`);
 run(['./node_modules/vite/bin/vite.js', 'build', '--outDir', env.DIST_DIR, '--emptyOutDir'], 'Vite');
 
+run(['./scripts/prerender-home.mjs'], 'Prerender de portada');
 run(['./scripts/render-clean-routes.mjs'], 'Generación de rutas limpias');
 
 if (target === 'cloudflare') {
@@ -29,7 +31,6 @@ if (target === 'cloudflare') {
 
 run(['./scripts/generate-seo.mjs'], 'Generación SEO');
 
-await copyFile(resolve(output, 'robots.txt'), resolve(root, 'robots.txt'));
-await copyFile(resolve(output, 'sitemap.xml'), resolve(root, 'sitemap.xml'));
-
 run(['./scripts/validate-vite-dist.mjs'], 'Validación SEO');
+
+await copyGeneratedSeoToRoot({ target, output, root });

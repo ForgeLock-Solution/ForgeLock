@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom/client';
+import { createRoot, hydrateRoot } from 'react-dom/client';
 import App from './App';
 import { installAnalyticsConsent } from './services/analyticsConsent';
 import './styles/tailwind.input.css';
@@ -11,9 +11,11 @@ installAnalyticsConsent();
 
 const rootElement = document.getElementById('root');
 if (rootElement) {
-  ReactDOM.createRoot(rootElement).render(
+  const app = (
     <React.StrictMode>
       <App />
     </React.StrictMode>
   );
+  if (rootElement.hasChildNodes()) hydrateRoot(rootElement, app);
+  else createRoot(rootElement).render(app);
 }
