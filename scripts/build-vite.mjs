@@ -31,6 +31,6 @@ if (target === 'cloudflare') {
 
 run(['./scripts/generate-seo.mjs'], 'Generación SEO');
 
-await copyGeneratedSeoToRoot({ target, output, root });
-
 run(['./scripts/validate-vite-dist.mjs'], 'Validación SEO');
+
+await copyGeneratedSeoToRoot({ target, output, root });
