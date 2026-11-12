@@ -4,6 +4,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { SERVICE_CATALOG } from '../src/data/services.ts';
 import {
   DEFAULT_BASE_URL,
   discoverPublicHtmlFiles,
@@ -23,8 +24,23 @@ import {
 
 const scriptPath = fileURLToPath(import.meta.url);
 const projectRoot = join(dirname(scriptPath), '..');
+const CLOUDFLARE_CLEAN_ROUTES = new Map([
+  ['index.html', ''],
+  ['servicios.html', 'servicios/'],
+  ...SERVICE_CATALOG
+    .filter((service) => service.fichePath && service.legacyFichePath)
+    .map((service) => [service.legacyFichePath, service.fichePath])
+]);
+
 function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function rewriteCloudflareLocalLinks(html) {
+  return html.replace(/href="\.\/([^"#?]+\.html)(?=[#"?])/gi, (match, file) => {
+    const route = CLOUDFLARE_CLEAN_ROUTES.get(file.toLowerCase());
+    return route === undefined ? match : `href="./${route}`;
+  });
 }
 
 function rewriteProductionUrls(html, baseUrl) {
@@ -88,9 +104,8 @@ export async function generateSeo({
       html = html.replace(/<head>/i, `<head>\n    <base href="${baseUrl.pathname}">`);
     }
     if (target === 'cloudflare') {
-      // Adapt local navigation while keeping SEO signals on official Pages.
-      html = html.replace(/href="\.\/index\.html(?=[#"?])/g, 'href="./');
-      html = html.replace(/href="\.\/([a-z0-9-]+)\.html(?=[#"?])/gi, 'href="./$1');
+      // Adapt only routes that have clean Cloudflare counterparts.
+      html = rewriteCloudflareLocalLinks(html);
     }
     html = rewriteProductionUrls(html, canonicalBaseUrl);
     if (!indexable) html = setNoindex(html);
@@ -101,7 +116,7 @@ export async function generateSeo({
     const appViewPath = join(dist, 'src', 'views', 'app-view.js');
     if (existsSync(appViewPath)) {
       const appView = await readFile(appViewPath, 'utf8');
-      await writeFile(appViewPath, appView.replace(/href="\.\/([a-z0-9-]+)\.html(?=[#"?])/gi, 'href="./$1'));
+      await writeFile(appViewPath, rewriteCloudflareLocalLinks(appView));
     }
     const serviceCatalogPath = join(dist, 'src', 'models', 'service-catalog.js');
     if (existsSync(serviceCatalogPath)) {

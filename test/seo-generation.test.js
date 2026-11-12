@@ -80,6 +80,17 @@ test('el Worker se mantiene noindex y rechaza una base no configurada', async ()
   });
 });
 
+test('Cloudflare limpia solo enlaces con ruta equivalente y conserva páginas legales .html', async () => {
+  await withFixture(async ({ root, dist, addPage }) => {
+    await addPage('index.html');
+    await writeFile(join(dist, 'index.html'), '<!doctype html><html><head></head><body><a href="./servicios.html">Servicios</a><a href="./politica-privacidad.html">Privacidad</a></body></html>');
+    await generateSeo({ root, dist, env: { SEO_TARGET: 'cloudflare' } });
+    const html = await readFile(join(dist, 'index.html'), 'utf8');
+    assert.match(html, /href="\.\/servicios\/"/);
+    assert.match(html, /href="\.\/politica-privacidad\.html"/);
+  });
+});
+
 test('genera sitemap desde las páginas HTML canónicas e indexables de dist', async () => {
   await withFixture(async ({ root, dist, baseUrl, addPage }) => {
     const sourceIndex = await addPage('index.html', { verification: true });
