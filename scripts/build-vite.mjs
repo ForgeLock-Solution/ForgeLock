@@ -33,4 +33,9 @@ run(['./scripts/generate-seo.mjs'], 'Generación SEO');
 
 run(['./scripts/validate-vite-dist.mjs'], 'Validación SEO');
 
+// Publish the diagnostic sitemap alongside the canonical sitemap on GitHub Pages only.
+if (target === 'github-pages') {
+  await copyFile(resolve(root, 'sitemap-prueba.xml'), resolve(output, 'sitemap-prueba.xml'));
+}
+
 await copyGeneratedSeoToRoot({ target, output, root });
