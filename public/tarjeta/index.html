@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0B1320">
+<meta name="description" content="Conecta con ForgeLock. Cotiza tu página web, conoce nuestros diseños y visita nuestras redes sociales.">
+<title>Tarjeta digital | ForgeLock</title>
+<link rel="canonical" href="https://forgelock-solution.github.io/ForgeLock/tarjeta/">
+<link rel="icon" href="../resource/favicon.svg" type="image/svg+xml">
+<meta property="og:title" content="ForgeLock | Tarjeta digital">
+<meta property="og:description" content="Diseño web, branding y soluciones digitales para negocios. Conoce nuestro trabajo y cotiza.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://forgelock-solution.github.io/ForgeLock/tarjeta/">
+<style>
+:root{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#f8fafc;background:#0b1320;font-synthesis:none}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -15%,#1e293b 0%,#0b1320 58%);display:flex;justify-content:center;padding:38px 18px 55px}
+main{width:min(100%,440px);text-align:center}
+.brand{margin:0 auto 12px;display:block;max-width:215px;width:65%;height:95px;object-fit:contain}
+h1{font-size:1.55rem;margin:8px 0 6px;font-weight:750;letter-spacing:-.03em}
+.tagline{font-size:.82rem;letter-spacing:.12em;text-transform:uppercase;color:#cbd5e1;margin:0 0 16px}
+.intro{line-height:1.65;color:#cbd5e1;margin:0 auto 26px;font-size:.96rem;max-width:360px}
+.links{display:grid;gap:11px}
+.link{display:flex;align-items:center;gap:14px;min-height:65px;text-decoration:none;text-align:left;color:#f8fafc;background:#1e293b;border:1px solid #334155;border-radius:15px;padding:13px 17px;transition:transform .15s,border-color .15s,background .15s}
+.link:hover{transform:translateY(-2px);border-color:#94a3b8;background:#27364a}
+.link:focus-visible,.share:focus-visible{outline:3px solid #22c55e;outline-offset:3px}
+.link.primary{background:#22c55e;color:#0b1320;border-color:#22c55e;font-weight:750}
+.link.primary:hover{background:#4ade80}
+.symbol{width:27px;display:grid;place-items:center;flex-shrink:0;font-size:1.15rem;font-weight:800}
+.label{display:flex;flex-direction:column;gap:3px;font-size:1rem;font-weight:650}
+.label small{font-size:.76rem;font-weight:400;color:#cbd5e1}
+.primary .label small{color:#163822}
+.arrow{margin-left:auto;opacity:.7}
+.bottom{margin-top:24px;display:flex;justify-content:center}
+.share{background:transparent;border:1px solid #64748b;color:#f8fafc;border-radius:30px;padding:11px 20px;cursor:pointer;font:inherit}
+footer{margin-top:30px;color:#94a3b8;font-size:.78rem}
+@media(prefers-reduced-motion:reduce){.link{transition:none}}
+</style>
+</head>
+<body>
+<main>
+<header>
+<img class="brand" src="../resource/Logo.png" alt="Logo oficial de ForgeLock" width="215" height="95">
+<h1>Conecta con ForgeLock</h1>
+<p class="tagline">Seguridad que construye</p>
+<p class="intro">Transformamos ideas y negocios en experiencias digitales que destacan. Explora nuestros canales y conversemos sobre tu proyecto.</p>
+</header>
+<nav class="links" aria-label="Enlaces oficiales de ForgeLock">
+<a class="link primary" href="https://wa.me/573123007530?text=Hola%20ForgeLock%2C%20quiero%20cotizar%20una%20soluci%C3%B3n%20digital%20para%20mi%20negocio." target="_blank" rel="noopener noreferrer"><span class="symbol" aria-hidden="true">✆</span><span class="label">WhatsApp<small>Solicita una cotización</small></span><span class="arrow" aria-hidden="true">↗</span></a>
+<a class="link" href="https://forgelock-solution.github.io/ForgeLock-Design-Gallery-Public/" target="_blank" rel="noopener noreferrer"><span class="symbol" aria-hidden="true">▦</span><span class="label">Catálogo de diseños<small>Explora nuestras propuestas digitales</small></span><span class="arrow" aria-hidden="true">↗</span></a>
+<a class="link" href="https://forgelock-solution.github.io/ForgeLock/" target="_blank" rel="noopener noreferrer"><span class="symbol" aria-hidden="true">⌂</span><span class="label">Página web<small>Conoce los servicios de ForgeLock</small></span><span class="arrow" aria-hidden="true">↗</span></a>
+<a class="link" href="https://www.instagram.com/forgelock/" target="_blank" rel="noopener noreferrer"><span class="symbol" aria-hidden="true">◎</span><span class="label">Instagram<small>@forgelock</small></span><span class="arrow" aria-hidden="true">↗</span></a>
+<a class="link" href="https://www.facebook.com/profile.php?id=61594009876448" target="_blank" rel="noopener noreferrer"><span class="symbol" aria-hidden="true">f</span><span class="label">Facebook<small>ForgeLock</small></span><span class="arrow" aria-hidden="true">↗</span></a>
+<a class="link" href="https://www.tiktok.com/@forge.lock" target="_blank" rel="noopener noreferrer"><span class="symbol" aria-hidden="true">♪</span><span class="label">TikTok<small>@forge.lock</small></span><span class="arrow" aria-hidden="true">↗</span></a>
+</nav>
+<div class="bottom"><button class="share" id="share" type="button">Compartir tarjeta</button></div>
+<footer>© ForgeLock · Soluciones digitales para negocios</footer>
+</main>
+<script>
+document.getElementById('share').addEventListener('click',async()=>{
+const url=location.href;try{if(navigator.share){await navigator.share({title:'ForgeLock | Tarjeta digital',url});return;}if(navigator.clipboard){await navigator.clipboard.writeText(url);document.getElementById('share').textContent='Enlace copiado';return;}window.prompt('Copia el enlace:',url);}catch(e){if(e.name!=='AbortError')window.prompt('Copia el enlace:',url);}
+});
+</script>
+</body></html>
